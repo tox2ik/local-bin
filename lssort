@@ -1,0 +1,124 @@
+#! /bin/bash
+# what?
+# lists files after folders like windoze explorer
+# 
+# bugs:
+# l *i
+#source $HOME/.scripts/string_manipulation.mergeme
+function trim {
+    local var="$@"
+	#$ var="  hello space    "
+	#$ echo "<<${var%%[![:space:]]*}>>"
+	#$ <<  >>
+    var="${var#"${var%%[![:space:]]*}"}" # rm leading whitespace characters
+    var="${var%"${var##*[![:space:]]}"}" # rm trailing whitespace characters
+    echo -n "$var"
+}
+
+function arrayContains {
+	# remove the shortest needle from array and compare lengths
+	# needs more testing...
+	declare -a array
+	declare -a arrayLess
+	declare needle
+	array=( "${!1}" ); shift 		# expand the passed array name
+	needle="$@"						# try to match the rest as a string
+	arrayLess=( `trim "${array[@]#${needle}}"` )	# remove value $needle
+	if [ ${#array[@]} -eq 0 ];then 					return 1 ;fi
+	if [ ${#array[@]} -eq ${#arrayLess[@]} ];then	return 1 ;fi
+	if [ ${#array[@]} -lt ${#arrayLess[@]} ];then	return 1 ;fi
+	return 0
+}
+
+# d dir f file p named pipe (FIFO) l sylink s socket D door (Solaris) 
+# c character (unbuffered) special b block (buffered) special
+
+function finddirs {
+	find "$@" \
+		-maxdepth 1 -depth -type d \
+		-regextype gnu-awk -regex "$REGEX" \
+		-printf '%f\0'
+}
+function findfiles {
+	find "$@" \
+		-maxdepth 1 -depth -type f \
+		-regextype gnu-awk -regex "$REGEX" \
+		-printf "%f\0"
+}
+function findspecials {
+	find "$@" \
+		-maxdepth 1 -depth \( -type l   -o -type p   -o -type s \) \
+		-regextype gnu-awk -regex "$REGEX" \
+		-printf "%f\0"
+}
+##
+## vars and such
+##
+validswitches=(-X -l -r -t -C -F -1 -a -A -d -s)
+PATHS=()
+FPATHS=""
+LSSWITCHES=""
+ORIGIN_DIR="`pwd`"
+LSHIDDEN="^\./.+"		# gnu-awk regex for find, single dot does not match
+LSNORMAL="^\./[^\.]+.+" # exclude files starting with .
+LS=ls\ --color=auto
+
+ARG=$1
+ARGC=0
+while [ "$ARG" != "" ];
+do
+	if [ `arrayContains validswitches[@] $ARG ;echo $?` -eq 0 ];then
+		LSSWITCHES="${LSSWITCHES} $ARG"
+		unset ARG
+	fi
+	
+	if [ -d "$ARG" ];then
+		#PATHS="${PATHS} $ARG"
+		PATHS[${ARGC}]=$ARG
+		let ARGC=ARGC+1
+	else
+		FPATHS="${FPATHS} $ARG"
+	fi
+	shift
+	ARG=$1
+done
+
+
+# FIX only -A excludes . and .. 
+if [[ "$LSSWITCHES" =~ '-a' || "$LSSWITCHES" =~ '-A' ]]; then
+	REGEX=$LSHIDDEN
+else
+	REGEX=$LSNORMAL
+fi
+
+
+#PATHS=`trim $PATHS`
+FPATHS=`trim $FPATHS`
+
+if [ ${#FPATHS} -eq 0 ]; then 
+	if [ ${#PATHS[@]} -eq 0 ]; then
+		PATHS=(".")
+	fi
+fi
+for arg in "${PATHS[@]}";
+do
+	if [[ ${#arg} -eq 1 && "$arg" == "/" ]];then 
+		p=/
+	else
+		#p=${arg%%/}
+		p=$arg
+	fi
+
+	cd "$p"
+	if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
+	finddirs | xargs -r0 $LS $LSSWITCHES -d 
+	findfiles | xargs -r0 $LS $LSSWITCHES 
+	findspecials | xargs -r0 $LS $LSSWITCHES -d
+	[ ${#PATHS[@]} -gt 1 ] && echo 
+	cd "$ORIGIN_DIR"
+done
+
+echo $FPATHS |xargs -r $LS $LSSWITCHES 
+#echo paths.:\<${PATHS[@]}\> size: ${#PATHS[@]}
+#echo fpaths:\<$FPATHS\>
+
