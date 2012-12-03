@@ -1,0 +1,26 @@
+#!/bin/bash
+
+   WORD=$1
+   DICT=/usr/bin/dict
+COLORIT=/usr/bin/colorit
+  PAGER=${PAGER:-/usr/bin/less}
+   HIST=$HOME/.dictionary/history
+
+if [ ! -d `dirname $HIST` ]; then
+	mkdir `dirname $HIST`
+fi
+
+if [ ! -x  $COLORIT ]; then
+	COLORIT=/bin/cat
+fi
+
+if [ -x $DICT ]; then
+	found=`$DICT $WORD 1>/dev/null 2>&1; echo $?`
+	if [ 0 -eq $found ]; then
+		echo "$1" >> $HIST
+	fi
+else 
+	echo Install dict from http://sf.net/projects/dict
+fi
+
+$DICT -f "$1" | colorit | $PAGER

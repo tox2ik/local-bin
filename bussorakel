@@ -1,0 +1,34 @@
+#!/bin/bash
+
+url="https://www.atb.no/"
+url="${url}xmlhttprequest.php?service=routeplannerOracle.getOracleAnswer"
+#         /xmlhttprequest.php?service=routeplannerOracle.getOracleAnswer&question=
+url="${url}&question="
+
+curl="/usr/bin/curl"
+With=" -silent"
+CURL=$curl$With
+
+question=`echo $@ |sed s/\ /%20/g`
+
+if [ ! -x "$curl" ];
+then 
+	echo "This script needs curl (http://curl.haxx.se/) and sed"
+	exit 1
+fi
+
+date +%d.\ %b\ %Y\ %T|tr '[A-Z]' '[a-z]'
+
+
+$CURL $url$question 	|\
+sed -n '/Content-Type:/,$p' |\
+sed '/Content-Type:/d' 		|\
+sed '/Set-Cookie:/d' 		|\
+sed -e 's/Buss/\nBuss/g'  -e 's/Tidene/\nTidene/g' -e 's/Holdep/\nHoldep/g' |\
+sed -e 's/\ og\ kommer/\n\tog kommer/' -e 's/  og  /\n\tog /' |\
+sed -e '/^$/d' |\
+iconv -f UTF8 -t ISO-8859-1
+
+echo
+
+
