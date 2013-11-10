@@ -4,6 +4,8 @@
 # 
 # bugs:
 # l *i
+# does not list single-char folders
+#
 #source $HOME/.scripts/string_manipulation.mergeme
 function trim {
     local var="$@"
