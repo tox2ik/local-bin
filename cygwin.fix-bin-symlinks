@@ -1,0 +1,1 @@
+find -type f -size -3k -exec grep -a '<symlink>' {} + | sed 's/\(.*\):!<symlink>\(.*\)/ln -fs "`which \2`" \1 /; '
