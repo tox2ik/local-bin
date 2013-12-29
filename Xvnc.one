@@ -1,0 +1,3 @@
+Xvnc passwordfile=.vnc/pass localhost=1  -screen virt 1000x580x16  :1 &
+DISPLAY=:1 startfluxbox &
+

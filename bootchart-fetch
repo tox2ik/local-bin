@@ -1,0 +1,34 @@
+#!/bin/bash
+fetch=0
+EXT=svgz
+
+
+
+#for host in tryggve genja monger
+#for host in tryggve 
+for host in $@
+do 
+	
+	while [ -f ${host}${fetch}.${EXT} ] 
+	do 
+		fetch=$((fetch+1))
+	done
+
+	rsync ${host}:/var/log/bootchart.${EXT} ${host}${fetch}.${EXT}
+
+	MD5NEW=`md5sum ${host}$((fetch-1)).${EXT}|cut -d ' ' -f 1`
+	MD5OLD=`md5sum ${host}${fetch}.${EXT}|cut -d ' ' -f 1`
+
+	if [ "$MD5NEW" != "$MD5OLD" ]
+	then
+
+		ln -sf ${host}${fetch}.${EXT} ${host}.${EXT}
+	else 
+		rm -f ${host}${fetch}.${EXT} 
+	fi
+
+done
+
+
+
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+#RTFILE=/usr/lib/jvm/java-6-sun-1.6.0.21/jre/lib/rt.jar	#debian
+#RTFILE=/opt/sun-jdk-1.6.0.17/jre/lib/rt.jar				#gentoo
+
+JARS="`find /usr/lib64/eclipse-3.5/plugins -iname  "*jar" -print0  |tr '\0' ' '`"
+
+
+
+JAR=/usr/bin/jar
+
+if [ "$#" -lt 1 ];then 
+	echo "you need to give me a class name to look for"
+	exit 1
+fi
+
+if [ -x $JAR ];then 
+
+	for JARLIB in `echo $JARS`
+	do
+		jar tf $JARLIB|grep -q $1 && echo $JARLIB
+	done
+else 
+
+	echo "install java.. (no jar in path)"
+
+fi 
+

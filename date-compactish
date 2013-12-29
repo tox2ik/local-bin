@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ $# -gt 0 ]; then
+	date +%Y-%m-%d\ %H:%M:%S
+else 
+	date +%Y-%m-%d\ %H:%M
+fi

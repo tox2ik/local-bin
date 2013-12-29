@@ -1,0 +1,2 @@
+#!/bin/sh
+su $USER -c '/usr/bin/irexec /home/jaroslav/.lircrc'

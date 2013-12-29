@@ -1,0 +1,10 @@
+#!/bin/sh
+POS="`xwininfo -root | 
+	awk '
+		/Width/ {w=$2} 
+		/Height/ {h=$2} 
+		END { 
+			printf "-w %d -h %d -pos 20 %d \n",  w-60, h/2, h/4
+	}'`"
+
+fbrun -font  'FFF Tusj:size=284'  $POS -fg '#ff4800' -bg '#090909'

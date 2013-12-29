@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+
+
+TOHOST=jaroslav@eee.lan
+rsync $FILES $TOHOST:~/ -av
+
+FILES=""
+FILES="$HOME/.bash $HOME/.environment .vimrc"
+FILES="$FILES .vim .viminfo .vimrc .vimperatorrc  .vimperator"
+FILES="$FILES .ncmpc .mpc .mpcrc .mpcrc.local"
+FILES="$FILES .screenrc"
+
+#for i in `echo $FILES`; 
+#do 
+#	rsync -av ~/$i $DEST:\~/$i
+#done
+

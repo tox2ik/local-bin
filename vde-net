@@ -1,0 +1,55 @@
+#!/bin/sh
+
+
+
+
+
+
+#vde_switch -tap qemu -daemon
+##vde_switch -hub -tap qemu -daemon
+#chmod 755 /tmp/vde.ctl
+
+
+VM_NAME="vm10322"
+VM_GW="10.3.22.1"
+VM_MASK="255.255.255.0"
+
+OPTS=""
+OPTS="${OPTS} -daemon" 
+OPTS="${OPTS} -t ${VM_NAME}" 
+#OPTS="${OPTS} -sock /dev/vde" 
+OPTS="${OPTS} -mod 775" 
+OPTS="${OPTS} -p /var/run/qemu.vde.pid"
+OPTS="${OPTS} "
+OPTS="${OPTS} "
+OPTS="${OPTS} "
+
+# vde_switch - Virtual Distributed Ethernet switch 
+echo -n sudo killall vde_switch \;
+
+echo -n sudo vde_switch $OPTS \;
+
+
+#echo -n sudo chgrp netdev /dev/vde/ctl \;
+
+
+
+echo -n sudo ifconfig $VM_NAME $VM_GW netmask $VM_MASK up \;
+
+
+# enable forwarding (should be done elewhere) 
+
+#echo "1" > /proc/sys/net/ipv4/ip_forward
+#sudo iptables -t nat -A POSTROUTING -s 10.3.22.0/24 -o vm2eth0 -j MASQUERADE
+#sudo iptables -t nat -A POSTROUTING -s 10.3.22.0/24 -o ppp0 -j MASQUERADE
+
+
+#  run your vm 
+
+#vdeqemu   -hda /mnt/myimage -m 64 -boot a
+# or like this:
+#vdeq qemu[-system-m68k] -hda /mnt/myimage -m 64 -boot a
+
+
+echo 
+echo 

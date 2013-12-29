@@ -1,0 +1,13 @@
+
+screen -dmS foo -t build bash
+screen -S foo -X screen
+screen -S foo -X screen
+screen -S foo -X screen
+screen -S foo -p 1 -X title edit-resources
+screen -S foo -p 2 -X title emulator
+screen -S foo -p 3 -X title eclimd
+
+screen -S foo -p 0 -X stuff "cd ~/workspace/foobar_commander/; make run-emulator"
+screen -S foo -p 1 -X stuff "cd ~/workspace/foobar_commander/res"
+screen -S foo -p 2 -X stuff "emulator-arm -avd emulator -no-audio `echo -ne '\015'`"
+screen -S foo -p 3 -X stuff "eclimd `echo -ne '\015'`"

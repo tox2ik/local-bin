@@ -1,0 +1,40 @@
+#!/bin/sh
+FONT=-sgi-screen-*-r-*-*-13-*-*-*-*-*-*-* 
+TEMPF=/tmp/xrootconsole.netstat.tmp
+
+SSH_VARS=$HOME/.ssh/vars.sh
+
+
+case `uname` in 
+	Linux) psA='-a -o pid,args -p';;
+	  AIX) psA='-a -o pid,args -p';;
+	SunOS) psA='dunno...';;
+	 *BSD) psA='axwwo pid,args';;
+       Darwin) psA='dunno..';;
+CYGWIN_NT-5.1) psA='-e -f -a -p';;
+esac
+
+[ -s $SSH_VARS ] && . $SSH_VARS >/dev/null && \
+RUNNING=`ps $psA $SSH_AGENT_PID |grep  [s]sh-agent`
+
+touch  $TEMPF.running 
+while [ -f $TEMPF.running ]; 
+do 
+	sleep 1 ;
+
+	if [ "$RUNNING" != "" ]
+	then
+		for i in monger genja tryggve ;do
+
+		echo > $TEMPF
+		ssh $i netstat -t -u   -p 2\>/dev/null |grep -v ^[AP]  >> $TEMPF
+		done
+	fi
+
+	netstat -t -u   -p 2>/dev/null |grep -v ^[AP] >> $TEMPF
+
+
+done &
+
+tail -f $TEMPF | xrootconsole  -fg grey -geometry 120x100+5+1205 --noversion -fn $FONT
+

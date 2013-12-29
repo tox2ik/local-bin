@@ -1,0 +1,3 @@
+cd ~/.wine/c/Program\ Files/ElastoMania/
+wine ~/.wine/c/Program\ Files/ElastoMania/Elma.exe
+cd - 

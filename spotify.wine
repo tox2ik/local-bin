@@ -1,0 +1,26 @@
+#!/bin/sh
+SPOTPATH="/home/jaroslav/.wine/drive_c/Program Files/Spotify/" 
+
+cd "$SPOTPATH"
+export WINEDEBUG=-all 
+
+#if [ "$1" != "" ] ;then 
+
+#shopt -s extglob
+#if [[ "$1" == @(http://)* ]] ;then 
+
+if [[ "$1" == http://* ]] ;then 
+
+wine spotify.exe /uri $1
+
+elif [ "$1" == "" ] ;then 
+
+wine spotify.exe
+
+else 
+
+echo unknown argument 
+echo give me a http://open.spotify.com/* link 
+echo or nothing at all
+
+fi

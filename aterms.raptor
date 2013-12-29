@@ -1,0 +1,300 @@
+#!/bin/bash
+#Xauth
+#xrdb ~/.Xdefaults
+
+#
+#     -misc-fixed-medium-r-*-*-13-*-*-*-*-*-*-*         
+#     -xos4-terminus-medium-*-*-*-14-*-72-*-*-*-*-*    
+#     -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*  
+#                                                    
+#                                                      
+# -sgi-*-medium-r-*-*-13-*-*-*-*-*-*-*
+
+       # fn=-misc-fixed-medium-*-*-*-14-*-*-*-*-*-*-* 
+       # fb=-misc-fixed-*--*-*-*-14-*-*-*-*-*-*-* 
+       # fn=-xos4-terminus-*-r-*-*-18-*-*-*-*-*-*-*	
+       # fb=-xos4-terminus-medium-r-*-*-18-*-*-*-*-*-*-*	
+	# fn=-sgi-*-medium-r-*-*-13-*-*-*-*-*-*-*
+        #fn=-xos4-terminus-medium-r-*-12-*
+
+	#fb=-sgi-*-bold-r-*-*-*-*-*-*-*-*-*-*
+
+
+
+
+
+
+        fn=-xos4-terminus-*-r-*-12-*
+        fb=-xos4-terminus-*-r-*-12-*
+
+	fn=-*-proggyclean-*-r-normal-*-13-*-*-*-*-*-*-*
+	fb=-*-proggyclean-*-r-bold-*-13-*-*-*-*-*-*-*
+
+
+	fterminus14=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-*
+
+	fnru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
+	fbru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
+
+	fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
+	fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
+
+	fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
+	fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
+
+	fnBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
+	fbBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
+
+	fnmpc=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-*
+	fbmpc=-xos4-*-bold-r-*-*-14-*-*-*-*-*-*-*
+	 fb=$fn
+
+	color="-fg 7 "
+	argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
+
+        argsa="-ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"  
+        argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"  
+        argsb="$color -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 5 -sb -trsb -sr" 
+        argsf="$color -ls -tr -sh 25 -fb $fb -fn $fn -bw 0 -ib 3 -sb -trsb -sr " 
+        #argsfu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
+        argsfu="-ls -tr -sh 12 -w 0  -b 3 +sb"  # Urxvt 
+        argsfu_big="-ls -tr -sh 25 -fb $fbBIG -fn $fnBIG  -w 0  -b 3 +sb"  # Urxvt 
+        logtermfile="/home/jaroslav/tmp/syslog" # the file is a fifo which syslogng logs to
+        argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile" 
+
+        argsr="-ls -tr -sh 5 -fb $fn -fn -xos4-*-*-*-*-*-17-*-*-*-*-*-*-* +sb"  
+        argsr="-ls -tr -sh 5 -fb $fbru -fn $fnru +sb"  
+
+        argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"  
+
+
+        su='sudo su -' g='-geometry'                          
+        #su='sudo su -' g='-geometry'                          
+	
+	l='-sl 12000' s='-sl 100'
+
+function one { urxvt -l $argsu  &  }
+function big { urxvt $l $argsfu_big  &  }
+function bigaterm { aterm $l $argsa_big  &  }
+function flux { aterm -name one $l $argsf  &  }
+function uni { urxvt  -name one $l $argsu  &  }
+function logterm { aterm  -geometry 128x67-88+13 $l $argslogterm   & }
+function onedesktop { aterm -name oneD $l $argsb  &  } # for compiz - window management - place
+function oneru { export LC_CTYPE=ru_RU.KOI8-R; aterm $l $argsr $g 90x38 &  }
+function sone { echo  aterm  $l $argsb -fg $random_color $g 90x38 &  }
+
+#function four_1024 {       
+#aterm $l $argsa $g 100x36+2+0 &  
+#aterm $l $argsa $g 100x38+2-0 & 
+#aterm $l $argsa $g  98x42-2+0 &
+#aterm $l $argsa $g  98x32-2-0  &
+#sleep 1
+#               }              
+
+function mpc {  ncmpc; }
+function ncmpc {
+aterm  $l $argsn $g 100x74 -e ncmpc &
+
+}
+  
+function four { #1650
+aterm $l $argsa $g 124x39+2+1228 &  
+aterm $l $argsa $g 105x36+2-30  & 
+aterm $l $argsa $g 113x39-2+1228 &
+aterm $l $argsa $g 132x36-2-30 &
+sleep 1
+               }            
+
+function fourFlux {
+# ati
+urxvt $l $argsfu $g 90x31+3+2 &
+urxvt $l $argsfu $g 90x42+3-9 &
+urxvt $l $argsfu $g 117x31-4+2 &
+urxvt $l $argsfu $g 117x42-4-9 & 
+}
+
+
+function four2ws { #1650
+aterm -name 2ws4t1 $l $argsa $g 119x41+4+772 &  
+aterm -name 2ws4t2 $l $argsa $g 119x38+4-4 & 
+aterm -name 2ws4t3 $l $argsa $g 118x41-4+772 &
+aterm -name 2ws4t4 $l $argsa $g 118x38-4-4  &
+sleep 1
+               }            
+
+function kde42_four2ws { #1650
+kde42_four1=124x39+2+1228
+kde42_four2=105x36+2-30
+kde42_four3=113x39-2+1228
+kde42_four4=132x36-5-33
+aterm -name 2ws4t1 $l $argsa $g $kde42_four1 &  
+aterm -name 2ws4t2 $l $argsa $g $kde42_four2 & 
+aterm -name 2ws4t3 $l $argsa $g $kde42_four3 &
+#aterm -name 2ws4t4 $l $argsa $g $kde42_four4 &
+urxvt -name 2ws4t4 $l $argsu $g $kde42_four4 & 
+sleep 1
+               }            
+
+
+function six {               
+aterm $l $argsb $g 91x16+2+2    & 
+aterm $l $argsb $g 91x12+2+217  &
+aterm $l $argsb $g 91x14+2+380  & 
+aterm $l $argsa $g 93x36+2-2    & 
+aterm $l $argsa $g 144x37-2+2   & 
+aterm $l $argsa $g 144x42-2-2   & 
+sleep 1
+ }                             
+
+function rsixFlux {               
+# raptor kde 4.2 with dual monitor crt above lcd...
+rsix_1="91x13+3+1202"
+rsix_2="91x12+3+1377"
+rsix_3="91x15+3+1539"
+
+rsix_4="91x37+3-20"
+rsix_5="141x37-4-19" 
+rsix_6="141x41-4+1202"
+
+ #ati card 
+rsix_1="91x13+3+2"
+rsix_2="91x12+3+177"
+rsix_3="91x15+3+339"
+
+rsix_4="91x37+3-20"
+rsix_5="141x37-4-19" 
+rsix_6="141x41-4+2"
+
+three_big="$rsix_5  $rsix_6 $rsix_4 "
+three_small="$rsix_1 $rsix_2 $rsix_3" 
+
+for i in `echo $three_small ` ;do 
+	#aterm $l $argsf $g $i   -e $su &
+	urxvt $l $argsf $g $i   -e ssh root@localhost &
+	sleep 0.1
+	done &
+#sleep 0.2
+
+for i in `echo $three_big ` ;do 
+	urxvt $l $argsf $g $i   -e ssh root@localhost &
+	sleep 0.2
+	done &
+ } 
+function rsix {               
+# raptor kde 4.2 with dual monitor crt above lcd...
+rsix_1="91x13+2+1232"
+rsix_2="91x12+2+1409"
+rsix_3="91x14+2+1572"
+rsix_4="93x35+2-25"
+rsix_5="145x39-2+1234"  
+rsix_6="144x36-2-25"
+three_big="$rsix_5  $rsix_6 $rsix_4 "
+three_small="$rsix_1 $rsix_2 $rsix_3" 
+
+for i in `echo $three_small ` ;do 
+	aterm $l $argsa $g $i   -e $su &
+	sleep 0.1
+	done &
+#sleep 0.2
+
+for i in `echo $three_big ` ;do 
+	aterm $l $argsa $g $i   -e $su &
+	sleep 0.2
+	done &
+ } 
+
+function single_rsix {               
+# single monitor no fancy shit
+rsix_1="91x16+12+770"
+rsix_2="91x12+12+987"
+rsix_3="91x14+12+892"
+rsix_4="93x36+2-2"
+rsix_5="144x37-2+770"  
+rsix_6="144x42-2-2"
+
+for i in `echo $three_small ` ;do 
+	aterm $l $argsa $g $i   -e $su &
+	sleep 0.1
+	done &
+#sleep 0.2
+
+for i in `echo $three_big ` ;do 
+	aterm $l $argsa $g $i   -e $su &
+	sleep 0.2
+	done &
+ } 
+
+function compiz_rsix3ws {               
+rsix3ws_1="91x15+12+770"
+rsix3ws_2="91x12+12+977"
+rsix3ws_3="91x14+12+1145"
+rsix3ws_4="93x36+2-2"
+rsix3ws_5="144x37-2+770"  
+rsix3ws_6="144x42-2-2"
+
+three_big="$rsix3ws_4  $rsix3ws_6 $rsix3ws_5 "
+three_small="$rsix3ws_3 $rsix3ws_2 $rsix3ws_1" 
+
+for i in `echo $three_big ` ;do 
+	aterm -name 3ws6t$i $l $argsa $g $i   -e $su &
+	sleep 0.3
+	done &
+
+sleep 0.3
+for i in `echo $three_small ` ;do 
+	aterm -name 3ws6t$i $l $argsa $g $i   -e $su &
+	sleep 0.2
+	done &
+
+#sleep 1
+
+ } 
+
+function kde42_rsix3ws {               
+rsix3ws_1="91x13+2+1232"
+rsix3ws_2="91x12+2+1409"
+rsix3ws_3="91x14+2+1572"
+rsix3ws_4="93x35+2-25"
+rsix3ws_5="145x39-2+1234"  
+rsix3ws_6="144x36-2-25"
+
+three_big="$rsix3ws_4  $rsix3ws_6 $rsix3ws_5 "
+three_small="$rsix3ws_3 $rsix3ws_2 $rsix3ws_1" 
+
+for i in `echo $three_big ` ;do 
+	aterm -name 3ws6t $l $argsa $g $i   -e $su &
+	sleep 0.3
+	done &
+
+sleep 0.3
+for i in `echo $three_small ` ;do 
+	aterm -name 3ws6t $l $argsa $g $i   -e $su &
+	sleep 0.2
+	done &
+
+#sleep 1
+
+ } 
+function 3ws { 
+kde42_rsix3ws 
+}
+function 2ws { 
+kde42_four2ws 
+}
+
+
+
+if [ -z "$1" ];
+then 
+	#echo -e "usage: $0 one|two|three|..."; 
+	echo Please give me one of the following 
+	echo function names as the first argument  
+	echo to spawn a new terminal emulator:
+	cat $0 |grep ^function |awk '{print $2}'
+	# TODO: make an awk script to put all words in an array
+	# and print each one while making sure that the total 
+	# umber of characters per line is less than 80
+fi
+
+#exec function
+$1

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+a=()
+a[0]=http://speedtest.sea01.softlayer.com/speedtest/speedtest/random1000x1000.jpg
+a[1]=http://speedtest.wdc01.softlayer.com/downloads/test500.zip
+
+
+idx=$(( RANDOM % ${#a[@]} ))
+
+echo wget --output-document=/dev/null ${a[$idx]}
