@@ -1,0 +1,14 @@
+#!/bin/bash
+f="$1"
+
+if echo "$1" |grep -q 'https*://.*'; then
+	true
+else
+	wcp="`which cygpath 2>/dev/null`"
+	if [ -x "$wcp" ] ; then
+		f="$(cygpath -w "$1" )" ; 
+	fi
+fi
+
+
+firefox "$f"
