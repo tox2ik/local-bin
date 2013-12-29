@@ -1,0 +1,3 @@
+#!/usr/bin/perl
+use Perl::shell;
+Perl::Shell::shell();

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+tail -n 50  ~/logs/php_error.log |
+grep --line-buffered -e . | 
+sed -f ~/logs/crop.sed | spc -c ~/.spcrc/spcrc-php
