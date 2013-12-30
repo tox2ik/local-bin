@@ -73,10 +73,13 @@
 	
 	l='-sl 12000' s='-sl 100'
 
+long='-sl 12000'
+short='-sl 100'
+
 function one { urxvt -l $argsu  &  }
 function two { 
-	urxvt -ls $l -geometry 80x54+3+2 &
-	urxvt -ls $l -geometry 88x54-3+0 &
+	urxvt -name URxvt_laptop -ls +sb $long $g 80x51+3+2 &
+	urxvt -name URxvt_laptop -ls +sb $long $g 89x51-3+2 &
 }
 
 

@@ -6,9 +6,16 @@ if echo "$1" |grep -q 'https*://.*'; then
 else
 	wcp="`which cygpath 2>/dev/null`"
 	if [ -x "$wcp" ] ; then
+		NICE=""
 		f="$(cygpath -w "$1" )" ; 
 	fi
 fi
 
 
-firefox "$f"
+if [ "" == "$f" ]; then
+	firefox &
+else
+	firefox "$f" &
+fi
+
+sudo renice -n -5 `pidof firefox`
