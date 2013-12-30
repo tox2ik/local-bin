@@ -7,34 +7,29 @@
 # 2  - DG: 1680x2250  VP: N/A  WA: 0,0 1680x2250  misc
 # 3  - DG: 1680x2250  VP: N/A  WA: 0,0 1680x2250  gui
 
-# $ wmctrl -d | awk '{printf "%s%s\n", $2,$1}' 
-# -0
-# *1
-# -2
-# -3
+# $ wmctrl -d | sed -n '/[0-9]\+ \+\*/ { s/ \+.*// ;p}'
+# 1
 
-# $ wmctrl -d | awk '{printf "%s%s\n", $2,$1}' |sort -n| cut -c 2 |tr '\n ' ' '
-# 3 2 0 1 
+WMCTRLD=$(wmctrl -d)
 
+DESKTOPS=(`echo -e "$WMCTRLD" | sed -n '
+	/^[0-9]/ { 
+		s/ \+.*// ;
+		p
+	}'| tr $'\n' ' '`)
 
-# put all desktops in an array
-desktops=(`wmctrl -d | awk '{printf "%s%s\n", $2,$1}' |sort -n| cut -c 2 |tr '\n ' ' '`)
+LASTINDEX=$(( ${#DESKTOPS[@]} -1  )) 
+CURRENT=$( echo -e "$WMCTRLD" | sed -n '
+	/[0-9]\+ \+\*/ { 
+		s/ \+.*// ;p
+	}')
 
-# the active desktop will be last because of the |sort -n 
-# beware, only tested on gentoo 
-# sys-apps/coreutils-8.5
-# sys-apps/gawk-3.1.6
-# x11-misc/wmctrl-1.07-r1
-
-# number of elements - 1 = last index of array = last desktop
-LASTINDEX=$((${#desktops[@]}-1)) 
-
-CURRENT=${desktops[$LASTINDEX]}
 NEXT=$(( CURRENT+1))
 PREV=$(( CURRENT-1))
 
-# wrap to the last destop from the first
-# wrap to the first desktop from the last
+echo CURRENT $CURRENT
+
+# wrap to the last / first destop from the first / last
 [ $PREV -eq -1 ] && PREV=$LASTINDEX
 [ $NEXT -gt $LASTINDEX ] && NEXT=0
 
