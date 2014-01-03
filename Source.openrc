@@ -1,0 +1,3 @@
+
+qlist  openrc | grep sh$
+echo source \`qlist  openrc | grep sh$\`

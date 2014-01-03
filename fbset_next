@@ -1,0 +1,19 @@
+#!/bin/sh
+
+WALLS=$HOME/images/wallpapers/deviant/grafitti
+WALLS1=$HOME/images/wallpapers/s.t.a.l.k.e.r-deviant  
+WALLS2=$HOME/images/wallpapers/deviant/2013-12
+
+function fbset_next() {
+	FBSET_BG="$(find \
+		$WALLS1 \
+		$WALLS2 \
+		-type f | sort -R | tail -n 1
+	)"
+	DISPLAY=:0.0 fbsetbg -c $FBSET_BG
+	DISPLAY=:0.1 fbsetbg -c $FBSET_BG
+	echo $FBSET_BG
+}
+alias next_wall=fbset_next
+
+[ `basename -- "$0"` = "fbset_next" ] && fbset_next

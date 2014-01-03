@@ -76,10 +76,22 @@
 long='-sl 12000'
 short='-sl 100'
 
-function one { urxvt -l $argsu  &  }
+function one { urxvt -ls $argsu  &  }
 function two { 
-	urxvt -name URxvt_laptop -ls +sb $long $g 80x51+3+2 &
-	urxvt -name URxvt_laptop -ls +sb $long $g 89x51-3+2 &
+	if [[ $DISPLAY = :0.0 ]] || [[ $DISPLAY = :0 ]]; then
+		urxvt -name URxvt_laptop -ls +sb $long $g 80x51+3+2 &
+		urxvt -name URxvt_laptop -ls +sb $long $g 89x51-3+2 &
+	elif [[ $DISPLAY = :0.1 ]]; then
+		urxvt -name URxvt_hdmi -ls +sb $long $g  86x55-1+15 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 105x27+2+15 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 105x28+0-13 &
+	fi
+}
+
+function koray { urxvt -fn xft:cure -fb xft:cure -letsp -3 ;}
+function koray2 { 
+	local f=xft:terminus:size=8; 
+	urxvt -fn $f:style=bold -fb $f; 
 }
 
 

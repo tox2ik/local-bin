@@ -1,0 +1,16 @@
+#!/bin/sh
+
+for a in $@;
+do
+	case $a in
+		--help|-help|-h)
+			echo "usage: `basename $0` size family style"
+			exit
+			;;
+	esac
+done
+font=${2:-Droid Sans Mono}
+size=${1:-13}
+style=${3:-Regular}
+printf '\33]50;%s\007' "xft:${font}:pixelsize=${size}:style=${style}"
+

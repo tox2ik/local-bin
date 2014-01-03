@@ -18,4 +18,5 @@ else
 	firefox "$f" &
 fi
 
-sudo renice -n -5 `pidof firefox`
+sudo renice -n -5 `pidof firefox` &>/dev/null
+echo

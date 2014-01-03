@@ -1,14 +1,22 @@
 #!/bin/dash
 
-wmctrl -d | awk '
-{ d=$1 }
 
-$2 ~ /\*/ { D=$1 }
+LAST=$2
+
+if [ $# -lt 2 ]; 
+then
+	LAST=`wmctrl -d | sed -n '${ s/\([0-9]\+\).*/\1/ ;p }'`
+fi
+
+wmctrl -d | awk -v first=${1:-0} -v last=${LAST:-1} '
+
+#{ d=$1 }
+
+$2 ~ /\*/ { active=$1 }
 
 END { 
-	if (D > 0) {
-		goto=0 } 
-	else {
-		goto=d }
+	if (active != first) {	goto=first } 
+	else { 					goto=last }
+
 	system("wmctrl -s " goto) 
 }'
