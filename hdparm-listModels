@@ -1,0 +1,5 @@
+#!/bin/dash
+hdparm -I /dev/sd? 2>&1 | grep --colour=auto -E '(^/)|(Model|Serial N|Firmware|1000\*1000)' | 
+ sed 's/.*MBytes (//;s/)$//;s/ //'|
+ awk '{ if ($1 ~ /^\//) { printf "\n%s", $1} else { printf "%s:", $NF} } END{ print ""}' | sed 's/:$//' |
+ column -s: -t
