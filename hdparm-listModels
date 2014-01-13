@@ -1,5 +1,32 @@
 #!/bin/dash
-hdparm -I /dev/sd? 2>&1 | grep --colour=auto -E '(^/)|(Model|Serial N|Firmware|1000\*1000)' | 
- sed 's/.*MBytes (//;s/)$//;s/ //'|
- awk '{ if ($1 ~ /^\//) { printf "\n%s", $1} else { printf "%s:", $NF} } END{ print ""}' | sed 's/:$//' |
- column -s: -t
+hdparm -I /dev/sd? 2>&1 | sed -n -E '
+
+# ${
+# G
+# s/\n/:/
+# p
+# }
+
+/(^\/)|(Model|Serial N|Firmware|1000\*1000)/!d
+
+/(^\/)|(Model|Serial N|Firmware|1000\*1000)/{
+
+/[[:space:]]*(Model|Serial) Number:[[:space:]]*/ { s/// }
+/[[:space:]]Firmware Revision:[[:space:]]*/ { s/// }
+/.*1000\*1000.*\((.*)\)$/ { s//\1/ }
+p
+
+}
+'|
+tr \\n : | 
+sed -E '
+
+s/ +//g
+s/\/[^:]*:/\n&/g
+s/::/:/g
+
+' | column -s: -t
+
+#| grep --colour=auto -E '(^/)|(Model|Serial N|Firmware|1000\*1000)' | 
+# sed 's/.*MBytes (//;s/)$//;s/ //'|
+# awk '{ if ($1 ~ /^\//) { printf "\n%s", $1} else { printf "%s:", $NF} } END{ print ""}' | sed 's/:$//' |
