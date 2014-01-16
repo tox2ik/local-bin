@@ -1,0 +1,2 @@
+#/bin/dash
+exec transmission-daemon -T -m -l 240 -L 1024 -o -p 9191 -er -f -a 127.0.0.1
