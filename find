@@ -1,12 +1,22 @@
 #!/bin/dash
+#echo -- $@
+#echo -- $1
+#echo "$1"
+#echo "???"
 for i; do 
+	#echo $i
 	if [ -d "$i" ];   then
 		where=$i; continue; fi
 
 	args="$args $(
-	echo $i | sed -E '
+	# echo bug: echo -n '-n' -n
+	echo @%$i | sed -E '
+	s/^@%//
 	s/^-t?f$/-type f/
 	s/^-t?d$/-type d/
+	s/^-n$/-name/
+	s/^-i$/-iname/
 	')"
 done
+#echo /usr/bin/find $where $args
 eval /usr/bin/find $where $args
