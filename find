@@ -1,0 +1,12 @@
+#!/bin/dash
+for i; do 
+	if [ -d "$i" ];   then
+		where=$i; continue; fi
+
+	args="$args $(
+	echo $i | sed -E '
+	s/^-t?f$/-type f/
+	s/^-t?d$/-type d/
+	')"
+done
+eval /usr/bin/find $where $args
