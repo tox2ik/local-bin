@@ -5,6 +5,7 @@
 # supports --group-directories-first
 # 
 
+
 function trim {
     local var="$@"
 	#$ var="  hello space    "
@@ -35,7 +36,7 @@ function arrayContains {
 
 function finddirs {
 	# mindepth 1 excludes the . directory
-	find "$@" \
+	$FIND "$@" \
 		-mindepth 1 -maxdepth 1 -depth -type d \
 		-printf '%f\0'
 }
@@ -58,6 +59,7 @@ FPATHS=""
 LSSWITCHES=""
 ORIGIN_DIR="`pwd`"
 LS=ls\ --color=auto
+FIND=/usr/bin/find
 
 ARG=$1
 ARGC=0
