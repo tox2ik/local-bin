@@ -1,12 +1,10 @@
 #! /bin/bash
 # what?
 # lists files after folders like windoze explorer
+# this is somewhat obsolete with a recent version of coreutils as ls now 
+# supports --group-directories-first
 # 
-# bugs:
-# l *i
-# does not list single-char folders
-#
-#source $HOME/.scripts/string_manipulation.mergeme
+
 function trim {
     local var="$@"
 	#$ var="  hello space    "
@@ -36,21 +34,19 @@ function arrayContains {
 # c character (unbuffered) special b block (buffered) special
 
 function finddirs {
+	# mindepth 1 excludes the . directory
 	find "$@" \
-		-maxdepth 1 -depth -type d \
-		-regextype gnu-awk -regex "$REGEX" \
+		-mindepth 1 -maxdepth 1 -depth -type d \
 		-printf '%f\0'
 }
 function findfiles {
 	find "$@" \
 		-maxdepth 1 -depth -type f \
-		-regextype gnu-awk -regex "$REGEX" \
 		-printf "%f\0"
 }
 function findspecials {
 	find "$@" \
 		-maxdepth 1 -depth \( -type l   -o -type p   -o -type s \) \
-		-regextype gnu-awk -regex "$REGEX" \
 		-printf "%f\0"
 }
 ##
@@ -61,8 +57,6 @@ PATHS=()
 FPATHS=""
 LSSWITCHES=""
 ORIGIN_DIR="`pwd`"
-LSHIDDEN="^\./.+"		# gnu-awk regex for find, single dot does not match
-LSNORMAL="^\./[^\.]+.+" # exclude files starting with .
 LS=ls\ --color=auto
 
 ARG=$1
@@ -84,15 +78,6 @@ do
 	shift
 	ARG=$1
 done
-
-
-# FIX only -A excludes . and .. 
-if [[ "$LSSWITCHES" =~ '-a' || "$LSSWITCHES" =~ '-A' ]]; then
-	REGEX=$LSHIDDEN
-else
-	REGEX=$LSNORMAL
-fi
-
 
 #PATHS=`trim $PATHS`
 FPATHS=`trim $FPATHS`
