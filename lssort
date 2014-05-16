@@ -40,16 +40,24 @@ function finddirs {
 		-mindepth 1 -maxdepth 1 -depth -type d \
 		-printf '%f\0'
 }
+
 function findfiles {
 	find "$@" \
 		-maxdepth 1 -depth -type f \
 		-printf "%f\0"
 }
+
 function findspecials {
 	find "$@" \
 		-maxdepth 1 -depth \( -type l   -o -type p   -o -type s \) \
 		-printf "%f\0"
 }
+
+# bug: ls -[aA] will never work
+function filter_out_hidden {
+	grep -zv '^\..*' 
+}
+
 ##
 ## vars and such
 ##
@@ -100,14 +108,14 @@ do
 
 	cd "$p"
 	if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
-	finddirs | xargs -r0 $LS $LSSWITCHES -d 
-	findfiles | xargs -r0 $LS $LSSWITCHES 
-	findspecials | xargs -r0 $LS $LSSWITCHES -d
+	finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d 
+	findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES 
+	findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d
 	[ ${#PATHS[@]} -gt 1 ] && echo 
 	cd "$ORIGIN_DIR"
 done
 
-echo $FPATHS |xargs -r $LS $LSSWITCHES 
+echo $FPATHS | xargs -r $LS $LSSWITCHES 
 #echo paths.:\<${PATHS[@]}\> size: ${#PATHS[@]}
 #echo fpaths:\<$FPATHS\>
 
