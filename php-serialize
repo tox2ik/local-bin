@@ -1,0 +1,8 @@
+#!/usr/bin/php
+<?php
+
+eval( "\$o= $argv[1] ");
+
+printf("%s", serialize( $o ));
+
+?>
