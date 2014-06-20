@@ -1,0 +1,8 @@
+#/bin/sh
+path=$( cygpath  "$(strings "$1"| grep '^[A-Z]:.*[\\]\+')")
+
+if [ -d "$path" ]; then
+	cd "$path"
+else 
+	file "$path"
+fi
