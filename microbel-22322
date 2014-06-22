@@ -1,0 +1,7 @@
+#!/bin/dash
+while true ; do 
+	
+	ssh -R ${2:-22322}:localhost:22 ${1:-microbel} ;
+	sleep 1;
+
+done
