@@ -1,32 +1,90 @@
 #!/bin/dash
-hdparm -I /dev/sd? 2>&1 | sed -n -E '
+## sudo hdparm -I /dev/sd? 2>&1 | sed -n -E '
+## # [ 1 ]
+## /(^\/)|(Model|Serial N|Firmware|1000\*1000)/!d
+## /(^\/)|(Model|Serial N|Firmware|1000\*1000)/{
+## /[[:space:]]*(Model|Serial) Number:[[:space:]]*/ { s/// }
+## /[[:space:]]Firmware Revision:[[:space:]]*/ { s/// }
+## /.*1000\*1000.*\((.*)\)$/ { s//\1/ }
+## p } '| tr \\n : | sed -E ' 
+## s| +||g
+## s|/[^:]*:|\n&|g
+## s|::|:|g
+## ' | column -s: -t
 
-# ${
-# G
-# s/\n/:/
-# p
-# }
 
-/(^\/)|(Model|Serial N|Firmware|1000\*1000)/!d
+# notes. 
+# 
+# flashvoyager configured as a non-removable drive would generate garbage and
+# disrupt the output. Sometimes that would result in dublicate rows for one 
+# hard drive. the awk version prints each serial number only once. 
+# THE DEVICE COULD STILL BE WRONG.
+# 
 
-/(^\/)|(Model|Serial N|Firmware|1000\*1000)/{
 
-/[[:space:]]*(Model|Serial) Number:[[:space:]]*/ { s/// }
-/[[:space:]]Firmware Revision:[[:space:]]*/ { s/// }
-/.*1000\*1000.*\((.*)\)$/ { s//\1/ }
-p
+sudo hdparm -I /dev/sd? 2>/dev/null | awk '
+
+BEGIN { 
+	FS=":"
+}
+
+/\/dev\/sd.:/ { 
+	gsub(/\ +/, "", $1);
+		
+	DEV=$1
 
 }
-'|
-tr \\n : | 
-sed -E '
 
-s/ +//g
-s/\/[^:]*:/\n&/g
-s/::/:/g
+/Model Number:/ {
+	gsub(/\ +$/, "", $2);
+	gsub(/^\ +/, "", $2);
+	MODEL=$2
+}
 
-' | column -s: -t
+/Serial Number:/ {
 
-#| grep --colour=auto -E '(^/)|(Model|Serial N|Firmware|1000\*1000)' | 
-# sed 's/.*MBytes (//;s/)$//;s/ //'|
-# awk '{ if ($1 ~ /^\//) { printf "\n%s", $1} else { printf "%s:", $NF} } END{ print ""}' | sed 's/:$//' |
+	gsub(/\ +$/, "", $2);
+	gsub(/^\ +/, "", $2);
+
+	SERIAL=$2
+}
+/Firmware Revision:/ {
+
+	gsub(/\ +$/, "", $2);
+	gsub(/^\ +/, "", $2);
+
+	FIRMWARE=$2
+}
+
+/1000\*1000:/ {
+
+	gsub(/.*\(/, "", $0);
+	gsub(/\)/, "", $0);
+	CAPACITY=$0	
+		
+}
+
+/Transport:/ {
+	
+}
+
+
+/^Commands/ {
+
+
+	if ( ! one_line_per_dev[SERIAL]++) {
+		printf "%s:%s:%s:%s:%s\n", DEV, MODEL, SERIAL, FIRMWARE, CAPACITY
+	}
+
+	CAPACITY=""	
+	FIRMWARE=""
+	DEV=""
+	MODEL=""
+	SERIAL=""
+
+}
+
+{}
+
+
+' | column -ts:

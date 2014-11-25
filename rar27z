@@ -1,0 +1,45 @@
+#!/bin/bash
+
+TMPD="$2"
+ARCHIVE_PATH=$( readlink -f "$1" )
+notRar=${ARCHIVE_PATH%%.rar}.7z
+notZip=${ARCHIVE_PATH%%.zip}.7z
+
+
+if [ $# -gt 1 ] ; then
+	T=`mktemp -d -p "$2"  archive.XXXXXX`
+	echo mktemp -d -p "$2" archive.XXXXXX
+
+elif [ $# -eq 1 ]; then
+	T=`mktemp -dp /tmp archive.XXXXXX` 
+
+else 
+	echo "$0 <file.(rar|zip)> [/alt/temp/dir]"
+fi
+
+if [ ! -d "$T" ] ; then
+	echo failed to create temp dir
+	exit 1
+fi
+
+cd $T 
+
+if [[ $ARCHIVE_PATH =~ .*\.rar ]]; then
+
+	rar x "$ARCHIVE_PATH" >/dev/null
+	OUT=$notRar
+		
+elif [[ $ARCHIVE_PATH =~ .*\.zip ]]; then
+
+	unzip "$ARCHIVE_PATH" >/dev/null
+	OUT=$notZip
+		
+fi
+
+if [ $? -ne 0 ] ; then 
+	echo failed to extract. 
+	exit 2
+fi
+
+7z a "$OUT" . >/dev/null
+rm -rvf $T
