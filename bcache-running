@@ -1,0 +1,3 @@
+#!/bin/sh
+find /sys/devices/virtual/block/*/bcache -type f -name ${1:-running} |
+xargs -I% grep -He . %

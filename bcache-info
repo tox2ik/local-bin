@@ -1,0 +1,34 @@
+#!/bin/dash 
+
+for i in /sys/devices/virtual/block/*/bcache/dev/dev ; do
+
+	echo $i `cat $i`;
+
+done  | 
+sed '
+
+
+	/bcache[0-9]\/\+/d ;
+
+	s:/sys/devices/virtual/block/::; s:/bcache/dev/dev::;
+
+	s|252:|/dev/bcache|
+
+
+	' | 
+awk '{ 
+
+		cmd="cat /sys/block/"$1"/dm/name 2>/dev/null"
+		if (! (cmd | getline dmname)) {
+			dmname=""
+		}
+
+		printf "%s : %-5s : %s\n", $2, $1, dmname
+
+	} END {
+
+		printf "%s : %-5s : %s\n", "/dev/bcacheX", "back", "lvm-name"
+		
+
+	}'|
+sort

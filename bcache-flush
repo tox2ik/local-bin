@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#(
+#find /sys/ -name writeback_rate | xargs grep -e . 
+#find /sys/ -name dirty_data | xargs grep -e .
+#) | sort | column -ts:
+#
+#find /sys/ -name writeback_rate_debug | xargs grep -e . 
+#
+#echo I did nothing
+
+for i in $(
+find /sys/ -name dirty_data | xargs grep -lve '^0$'
+); do
+
+	echo $i needs to flush $(< $i )
+
+	percent_knob=`dirname  $i`/writeback_percent
+	echo 0 > $percent_knob
+
+
+done
+
+#while
+#find /sys/ -name dirty_data | xargs grep -qve '^0$';
+#do 
+#done
+
+#for i in $(
+#find /sys/ -name dirty_data | xargs grep -lve '^0$'
+#); do
+#	percent_knob=`dirname  $i`/writeback_percent
+#	echo $i
+#	echo P: `grep -e .  $percent_knob`
+#
+#	echo M: $math
+#	echo B: $(
+#	echo "scale=3;`cat $i`" | sed '
+#		s/[kK]/*1024/
+#		s/[mM]/*1024**2/
+#		s/[gG]/*1024**3/
+#
+#	' | bc
+#	)
+#
+#	while [ ${B:-0} -gt $(( 1024 ))  ] ; do
+#		echo D: `cat $i`
+#	done
+#
+#done
+
+

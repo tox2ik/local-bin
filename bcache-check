@@ -1,0 +1,1 @@
+grep 'no cache' /sys/devices/virtual/block/*/bcache/state

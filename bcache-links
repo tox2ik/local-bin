@@ -1,0 +1,42 @@
+#!/bin/bash
+
+
+
+
+# $ bcache-info 
+# /dev/bcache0 : md1   : 
+# /dev/bcache1 : dm-15 : vros-win7c
+# /dev/bcache2 : dm-17 : vros-win7c_nonprep
+# /dev/bcache3 : dm-5  : vros-home
+# /dev/bcache4 : dm-8  : vros-vartp
+# /dev/bcache5 : dm-9  : vros-morrowind
+# /dev/bcacheX : back  : lvm-name
+
+
+mkdir /dev/block/bcache 2>/dev/null
+bcache-info | awk  '
+
+
+	ln=""
+	t=""
+
+	/bcacheX/ { $0="" }
+	
+
+	NF==4 { ln=$3; t=$1  }
+	NF==5 { ln=$5; t=$1  }
+
+
+	{
+
+		if ( length(t) > 0 && length(ln) > 0) {
+
+			printf "ln -fvs %s /dev/block/bcache/%s\n", t, ln  
+		}
+
+	}
+' | sh | sed 's/[‘’]//g; s/->/:->/' | column -ts:
+
+echo 
+ls -gGlL  --time-style=+ --color=always  /dev/block/bcache/* 
+
