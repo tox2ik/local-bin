@@ -1,8 +1,15 @@
 #!/bin/sh
 
-RTFILE=/usr/lib/jvm/java-6-sun-1.6.0.21/jre/lib/rt.jar	#debian
-#RTFILE=/opt/sun-jdk-1.6.0.29/jre/lib/rt.jar				#gentoo
-RTFILE=/opt/sun-jdk-*/jre/lib/rt.jar				#gentoo
+# gentoo
+#RTFILE=/opt/sun-jdk-1.6.0.29/jre/lib/rt.jar
+#RTFILE=/opt/sun-jdk-*/jre/lib/rt.jar
+
+# debian
+RTFILE=/usr/lib/jvm/java-6-sun-1.6.0.21/jre/lib/rt.jar
+
+# gentoo
+RTFILE=/opt/oracle-jdk-*/jre/lib/rt.jar
+
 
 
 JAR=/usr/bin/jar
