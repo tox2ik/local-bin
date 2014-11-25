@@ -1,5 +1,5 @@
 #!/bin/dash
-hdparm -I /dev/sd? 2>&1 | sed -n -E '
+sudo hdparm -I /dev/sd? 2>&1 | sed -n -E '
 
 # ${
 # G
