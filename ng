@@ -16,4 +16,7 @@ screen -dmS nailgun$NAILGUN_PORT \
 java -cp $MYCP com.martiansoftware.nailgun.NGServer &&
 echo server up
 
+$NG ng-alias jsh bsh.Console
+$NG ng-alias shell bsh.Console
+
 $NG $@
