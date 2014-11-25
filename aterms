@@ -31,10 +31,10 @@
     fn=-xos4-terminus-*-r-*-12-*
     fb=-xos4-terminus-*-r-*-12-*
 
-	fn=-*-proggyclean-*-r-normal-*-13-*-*-*-*-*-*-*
-	#fn=-*-proggyclean-*-r-bold-*-13-*-*-*-*-*-*-*
+	fn=-*-proggyclean-*-*-*-*-13-*-*-*-*-*-*-*
+	fb=-*-proggyclean-medium-*-*-*-13-*-*-*-*-*-*-*
 
-	f_proggy=" -fb $fn -fn $fb "
+	proggy13=" -fb $fn -fn $fb "
 
 
 	fterminus14=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-*
@@ -54,8 +54,12 @@
 	fnmpc=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-*
 	fbmpc=-xos4-*-bold-r-*-*-14-*-*-*-*-*-*-*
 
-    fn_t14=-xos4-terminus-*-*-*-14-*
-    fb_t14=-xos4-terminus-*-*-*-14-*
+    #fn_t14=-xos4-terminus-*-*-*-14-*
+    #fb_t14=-xos4-terminus-*-*-*-14-*
+    fn_t14=xft:Terminus:size=12
+    fb_t14=xft:Terminus:style=bold
+
+	terminus14="-fn $fn_t14 -fb $fb_t14"
 
 	 fb=$fn
 
@@ -126,11 +130,11 @@ function ncmpc { aterm  $l $argsn $g 100x74 -e ncmpc & }
   
 
 function fourFlux {
-	font="-fn $fn_t14 -fb $fb_t14"
-	urxvt -fade 25 $l $argsfu $font $g 90x31+3+2 &
-	urxvt -fade 25 $l $argsfu $font $g 90x42+3-9 &
-	urxvt -fade 25 $l $argsfu $font $g 117x31-4+2 &
-	urxvt -fade 25 $l $argsfu $font $g 117x42-4-9 & 
+	n=-name\ URxvt_four
+	urxvt $n -fade 20 $l $argsfu $terminus14 $g 90x31+3+2 &
+	urxvt $n -fade 20 $l $argsfu $terminus14 $g 90x42+3-9 &
+	urxvt $n -fade 20 $l $argsfu $terminus14 $g 117x31-4+2 &
+	urxvt $n -fade 20 $l $argsfu $terminus14 $g 117x42-4-9 & 
 }
 
 
@@ -162,13 +166,24 @@ function rsixFlux {
 
 	sm=" +sb -name URxvt_rsix $f_small"
 	cmd='-e ssh root@localhost'
+	### # sm1='80x13+3+2'
+	### # sm2='80x12+3+177'
+	### # sm3='80x15+3+339'
+	### # bg1='80x36+3-3' # bot-left
+	### # bg2='128x35-4-3' # bot-right
+	### # bg3='138x39-4+2' # top-right
+	### # sm="-name URxvt_rsix"
+	### # cmd='-e ssh -Y root@localhost'
 
 	for res in $sm1 $sm2 $sm3 ;do 
-		urxvt $sm $l $g $res $cmd & sleep 0.1
+		urxvt -fade 20 +sb $sm $l $g $res $proggy13 $cmd & sleep 0.1
 		done &
 
+	#urxvt -fade 20 +sb $sm $l $g 70x38+0+0 \
+		#-fb xft:Terminus:14 -fn xft:Terminus:14 $cmd & sleep 0.1
+
 	for res in $bg1 $bg2 $bg3 ;do 
-		urxvt $sm $l $g $res $cmd & sleep 0.2
+		urxvt -fade 20 +sb $sm $l $g $res $terminus14 $cmd & sleep 0.2
 		done &
 } 
 
