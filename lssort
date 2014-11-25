@@ -4,6 +4,10 @@
 # this is somewhat obsolete with a recent version of coreutils as ls now 
 # supports --group-directories-first
 # 
+#
+# bugs: <> in filename
+# files named e.g -l (valid parameters)
+
 
 
 function trim {
