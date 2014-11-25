@@ -1,18 +1,5 @@
 #!/bin/bash
-AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0'
-CURL=/usr/bin/curl
 
-if [ `echo $1|grep -Eq '^[.0-9]{1,}$'; echo $?` -eq 0 ]
-then 
-	AMOUNT=$1; 
-	FROM=$2;
-	TO=$3;
-else
-	AMOUNT=$3;
-	FROM=$1;
-	TO=$2;
-fi
-SERVICE="http://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
 
 if [ $# -lt 3 ];
@@ -152,11 +139,37 @@ MOO
 	exit 1
 fi
 
-$CURL -s -A "$AGENT" "$SERVICE" |\
-	sed -n '/<tr class="uccRes"/,/<\/tr>/p' |\
-	sed -e 's/<[^>]*>//g' -e 's/&nbsp;/ /' -e 's/[\t\ ]*//g' |\
-	tr -d '\n' |\
-	sed -r -e 's/=/ = /' -e 's/[a-zA-Z]{3}/ \L&/g'
+AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/6.0'
+CURL=/usr/bin/curl
 
-echo
+if [ `echo $1|grep -Eq '^[.0-9]{1,}$'; echo $?` -eq 0 ]
+then 
+	AMOUNT=$1; 
+	FROM=$2;
+	TO=$3;
+else
+	AMOUNT=$3;
+	FROM=$1;
+	TO=$2;
+fi
+SERVICE="http://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
+$CURL -s -A "$AGENT" "$SERVICE" | 
+sed -n '
+	/<tr class="uccRes"/,/<\/tr>/{
+		s/<!-- WARNING.*//
+		s/<[^>]*>//g
+		s/&nbsp;/ /
+		s/[\t\ ]*//g
+		/^$/d
+		H
+	}
+
+	${
+		x
+		s/\n//g
+		s/=/ = /
+		s/[a-zA-Z]\{3\}/ \L&/g
+		p
+	}
+	'
