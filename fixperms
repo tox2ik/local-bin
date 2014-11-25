@@ -1,9 +1,36 @@
-#!/bin/sh
-if [ x$1 = x ];
-then
-	echo please specify where.
-	exit
+#!/bin/bash
+
+if find -version  | grep -q 'GNU findutils'; then
+	true
+else 
+	echo $0 works with GNU find.
 fi
 
-find "$1" -type d -exec chmod 755 {} +
-find "$1" -type f -exec chmod 644 {} +
+if [ $# -lt 1 ] ; then
+	echo usage:
+	echo `basename "$0"` /path/ [dir_mask] [file_mask] [user] [group]
+	exit 1
+fi
+
+tmp=`mktemp /tmp/fixperms.XXX`
+
+target=${1:-.}
+dir_permissions=${2:-755}
+file_permissions=${3:-644}
+new_user=${4:-$USER}
+new_group=${5:-`id -gn $new_user`}
+
+find "$target" -printf "%u:%g %m %p\n" > $tmp
+
+if [ $# -eq 4 ];then
+	chown $new_user -R $target 
+fi
+
+if [ $# -eq 5 ];then
+	chown $new_user:$new_group -R $target 
+fi
+
+find $target -type d -exec chmod $dir_permissions {} +
+find $target -type f -exec chmod $file_permissions {} +
+
+echo old permissions were recorded in  $tmp
