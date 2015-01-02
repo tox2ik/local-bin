@@ -1,0 +1,1 @@
+tail -n 1000 -f ~/logs/php_error.log | sed -f ~/logs/crop-php.sed
