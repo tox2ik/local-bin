@@ -1,6 +1,6 @@
 #!/bin/sh
 mpc random on
-mpc load vsnares-fav
+mpc load wake-up
 mpc play 
 mpc volume 40 
 sleep 20
