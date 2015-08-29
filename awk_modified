@@ -1,0 +1,4 @@
+#!/bin/awk -f
+/modified:/ {
+	print $2
+}

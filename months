@@ -1,0 +1,16 @@
+#!/bin/bash
+
+jan01 () { 
+    date +%s -d `date +%Y-01-01`
+}
+dec () { 
+    j=`jan01`;
+    echo $((j + 365*24*3600))
+}
+
+d=`jan01`; dec=`dec`; 
+
+while [ $d -lt $dec ];do
+	let d=$d+2332800; date '+%Y-%m %B' -d@$d;
+done |
+awk '!_[$(NF)]++ { print }'

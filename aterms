@@ -96,17 +96,33 @@ function get_res {
 	xrandr | awk '/\*/ { print $1 }'
 }
 function one { urxvt -ls $argsu  &  }
-function two {  
-	local resolution=$(xrandr | awk '/\*/ { print $1 }')
-	if [[ "$resolution" = "1920x1080" ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $long $g  90x58-1+17 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x27+2+15 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x31+2-14 &
 
-	elif [[ $DISPLAY = :0.0 ]] || [[ $DISPLAY = :0 ]]; then
-		urxvt -name URxvt_laptop -ls +sb $long $g 80x51+3+2 &
-		urxvt -name URxvt_laptop -ls +sb $long $g 89x51-3+2 &
+function desktop_three {
 
+		urxvt -name URxvt_hdmi -ls +sb $long $g 149x28+725+20 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 149x30+725+529 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g  90x59+2+7 &
+}
+
+function desktop_two {  
+
+	if [[ $HOSTNAME == balmora ]]; then
+
+		urxvt -name URxvt_hdmi -ls +sb $long $g 149x27+2+20 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 149x31+2+511 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g  90x59+1198+7 &
+
+		# local heads=$(xrandr | grep -c '\<connected\>')
+		# if ishd && [ $heads -eq 2 ]; then
+
+
+
+		#elif ishd && [ $heads -eq 1 ]; then
+		#	urxvt -name URxvt_hdmi -ls +sb $long $g  90x58-1+17 &
+		#	urxvt -name URxvt_hdmi -ls +sb $long $g 149x27+2+15 &
+		#	urxvt -name URxvt_hdmi -ls +sb $long $g 149x31+2-14 &
+
+		#fi
 	fi
 }
 
@@ -193,6 +209,14 @@ function rsixFlux {
 		urxvt -fade 20 +sb $sm $l $g $res $terminus14 $cmd & sleep 0.2
 		done &
 } 
+
+function ishd {
+	xrandr | awk '
+		BEGIN { havehd=0 }
+		/\*/ { if ($1 == "1920x1080") { havehd=1 } }
+		END { exit havehd == 1 ? 0 : 1; }
+	'
+}
 
 
 if [ -z "$1" ];
