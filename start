@@ -3,6 +3,8 @@
 cmd=`basename $0`
 sysv_daemon=$1
 
+if [ x$sysv_daemon = xapache ]; then sysv_daemon=apache2; fi
+
 if [ ! -f $sysv_daemon ]; then
 	sysv_daemon=/etc/init.d/$sysv_daemon
 fi

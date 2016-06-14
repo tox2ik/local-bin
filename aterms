@@ -59,6 +59,9 @@
     fn_t14=xft:Terminus:size=12
     fb_t14=xft:Terminus:style=bold
 
+    fn_t16=xft:Terminus:size=16
+    fb_t16=xft:Terminus:size=16:style=bold
+
 	terminus14="-fn $fn_t14 -fb $fb_t14"
 
 	 fb=$fn
@@ -97,34 +100,22 @@ function get_res {
 }
 function one { urxvt -ls $argsu  &  }
 
-function desktop_three {
-
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x28+725+20 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x30+725+529 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g  90x59+2+7 &
-}
 
 function desktop_two {  
 
-	if [[ $HOSTNAME == balmora ]]; then
-
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x27+2+20 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 149x31+2+511 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g  90x59+1198+7 &
-
-		# local heads=$(xrandr | grep -c '\<connected\>')
-		# if ishd && [ $heads -eq 2 ]; then
-
-
-
-		#elif ishd && [ $heads -eq 1 ]; then
-		#	urxvt -name URxvt_hdmi -ls +sb $long $g  90x58-1+17 &
-		#	urxvt -name URxvt_hdmi -ls +sb $long $g 149x27+2+15 &
-		#	urxvt -name URxvt_hdmi -ls +sb $long $g 149x31+2-14 &
-
-		#fi
-	fi
+	if [[ $HOSTNAME == balmora ]]; then true; fi
+	urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+2+7 &
+	urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+2-2 &
+	urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+1262+2  &
 }
+
+function desktop_three {
+
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
+}
+
 
 function koray { urxvt -fn xft:cure -fb xft:cure -letsp -3 ;}
 function koray2 { 
@@ -147,16 +138,13 @@ function ncmpc { aterm  $l $argsn $g 100x74 -e ncmpc & }
   
 
 function fourFlux {
-	n=-name\ URxvt_four
-	urxvt $n -fade 20 $l $argsfu $terminus14 $g 90x31+3+2 &
-	urxvt $n -fade 20 $l $argsfu $terminus14 $g 90x42+3-9 &
-	urxvt $n -fade 20 $l $argsfu $terminus14 $g 117x31-4+2 &
-	urxvt $n -fade 20 $l $argsfu $terminus14 $g 117x42-4-9 & 
-	#local font="-fn $fn_t14 -fb $fb_t14"
-	#urxvt -fade 25 $l $argsfu $font $g 90x31+3+2 &
-	#urxvt -fade 25 $l $argsfu $font $g 90x42+3-9 &
-	#urxvt -fade 25 $l $argsfu $font $g 117x31-4+2 &
-	#urxvt -fade 25 $l $argsfu $font $g 117x42-4-9 & 
+	local font="-fn $fn_t16 -fb $fb_t16"
+	local name=-name\ URxvt_four
+	urxvt $name -fade 25 $l $argsfu $font $g 90x31+3+2 &
+	urxvt $name -fade 25 $l $argsfu $font $g 90x42+3-9 &
+	urxvt $name -fade 25 $l $argsfu $font $g 117x31-4+2 &
+	urxvt $name -fade 25 $l $argsfu $font $g 117x42-4-9 & 
+	true;
 }
 
 

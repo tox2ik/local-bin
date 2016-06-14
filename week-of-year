@@ -1,1 +1,1 @@
-echo $(( $(date +%W) +1))
+date +%W

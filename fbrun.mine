@@ -9,4 +9,8 @@ POS="`xwininfo -root |
 
 FONT='FFF Tusj:size=284' 
 FONT='HelveticaNeueLT Com 75 BdOu:size=130'
+balmora: ~/www/wp-content/plugins/mko-widgets
+
+FONT='Linux Biolinum Keyboard:size=120'
+
 fbrun -font "$FONT"  $POS -fg '#ff4800' -bg '#090909'

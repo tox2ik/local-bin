@@ -1,1 +1,2 @@
-tail -n 1000 -f ~/logs/php_error.log | sed -f ~/logs/crop-php.sed
+tail -n 1000 -f ~/logs/php_error.log |& sed -f ~/logs/crop-php.sed
+#|& colorit -c ~/.coloritrc-php.error_log
