@@ -1,2 +1,16 @@
-#!/bin/sh
-MANPAGER=cat man $@ | grep -E '^^[[1m[A-Z]{3,}'
+#!/bin/bash
+# 
+# List all sections of a manpage.
+
+# Uses lesspipe (gentoo portage mirror)
+# /usr/portage/sys-apps/less/files/lesspipe.sh
+# v01: MANPAGER=cat man $@ | grep -E '^^[[1m[A-Z]{3,}'
+
+MAN=$(find ${MANPATH//:/ } | grep "/$1\.")
+
+eval $(grep guesscompress -A 12 /usr/bin/lesspipe.sh  | sed /}/q)
+READ=$(guesscompress .${MAN##*.})
+
+
+#$READ $MAN | grep -E -e '^\.SH' | sed 's/^.SH //'
+$READ $MAN | sed '/^\.SH/!d; /^\.SH/{ s/^....// }'
