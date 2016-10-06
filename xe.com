@@ -154,22 +154,31 @@ else
 fi
 SERVICE="http://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
-$CURL -s -A "$AGENT" "$SERVICE" | 
-sed -n '
-	/<tr class="uccRes"/,/<\/tr>/{
-		s/<!-- WARNING.*//
-		s/<[^>]*>//g
-		s/&nbsp;/ /
-		s/[\t\ ]*//g
-		/^$/d
-		H
-	}
+$CURL -s -A "$AGENT" "$SERVICE"  |
+grep uccResultAndAdWrapper |
+sed '
+s/span>/span>\n/g
+s/&#10132;//
+'|
+2>/dev/null html2text -nobs -style pretty | 
+grep = | sed -e "s/^[^0-9]\+//" |
+head -n1 | sed -e 's/\ \+/ /g'
 
-	${
-		x
-		s/\n//g
-		s/=/ = /
-		s/[a-zA-Z]\{3\}/ \L&/g
-		p
-	}
-	'
+#sed -n '
+#	/<tr class="uccRes"/,/<\/tr>/{
+#		s/<!-- WARNING.*//
+#		s/<[^>]*>//g
+#		s/&nbsp;/ /
+#		s/[\t\ ]*//g
+#		/^$/d
+#		H
+#	}
+#
+#	${
+#		x
+#		s/\n//g
+#		s/=/ = /
+#		s/[a-zA-Z]\{3\}/ \L&/g
+#		p
+#	}
+#	'
