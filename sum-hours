@@ -1,0 +1,19 @@
+#!/usr/bin/awk -f
+BEGIN {
+FS=":" 
+}
+{
+if (NF == 3) { hs += $1*3600; ms += $2*60; ss += $3 }
+if (NF == 2) { hs += $1*3600; ms += $2*60 }
+if (NF == 1) { hs += $1*3600 } 
+}
+
+END {
+h=0; m=0; s=0;
+st = hs+ms+ss;
+mr = st % 3600;
+h = int(st/3600);
+m = int(mr / 60)
+s = mr % 60
+printf "%d:%02d:%02d\n", h, m, s;
+}
