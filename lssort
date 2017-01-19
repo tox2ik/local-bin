@@ -16,8 +16,12 @@ function trim {
 	#$ var="  hello space    "
 	#$ echo "<<${var%%[![:space:]]*}>>"
 	#$ <<  >>
+
     var="${var#"${var%%[![:space:]]*}"}" # rm leading whitespace characters
     var="${var%"${var##*[![:space:]]}"}" # rm trailing whitespace characters
+
+    var="${var#"${var%%[![\\0]*}"}" # rm leading nulls characters
+    var="${var%"${var##*[![\\0]}"}" # rm trailing nulls characters
     echo -n "$var"
 }
 
@@ -87,14 +91,14 @@ do
 		PATHS[${ARGC}]=$ARG
 		let ARGC=ARGC+1
 	else
-		FPATHS="${FPATHS} $ARG"
+		FPATHS="${FPATHS}\0$ARG"
 	fi
 	shift
 	ARG=$1
 done
 
 #PATHS=`trim $PATHS`
-FPATHS=`trim $FPATHS`
+FPATHS=`trim "$FPATHS"`
 
 if [ ${#FPATHS} -eq 0 ]; then 
 	if [ ${#PATHS[@]} -eq 0 ]; then
@@ -120,7 +124,7 @@ do
 	)
 done
 
-echo $FPATHS | xargs -r $LS $LSSWITCHES 
-#echo paths.:\<${PATHS[@]}\> size: ${#PATHS[@]}
-#echo fpaths:\<$FPATHS\>
+if [ -n "$FPATHS" ]; then
+	echo -ne "$FPATHS\0" | xargs -0 -r $LS $LSSWITCHES --
+fi 
 
