@@ -70,7 +70,6 @@ validswitches=(-X -l -r -t -C -F -1 -a -A -d -s)
 PATHS=()
 FPATHS=""
 LSSWITCHES=""
-ORIGIN_DIR="`pwd`"
 LS=ls\ --color=auto
 FIND=/usr/bin/find
 
@@ -111,13 +110,14 @@ do
 		p=$arg
 	fi
 
-	cd "$p"
-	if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
-	finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-	findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES --
-	findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-	[ ${#PATHS[@]} -gt 1 ] && echo 
-	cd "$ORIGIN_DIR"
+	( cd "$p"
+
+		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
+		finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
+		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES --
+		findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
+		[ ${#PATHS[@]} -gt 1 ] && echo
+	)
 done
 
 echo $FPATHS | xargs -r $LS $LSSWITCHES 
