@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+
 # what?
 # lists files after folders like windoze explorer
 # this is somewhat obsolete with a recent version of coreutils as ls now 
@@ -112,9 +113,9 @@ do
 
 	cd "$p"
 	if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
-	finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d 
-	findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES 
-	findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d
+	finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
+	findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES --
+	findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 	[ ${#PATHS[@]} -gt 1 ] && echo 
 	cd "$ORIGIN_DIR"
 done
