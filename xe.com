@@ -154,15 +154,25 @@ else
 fi
 SERVICE="http://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
-$CURL -s -A "$AGENT" "$SERVICE"  |
-grep uccResultAndAdWrapper |
-sed '
-s/span>/span>\n/g
-s/&#10132;//
-'|
-2>/dev/null html2text -nobs -style pretty | 
-grep = | sed -e "s/^[^0-9]\+//" |
-head -n1 | sed -e 's/\ \+/ /g'
+
+$CURL -s -A "$AGENT" "$SERVICE" |
+	sed -e 's/</\n</g' |
+	sed -n /ucc-container/,/uccSubTitle/p |
+	html2text -nobs |
+	grep = |
+	sed -E -e 's/\s+/ /g; s/^ //'  |
+	tac
+
+
+# |
+# grep uccResultAndAdWrapper |
+# sed '
+# s/span>/span>\n/g
+# s/&#10132;//
+# '|
+# 2>/dev/null html2text -nobs -style pretty | 
+# grep = | sed -e "s/^[^0-9]\+//" |
+# head -n1 | sed -e 's/\ \+/ /g'
 
 #sed -n '
 #	/<tr class="uccRes"/,/<\/tr>/{
