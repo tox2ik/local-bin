@@ -8,7 +8,23 @@
 
 MAN=$(find ${MANPATH//:/ } | grep "/$1\.")
 
-eval $(grep guesscompress -A 12 /usr/bin/lesspipe.sh  | sed /}/q)
+
+#eval $(sed -n -e /^guesscompress/,/^}/p /usr/bin/lesspipe)
+guesscompress() {
+	case "$1" in
+		*.gz|*.z)   echo "gunzip -c" ;;
+		*.bz2|*.bz) echo "bunzip2 -c" ;;
+		*.lz)       echo "lzip -dc" ;;
+		*.lzma)     echo "unlzma -c" ;;
+		*.lzo)      echo "lzop -dc" ;;
+		*.xz)       echo "xzdec" ;;
+		*)          echo "cat" ;;
+	esac
+}
+
+if [ -f /usr/bin/lesspipe.sh ]; then source /usr/bin/lesspipe.sh; fi
+if [ -f /usr/bin/lesspipe ]; then source /usr/bin/lesspipe; fi
+
 READ=$(guesscompress .${MAN##*.})
 
 
