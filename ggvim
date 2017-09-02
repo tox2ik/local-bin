@@ -1,0 +1,1 @@
+gvim -geometry 206x54+27+38 $@

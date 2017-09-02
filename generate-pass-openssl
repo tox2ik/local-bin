@@ -1,0 +1,2 @@
+#!/bin/sh
+exec openssl rand 102400 | sort -R | tr -cd '[:graph:]' | tr -d "\"'" | dd bs=1 count=${1:-64} status=none ; echo
