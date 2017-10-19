@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# fetch a list of debian versions from wikipedia.
+
+os=$(basename ${0%%-*})
+Os=${os^}
+
+ref=$HOME/reference/os/$os/versions
+
+echo $ref
+
+if [ -f "$ref" ] && [ "$1" != -u ]; then cat $ref; exit; fi
+
+versions=$(
+	curl "https://en.wikipedia.org/wiki/${Os}_version_history" |
+	html2text -nobs -style pretty -width 500 |
+	sed -n -e "
+	/^Ubuntu/{
+	  /\[edit/{
+	    s/\[edit]//
+	    p
+	  }
+	}
+
+	/^Debian.*[0-9]/ {
+	  /in Spanish/d
+	  /codenames.*based/d
+	  s/ is.*upcoming.*/ *future*/
+	  /\[edit/d
+	  s/released.*//;
+	  s/ was.*//;
+	  s/,//;
+	  p
+	}"
+)
+
+if [ -d $(dirname $ref) ] && [ "$1" = -u ]; then
+	echo -e "$versions" > $ref || echo try mkdir -p $(dirname $ref) and rerun $0 -u 1>&2
+	uniq=$(sort -u -k1,1n -k2,2n -k3,3n -u $ref)
+	echo -e "$uniq" > $ref
+fi
+
+echo -e "$versions"
+
+if [ "$1" = -h ] || [ "$1" = --help ];then
+	echo run $0 -u to update $ref 1>&2
+fi
