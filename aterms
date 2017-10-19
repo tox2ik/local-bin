@@ -56,11 +56,10 @@
 
     #fn_t14=-xos4-terminus-*-*-*-14-*
     #fb_t14=-xos4-terminus-*-*-*-14-*
-    fn_t14=xft:Terminus:size=12
-    fb_t14=xft:Terminus:style=bold
-
-    fn_t16=xft:Terminus:size=16
-    fb_t16=xft:Terminus:size=16:style=bold
+    fn_t14=xft:xos4\ Terminus:size=12
+    fb_t14=xft:xos4\ Terminus:style=bold
+    fn_t16=xft:xos4\ Terminus:size=16
+    fb_t16=xft:xos4\ Terminus:size=16:style=bold
 
 	terminus14="-fn $fn_t14 -fb $fb_t14"
 
@@ -102,7 +101,7 @@ function one { urxvt -ls $argsu  &  }
 
 
 function desktop_two {  
-
+	xrdb -merge ~/.Xdefaults.urxvt
 	if [[ $HOSTNAME == balmora ]]; then true; fi
 	urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+2+7 &
 	urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+2-2 &
@@ -111,16 +110,16 @@ function desktop_two {
 
 function desktop_three {
 
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
+	urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
+	urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
+	urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
 }
 
 
 function koray { urxvt -fn xft:cure -fb xft:cure -letsp -3 ;}
 function koray2 { 
-	local f=xft:terminus:size=8; 
-	urxvt -fn $f:style=bold -fb $f; 
+	local f=xft:xos4\ terminus:size=8; 
+	urxvt -fn "$f" -fb "$f:style=bold"; 
 }
 
 
