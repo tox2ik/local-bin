@@ -4,13 +4,11 @@ POS="`xwininfo -root |
 		/Width/ {w=$2} 
 		/Height/ {h=$2} 
 		END { 
-			printf "-w %d -h %d -pos 20 %d \n",w-60, 190, h/4
+			printf "-w %d -h %d -pos 20 %d \n",w-60, 270, h/4
 	}'`"
 
-FONT='FFF Tusj:size=284' 
 FONT='HelveticaNeueLT Com 75 BdOu:size=130'
-balmora: ~/www/wp-content/plugins/mko-widgets
-
-FONT='Linux Biolinum Keyboard:size=120'
-
-fbrun -font "$FONT"  $POS -fg '#ff4800' -bg '#090909'
+FONT='Helvetica Neue LT Std,HelveticaNeueLT Std Thin Ext'
+FONT='xos4 Terminus:size=120'
+FONT='FFF Tusj:size=150' 
+fbrun -font "$FONT" $POS -fg '#ff4800' -bg '#090909'
