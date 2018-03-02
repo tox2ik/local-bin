@@ -103,16 +103,28 @@ function one { urxvt -ls $argsu  &  }
 function desktop_two {  
 	xrdb -merge ~/.Xdefaults.urxvt
 	if [[ $HOSTNAME == balmora ]]; then true; fi
-	urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+2+7 &
-	urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+2-2 &
-	urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+1262+2  &
+
+	if [[ `get_res` = "1920x1080" ]]; then
+		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
+	else
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+2-2 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+1262+2  &
+	fi
 }
 
 function desktop_three {
 
-	urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
-	urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
-	urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
+	if [[ `get_res` = "1920x1080" ]]; then
+		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
+	else
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
+	fi
+
 }
 
 

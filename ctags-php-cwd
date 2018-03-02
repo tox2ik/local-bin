@@ -6,7 +6,7 @@ if [ -d "$1" ]; then here=$1 ;fi
 out_temp=$here/php.ctags_temp
 out=$here/php.ctags
 
-find $here -type f -name \*.php > $list
+find $here -type f -name \*.php -or -name \*.inc > $list
 #echo $here: `wc -l $list | cut -d ' ' -f1` php files - user: $USER
 
 

@@ -155,13 +155,15 @@ fi
 SERVICE="http://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
 
+
 $CURL -s -A "$AGENT" "$SERVICE" |
 	sed -e 's/</\n</g' |
 	sed -n /ucc-container/,/uccSubTitle/p |
 	html2text -nobs |
 	grep = |
 	sed -E -e 's/\s+/ /g; s/^ //'  |
-	tac
+	tac |
+	tee -a ~/.xe-results
 
 
 # |

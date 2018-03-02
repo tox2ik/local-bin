@@ -1,9 +1,11 @@
 #!/bin/sh
-# url=http://team-trafikk.no/team_bussorakel.asp
 
 curl=/usr/bin/curl # -# -d "
 opts="-s --connect-timeout 5 --sslv3"
-url="https://www.atb.no/xmlhttprequest.php?service=routeplannerOracle.getOracleAnswer&question="
+# team trafikk cops out: url=http://team-trafikk.no/team_bussorakel.asp
+# atb shows cops out: url="https://www.atb.no/xmlhttprequest.php?service=routeplannerOracle.getOracleAnswer&question="
+# thank you, rune sætre 
+url=http://busstjener.idi.ntnu.no/busstuc/oracle?q= #=naar%20gaar%20bussen%20fra%20gl%C3%B8s%20til%20by%C3%A5sen%20skole
 
 question=`echo $@ |sed "
 	s/å/%C3%A5/g
@@ -11,13 +13,10 @@ question=`echo $@ |sed "
 	s/ø/%C3%B8/g
 	s/\ /%20/g"`
 
-date +"Tiden er nå: %T (%a, %_d. %b)%n"
+date +"Tiden er nå: %T (%a, %_d. %b)"
 
 $curl $opts "$url$question" | sed '
-	/Holdeplassen nærmest.*/ {
-		s/\.\ /.\n/
-	}
-	
+	/Holdeplassen nærmest.*/ { s/\.\ /.\n/ }
 	s/går fra/\n\t&/g
 	s/kl\./\n    kl./g
 	s/og buss/og\nbuss/

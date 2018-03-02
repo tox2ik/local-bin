@@ -16,7 +16,11 @@ if (count($argv) == 2) {
             : $argv[1]
     ));
 } else {
-	print_r($fn(trim(fgets(STDIN))));
+    //$h1 = fopen('r', STDIN);
+
+    while ($line = fgets(STDIN)) {
+        print_r($fn(trim($line)));
+    }
 }
 
 echo  PHP_EOL;
