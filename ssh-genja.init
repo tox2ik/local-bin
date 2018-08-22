@@ -1,0 +1,32 @@
+#!/sbin/openrc-run
+
+depend() { need net; }
+
+start() {
+        local port_balmora=9922
+        local port_raptor=8822
+        local port_tryggve=7722
+        local varname=port_$HOSTNAME
+        local myport=${!varname}
+
+	rm -f /run/ssh-genja.pid
+	#AUTOSSH_DEBUG=0 
+	AUTOSSH_PIDFILE=/run/ssh-genja.pid AUTOSSH_POLL=15 autossh -M0 genja.org \
+		-o TCPKeepAlive=no \
+		-o ServerAliveInterval=20 \
+		-o ServerAliveCountMax=1 \
+                -o ConnectTimeout=20 \
+                -o ConnectionAttempts=401760 \
+                -i /root/.ssh/$HOSTNAME-genja \
+                -l jaroslav -N -R $myport:localhost:22 &
+        local ok=$? pid=$!
+        einfo Shell tunnel: genja:$myport -\> lo:22
+        eend $ok
+}
+
+stop() {
+	local pid=$(< /run/ssh-genja.pid);
+	if [ -n "$pid" ]; then kill $pid; einfo ok.;
+	else einfo No pid file for $0; fi;
+	rm -f /run/ssh-genja.pid;
+}

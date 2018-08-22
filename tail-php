@@ -1,2 +1,59 @@
-tail -n ${1:-1000} -f ~/logs/php_error.log |& sed -f ~/logs/crop-php.sed
-#|& colorit -c ~/.coloritrc-php.error_log
+#!/bin/bash
+
+tsed() {
+	tail -n 400 -f ~/logs/php_error.log |&
+		sed -f ~/logs/crop-php.sed
+}
+
+tsed_w() {
+	tail -n 400 -f ~/logs/php_error.log |&
+		sed -f ~/logs/crop-php.sed |
+		parallel "echo {} | fmt -w  $1"
+}
+
+tgrc() {
+	grc tail -n 400 -f ~/logs/php_error.log |&
+		sed -f ~/logs/crop-php.sed
+}
+
+tcolorit() {
+	tail -n 400 -f ~/logs/php_error.log \
+		|& sed -f ~/logs/crop-php.sed \
+		|& colorit -c ~/.coloritrc-php.error_log
+}
+
+_meow() {
+	watch -c -n 0.4 "
+		tail -n ${1:-20} ~/logs/php_error.log |&
+			sed -f ~/logs/crop-php.sed  |&
+			parallel 'echo {} | fmt -w  200' | 
+			grcat php.conf
+			# awk -f ~/logs/pipe-to-fmt.awk |&
+	"
+}
+
+watch() {
+	target=$(realpath $HOME/logs/php_error.log)
+	( sleep 1; touch $target) &
+	while true; do
+		inotifywait -e modify -e move -e attrib -e delete $target 2>/dev/null
+		tail -n ${1:-20} $target |
+			sed -f ~/logs/crop-php.sed  |
+			parallel 'echo {} | fmt -w  200' | 
+			grcat php.conf
+		sleep 0.05
+	done
+}
+
+
+if [[ $1 = watch ]]; then
+	watch ${2:-30}
+elif [[ ${1#w} -gt 0 ]]; then
+	tsed_w ${1#w}
+else 
+	tsed
+fi
+
+
+
+
