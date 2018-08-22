@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 if [ $# -lt 3 ];
 then
 cat <<MOO

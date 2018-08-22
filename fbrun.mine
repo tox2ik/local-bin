@@ -11,4 +11,6 @@ FONT='HelveticaNeueLT Com 75 BdOu:size=130'
 FONT='Helvetica Neue LT Std,HelveticaNeueLT Std Thin Ext'
 FONT='xos4 Terminus:size=120'
 FONT='FFF Tusj:size=150' 
-fbrun -font "$FONT" $POS -fg '#ff4800' -bg '#090909'
+fbrun -font "$FONT" $POS -fg '#ff4800' -bg '#090909' &
+
+transset -n 'Run program' 0.86

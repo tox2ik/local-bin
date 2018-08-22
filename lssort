@@ -6,7 +6,10 @@
 # supports --group-directories-first
 # 
 #
-# bugs: <> in filename
+# bugs: 
+#    - <> in filename
+#    - device files are missing
+# 
 # files named e.g -l (valid parameters)
 
 
@@ -58,7 +61,7 @@ function findfiles {
 
 function findspecials {
 	find "$@" \
-		-maxdepth 1 -depth \( -type l   -o -type p   -o -type s \) \
+		-maxdepth 1 -depth \( -type l   -o -type p  -o -type s -o -type b -o -type c \) \
 		-printf "%f\0"
 }
 
