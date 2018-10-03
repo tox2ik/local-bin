@@ -1,0 +1,7 @@
+#!/bin/bash
+webserver=$(
+		if   getent passwd www-data >/dev/null; then echo www-data; 
+		elif getent passwd apache   >/dev/null; then echo apache  ; 
+		fi
+)
+sudo setfacl -R -m u:$USER:rwX,u:$webserver:rwX ${1:-/T/trsys/tidsrapportering/git/var/}
