@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 # todo
 # fetch device size with blockdev --report /dev/sda if device is non-standard. 
 # .. or look in sys
