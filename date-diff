@@ -1,0 +1,18 @@
+#!/bin/bash
+now=$(date +%F)
+from=$(date -d "$1" +%s)
+to=$(date -d "${2:-$now}" +%s)
+
+diff=$(( to - from))
+
+
+echo $diff seconds
+echo $(( diff / 3600 )) hours
+echo $(( diff / 3600 / 24 )) days
+
+if type sec2hrs 1>/dev/null 2>&1;
+then
+	sec2hrs ${diff/-/}
+fi
+
+
