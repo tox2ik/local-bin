@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/bash
 #echo -- $@
 #echo -- $1
 #echo "$1"
@@ -22,6 +22,11 @@ for i; do
 	s/^-i$/-iname/
 	')"
 done
+
+if [[ $1 = $args ]]; then
+	eval /usr/bin/find $where -name "*$1*"
+	exit
+fi
 
 if [ $D -gt 0 ];then echo /usr/bin/find $where $args; fi
 eval /usr/bin/find $where $args

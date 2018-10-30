@@ -37,11 +37,12 @@ watch() {
 	( sleep 1; touch $target) &
 	while true; do
 		inotifywait -e modify -e move -e attrib -e delete $target 2>/dev/null
+		echo -e "\n\n\n";
 		tail -n ${1:-20} $target |
 			sed -f ~/logs/crop-php.sed  |
 			parallel 'echo {} | fmt -w  200' | 
 			grcat php.conf
-		sleep 0.05
+		sleep 2
 	done
 }
 

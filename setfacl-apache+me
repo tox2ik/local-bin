@@ -5,3 +5,5 @@ webserver=$(
 		fi
 )
 sudo setfacl -R -m u:$USER:rwX,u:$webserver:rwX ${1:-/T/trsys/tidsrapportering/git/var/}
+sudo setfacl -R -m u:$USER:rwX,u:www-data:rwX ${1:-/T/trsys/tidsrapportering/git/var/}
+sudo setfacl -R -m u:$USER:rwX,u:apache:rwX ${1:-/T/trsys/tidsrapportering/git/var/}

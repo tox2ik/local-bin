@@ -88,9 +88,9 @@ argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"
 su='sudo su -' g='-geometry'                          
 #su='sudo su -' g='-geometry'                          
 	
-	l='-sl 12000' s='-sl 100'
+	l='-sl 120000' s='-sl 100'
 
-long='-sl 12000'
+long='-sl 120000'
 short='-sl 100'
 
 
@@ -100,6 +100,7 @@ function get_res {
 function one { urxvt -ls $argsu  &  }
 
 
+function d2() { desktop_two; }
 function desktop_two {  
 	xrdb -merge ~/.Xdefaults.urxvt
 	if [[ $HOSTNAME == balmora ]]; then true; fi
@@ -114,6 +115,7 @@ function desktop_two {
 	fi
 }
 
+function d3() { desktop_three; }
 function desktop_three {
 
 	if [[ `get_res` = "1920x1080" ]]; then

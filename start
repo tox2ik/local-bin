@@ -3,8 +3,17 @@
 cmd=`basename $0`
 sysv_daemon=$1
 
-if [ x$sysv_daemon = xapache ] || [ x$sysv_daemon = /i/apache2 ]; then
+if [ x$sysv_daemon = xapache ] || 
+		[ x$sysv_daemon = httpd ];
+then
 	sysv_daemon=apache2; fi
+
+
+if [ x$sysv_daemon = xpostgres ] || 
+		[ x$sysv_daemon = xpg ] ||
+		[ x$sysv_daemon = /i/postgres ];
+then
+	sysv_daemon=postgresql-9.6; fi
 
 if [ ! -f $sysv_daemon ]; then
 	sysv_daemon=/etc/init.d/$sysv_daemon

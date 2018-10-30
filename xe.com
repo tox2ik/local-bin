@@ -2,6 +2,7 @@
 
 if [ $# -lt 3 ];
 then
+# {{{
 cat <<MOO
 Albania, Leke           ALL
 Afghanistan, Afghanis   AFN
@@ -136,11 +137,9 @@ MOO
         echo $0 FROM TO AMMOUNT
         exit 1
 fi
+## }}}
 
-AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/6.0'
-CURL=/usr/bin/curl
-
-if [ `echo $1|grep -Eq '^[.0-9]{1,}$'; echo $?` -eq 0 ]
+if echo $1 | grep -Eq '^[.0-9]{1,}$' 
 then
         AMOUNT=$1;
         FROM=$2;
@@ -150,45 +149,10 @@ else
         FROM=$1;
         TO=$2;
 fi
-SERVICE="https://www.xe.com/currencyconverter/convert/?Amount=${AMOUNT}&From=${FROM}&To=${TO}"
 
-
-$CURL -s -A "$AGENT" "$SERVICE" |
-        sed -e 's/</\n</g' |
-        sed -n /ucc-container/,/uccSubTitle/p |
-        html2text -nobs |
-        grep = |
-        sed -E -e 's/\s+/ /g; s/^ //'  |
-        tac |
-        tee -a ~/.xe-results
-
-
-# |
-# grep uccResultAndAdWrapper |
-# sed '
-# s/span>/span>\n/g
-# s/&#10132;//
-# '|
-# 2>/dev/null html2text -nobs -style pretty |
-# grep = | sed -e "s/^[^0-9]\+//" |
-# head -n1 | sed -e 's/\ \+/ /g'
-
-#sed -n '
-#       /<tr class="uccRes"/,/<\/tr>/{
-#               s/<!-- WARNING.*//
-#               s/<[^>]*>//g
-#               s/&nbsp;/ /
-#               s/[\t\ ]*//g
-#               /^$/d
-#               H
-#       }
-#
-#       ${
-#               x
-#               s/\n//g
-#               s/=/ = /
-#               s/[a-zA-Z]\{3\}/ \L&/g
-#               p
-#       }
-#       '
-
+json=$(curl "https://free.currencyconverterapi.com/api/v6/convert?q=${FROM}_$TO&compact=y")
+rate=$(echo $json | grep -o '[[:digit:]\.]\+')
+product=$( echo "scale=6;$AMOUNT*$rate" | bc)
+printf "%.2f\n" $product
+echo `date --iso-8601` "$AMOUNT $FROM x $rate $TO = $product" >> ~/.xe-results 
+# vim: ft=sh foldmethod

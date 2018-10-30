@@ -1,1 +1,2 @@
+#!/bin/bash
 find ${1:-/tmp} -type f -printf "%A@ %p\n" | sort -n  | awk '{ $1="" ; gsub(/^\ /,"", $0); print }'

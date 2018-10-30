@@ -1,6 +1,27 @@
 #!/bin/bash
-O=
-for code in {0..255}; do 
+#O=
+# ! Color definitions for [U]Rxvt
+# ! -color- -normal- -bold-
+# ! black    0         8
+# ! red      1         9
+# ! green    2        10
+# ! yellow   3        11
+# ! blue     4        12
+# ! magenta  5        13
+# ! cyan     6        14
+# ! white    7        15
+
+for code in {0..15}; do 
 	if [[ code%8 -eq 0 ]];then echo ;fi
-	printf "%5s" `echo -n -e "\e[38;05;${code}m $code: Test"`
+	printf "%5s" `echo -n -e "\e[38;05;${code}m $code: color"`
 done
+echo
+for code in {16..255}; do 
+	if [[ code%8 -eq 0 ]];then echo ;fi
+	printf "%5s" `echo -n -e "\e[38;05;${code}m $code: color"`
+done
+echo
+
+
+
+
