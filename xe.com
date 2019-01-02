@@ -151,7 +151,7 @@ else
         TO=$2;
 fi
 
-json=$(curl "https://free.currencyconverterapi.com/api/v6/convert?q=${FROM}_$TO&compact=y")
+json=$(curl -k "https://free.currencyconverterapi.com/api/v6/convert?q=${FROM}_$TO&compact=y")
 rate=$(echo $json | grep -o '[[:digit:]\.]\+')
 product=$( echo "scale=6;$AMOUNT*$rate" | bc)
 printf "%.2f\n" $product
