@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/bin/bash 
 #echo -- $@
 #echo -- $1
 #echo "$1"
 #echo "???"
 D=0
+
+where=.
 
 for i; do 
 	#echo $i
@@ -12,7 +14,7 @@ for i; do
 	if [ -d "$i" ];   then
 		where=$i; continue; fi
 
-	args="$args $(
+	arg="$(
 	# echo bug: echo -n '-n' -n
 	echo @%$i | sed -E '
 	s/^@%//
@@ -21,10 +23,14 @@ for i; do
 	s/^-n$/-name/
 	s/^-i$/-iname/
 	')"
+
+
+	if [[ -z "$args" ]]; then ws=''; else ws=' '; fi # avoid appending a whitespace to a lone arg
+	if [ -n "$arg" ]; then args="$args$ws$arg"; fi
 done
 
-if [[ $1 = $args ]]; then
-	eval /usr/bin/find $where -name "*$1*"
+if [[ "$1" == "$args" ]]; then
+	eval /usr/bin/find $where -name "\*$1\*"
 	exit
 fi
 
