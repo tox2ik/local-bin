@@ -1,0 +1,4 @@
+(
+curl 'https://www.random.org/quick-pick/?tickets=2&lottery=7x49.0x0' | html2text  | grep -E '([0-9]|-){12,}' -o 
+dd status=none if=/dev/urandom count=128 bs=1;
+) | sha512sum -b | base64 -w 24
