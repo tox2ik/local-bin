@@ -27,6 +27,16 @@ if [ -f /usr/bin/lesspipe ]; then source /usr/bin/lesspipe; fi
 
 READ=$(guesscompress .${MAN##*.})
 
-
-#$READ $MAN | grep -E -e '^\.SH' | sed 's/^.SH //'
-$READ $MAN | sed '/^\.SH/!d; /^\.SH/{ s/^....// }'
+if [ $# -gt 1 ]; then
+	$READ $MAN | sed -E '
+		/^.(SH|SS)/!d; 
+		s/^.SH //;
+		s/^.SS /    /;
+		s/"//g;
+	'
+else
+	$READ $MAN | sed '
+		/^\.SH/!d;
+		s/^.SH //
+	'
+fi 
