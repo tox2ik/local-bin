@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ $# -lt 3 ];
 then
 # {{{
@@ -151,9 +150,28 @@ else
         TO=$2;
 fi
 
-json=$(curl -k "https://free.currencyconverterapi.com/api/v6/convert?q=${FROM}_$TO&compact=y")
-rate=$(echo $json | grep -o '[[:digit:]\.]\+')
-product=$( echo "scale=6;$AMOUNT*$rate" | bc)
-printf "%.2f\n" $product
-echo `date --iso-8601` "$AMOUNT $FROM x $rate $TO = $product" >> ~/.xe-results 
-# vim: ft=sh foldmethod
+headers=$(mktemp)
+
+
+
+
+
+
+json=$(curl -D $headers -k "https://free.currencyconverterapi.com/api/v6/convert?q=${FROM}_$TO&compact=y")
+
+if grep $headers -q -e ^HTTP.*200; then
+	rate=$(echo $json | grep -o '[[:digit:]\.]\+')
+	product=$( echo "scale=6;$AMOUNT*$rate" | bc)
+	printf "%.2f\n" $product
+	echo `date --iso-8601` "$AMOUNT $FROM x $rate $TO = $product" >> ~/.xe-results 
+else 
+	echo $json | html2text
+
+	echo HISTORY:
+
+	grep -e "$FROM.*x.*$TO" ~/.xe-results
+fi
+
+rm $headers
+#rm $headers
+# vim: ft=sh foldmethod=marker

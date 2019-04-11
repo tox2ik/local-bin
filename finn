@@ -7,6 +7,98 @@ D=0
 
 where=.
 
+isElementIn () {
+	local e match="$1"
+	shift
+	for e; do [[ "$e" == "$match" ]] && return 0; done
+	return 1
+}
+
+declare -A short=(
+	[-d]=-type\ d
+	[-f]=-type\ f
+	[-td]=-type\ d
+	[-tf]=-type\ f
+	[-n]=-name
+	[-i]=-iname
+	[-max]=-maxdepth
+	[-min]=-mindepth
+)
+# short[-d]=-type\ d
+# short[-f]=-type\ f
+# short[-td]=-type\ d
+# short[-tf]=-type\ f
+# short[-n]=-name
+# short[-i]=-iname
+# short[-max]=-maxdepth
+# short[-min]=-mindepth
+
+declare -a belong_before_path=(
+	-maxdepth
+	-mindepth
+)
+
+declare -a arguments_after_path=()
+declare -a arguments=()
+declare -a path_arguments=()
+
+# echo "${short[*]}"
+# echo "$@"
+
+and_next=0
+and_next_short=0
+for i;
+do
+	if [ "$i" = "@" ] ; then D=1; continue; fi
+
+	if isElementIn "$i" "${belong_before_path[@]}"; then
+		arguments_after_path+=("$i")
+		and_next=1
+		continue
+	fi
+	if [ $and_next -eq 1 ]; then
+		arguments_after_path+=("$i")
+		and_next=0
+		continue
+	fi
+
+
+	if [ -d "$i" ];then
+		path_arguments+=( "$i" )
+		continue
+	fi
+
+
+	if [ ${short[$i]+true} ]; then
+		for si in ${short[$i]}; do
+			arguments+=($si)
+		done
+		continue
+	fi
+
+	arguments+=("$i")
+done
+
+
+if [ $D -gt 0 ];then
+	echo 
+	echo P: "${path_arguments[@]}"
+	echo AP: "${arguments_after_path[@]}"
+	echo ARG: "${arguments[@]}"
+	for a in "${arguments[@]}"; do
+	    echo ARGz: $a
+	done
+	echo F: find  "${path_arguments[@]}"  "${arguments_after_path[@]}"  "${arguments[@]}"
+	echo find  "${path_arguments[@]}"  "${arguments_after_path[@]}"  "${arguments[@]}"
+	echo 
+fi
+
+/usr/bin/find  "${path_arguments[@]}"  "${arguments_after_path[@]}"  "${arguments[@]}"
+
+
+exit;
+
+
 for i; do 
 	#echo $i
 	if [ "$i" = "@" ] ; then D=1; break; fi
