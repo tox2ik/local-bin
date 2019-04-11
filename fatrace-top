@@ -1,0 +1,34 @@
+
+# ~/src/awk/fatrace-top-10.awk 
+sudo fatrace -f RW | awk -v top_x=${1:-20} '
+
+# show most frequent file-access events
+{
+		file=$(NF);
+		op=$(NF-1);
+		key=op "-" file;
+		ops[key]++; 
+
+} 
+
+{
+		n = asort(ops, access_counts)
+		top_x=top_x ? top_x : 10
+
+		# figure out number of counts for the event at events[n-top_x]
+		tenth_highest = n < top_x ? access_counts[n-1] : access_counts[n-top_x]
+
+		# output events from rarest to most frequent.
+		print "";
+
+		PROCINFO["sorted_in"] = "@val_num_asc";
+		for (fop in ops) {
+
+				# skip events that are less frequent than the top_x
+				if (ops[fop] >= tenth_highest) {
+						print ops[fop], fop
+				}
+
+		} 
+}
+'
