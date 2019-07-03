@@ -1,0 +1,16 @@
+#!/usr/bin/awk -f
+
+
+{
+	_[$0]++
+}
+
+
+END {
+
+
+	for (i in _) {
+		print _[i], i
+	}
+}
+

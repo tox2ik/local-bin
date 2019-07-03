@@ -1,0 +1,5 @@
+#!/bin/awk -f
+{
+	print length($0), $0
+}
+
