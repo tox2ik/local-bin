@@ -54,20 +54,20 @@ function finddirs {
 }
 
 function findfiles {
-	find "$@" \
+	$FIND "$@" \
 		-maxdepth 1 -depth -type f \
 		-printf "%f\0"
 }
 
 function findspecials {
-	find "$@" \
+	$FIND "$@" \
 		-maxdepth 1 -depth \( -type l   -o -type p  -o -type s -o -type b -o -type c \) \
 		-printf "%f\0"
 }
 
 # bug: ls -[aA] will never work
 function filter_out_hidden {
-	grep -zv '^\..*' 
+	$GREP -zv '^\..*' 
 }
 
 ##
@@ -77,8 +77,16 @@ validswitches=(-X -l -r -t -C -F -1 -a -A -d -s)
 PATHS=()
 FPATHS=""
 LSSWITCHES=""
-LS=ls\ --color=auto
+
+
+LS=/usr/bin/ls\ --color=auto
+GREP=/usr/bin/grep
 FIND=/usr/bin/find
+GNUBIN=/Users/jaroslav/opt/grep/libexec/gnubin
+
+if [ -f $GNUBIN/ls ]; then LS=$GNUBIN/ls; fi
+if [ -f $GNUBIN/grep ]; then GREP=$GNUBIN/grep; fi
+if [ -f $GNUBIN/find ]; then FIND=$GNUBIN/find; fi
 
 ARG=$1
 ARGC=0
