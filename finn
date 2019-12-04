@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash5
+#!/usr/bin/env bash
 
 ##!/Users/jaroslav/opt/bash/bin/bash
 #echo -- $@
@@ -104,7 +104,7 @@ export FIND
 
 
 for i; do 
-	echo $i
+	#echo $i
 	if [ "$i" = "@" ] ; then D=1; break; fi
 
 	if [ -d "$i" ];   then

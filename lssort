@@ -79,8 +79,11 @@ FPATHS=""
 LSSWITCHES=""
 
 
-LS=/usr/bin/ls\ --color=auto
-GREP=/usr/bin/grep
+LS=/bin/ls\ --color=auto
+GREP=/bin/grep
+type /usr/bin/grep &>/dev/null && GREP=/usr/bin/grep
+type /usr/bin/ls &>/dev/null && LS=/usr/bin/ls\ --color=auto
+
 FIND=/usr/bin/find
 GNUBIN=/Users/jaroslav/opt/grep/libexec/gnubin
 
