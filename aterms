@@ -94,9 +94,7 @@ long='-sl 120000'
 short='-sl 100'
 
 
-function get_res {
-	xrandr | awk '/\*/ { print $1 }'
-}
+function get_res { xrandr | awk '/\*/ { print $1 }'; }
 function one { urxvt -ls $argsu  &  }
 
 
@@ -108,10 +106,12 @@ function desktop_two {
 	if [[ `get_res` = "1920x1080" ]]; then
 		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
 		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
+	elif [[ `get_res` = 2560x1440 ]]; then
+		urxvt -name URxvt_hdmi -ls +sb $long $g 125x34+2+2 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 125x41+2-4 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 129x75-6+2 &
 	else
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+2-2 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+1262+2  &
+		true
 	fi
 }
 
@@ -121,10 +121,13 @@ function desktop_three {
 	if [[ `get_res` = "1920x1080" ]]; then
 		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
 		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
+	elif [[ `get_res` = 2560x1440 ]]; then
+		# width x height [+-] horisontal [+-] vertical
+		urxvt -name URxvt_hdmi -ls +sb $long $g 129x75+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 125x35-6+7 &
+		urxvt -name URxvt_hdmi -ls +sb $long $g 125x40-6-2 &
 	else
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x35+1302+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 157x40+1302-2 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 162x75+2+7  &
+		true
 	fi
 
 }
