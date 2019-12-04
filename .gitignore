@@ -8,3 +8,7 @@ lshttpd
 openlitespeed
 nat
 *swp
+levenshtein-cnf
+go-bindata
+phpstorm
+txeh
