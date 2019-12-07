@@ -1,15 +1,13 @@
 #!/bin/bash
-# 
 # List all sections of a manpage.
-
-# Uses lesspipe (gentoo portage mirror)
+#
+# Uses guesscompress from lesspipe (gentoo)
 # /usr/portage/sys-apps/less/files/lesspipe.sh
+#
 # v01: MANPAGER=cat man $@ | grep -E '^^[[1m[A-Z]{3,}'
+# v02: gentoo lesspipe
+# v03: extract guesscompress
 
-MAN=$(find ${MANPATH//:/ } | grep "/$1\.")
-
-
-#eval $(sed -n -e /^guesscompress/,/^}/p /usr/bin/lesspipe)
 guesscompress() {
 	case "$1" in
 		*.gz|*.z)   echo "gunzip -c" ;;
@@ -17,26 +15,16 @@ guesscompress() {
 		*.lz)       echo "lzip -dc" ;;
 		*.lzma)     echo "unlzma -c" ;;
 		*.lzo)      echo "lzop -dc" ;;
+		*.lz4)      echo "lz4 -dc" ;;
 		*.xz)       echo "xzdec" ;;
 		*)          echo "cat" ;;
 	esac
 }
-
-if [ -f /usr/bin/lesspipe.sh ]; then source /usr/bin/lesspipe.sh; fi
-if [ -f /usr/bin/lesspipe ]; then source /usr/bin/lesspipe; fi
-
+MAN=$(find ${MANPATH//:/ } | grep "/$1\.")
 READ=$(guesscompress .${MAN##*.})
-
-if [ $# -gt 1 ]; then
-	$READ $MAN | sed -E '
-		/^.(SH|SS)/!d; 
-		s/^.SH //;
-		s/^.SS /    /;
-		s/"//g;
-	'
-else
-	$READ $MAN | sed '
-		/^\.SH/!d;
-		s/^.SH //
-	'
-fi 
+$READ $MAN | sed -E '
+	/^.(SH|SS)/!d; 
+	s/^.SH //;
+	s/^.SS /    /;
+	s/"//g;
+'
