@@ -1,0 +1,6 @@
+echo `dig +short myip.opendns.com @resolver1.opendns.com`
+#
+#
+#curl ifconfig.me &
+#curl -s http://checkip.dyndns.org/ | grep -o "[[:digit:].]\+" &
+#curl ip.appspot.com
