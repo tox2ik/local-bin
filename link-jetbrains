@@ -1,0 +1,17 @@
+#!/bin/sh
+
+_finddir() {
+	ls --color=no -dv ~/.local/share/JetBrains/Toolbox/apps/${1:-PhpStorm}/ch-0/???.????.*/ |
+		tail -n1 |
+		sed -e 's:/$::'
+}
+
+for i in ~/.local/share/JetBrains/Toolbox/apps/*; do
+	app=$(basename $i)
+	ln -snf $(_finddir  $app) ~/applications/PhpStorm
+	ls -l1 -gG --color ~/applications/$app
+done
+
+#ln -snf "$(_finddir PhpStorm)" ~/applications/PhpStorm
+#ln -snf "$(_finddir Goland)" ~/applications/Goland
+#ls -l1 -gG --color ~/applications/PhpStorm ~/applications/Goland

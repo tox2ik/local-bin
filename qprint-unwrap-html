@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+	cmd="cat /dev/stdin | qprint -d "
+elif [ $# -gt 1 ]; then
+	for file;do 
+		$0 "$file";
+	done
+else
+	cmd="qprint  -d ${1:-Fwd1.eml} "
+fi
+
+$cmd 2>/dev/null | sed '
+	/html>/,/<\/html/ {
+		
+		s/&gt;/>/g;
+		s/&lt;/</g;
+	p
+}' -n  | html2text -nobs

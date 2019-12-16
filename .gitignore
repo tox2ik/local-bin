@@ -1,5 +1,3 @@
-mpc-*
-x
 fontmatrix
 gobo
 jd-gui.cfg
@@ -12,3 +10,4 @@ levenshtein-cnf
 go-bindata
 phpstorm
 txeh
+.nope

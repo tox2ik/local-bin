@@ -1,0 +1,24 @@
+#!/bin/bash
+
+jan01 () { date +%s -d `date +%Y-01-01`; }
+dec () { let j=`jan01`; echo $((j + 365*24*3600)); }
+
+d=`jan01`;
+dec=`dec`; 
+
+while [ $d -lt $dec ]; do
+	date -d@$d '+%Y-%m w %V : %d - %d %B' | tr A-Z a-z
+	let d=$d+604800;
+done | awk '
+{ $7 = $7 + 6;                  # guess the last day in a week
+   if ($7 <  10) { $7 = sprintf("%02d", $7) }
+   if ($7 >= 30) { $7 = "  " }  # hide the last day of last week (spilling over 30/31)
+ }
+
+!_[$3$(NF)]++ {                             # collect unique week-numbers and month
+	month_week[$(NF)]++;                # enumerate the weeks in a month 1-5
+	print $0, "week " month_week[$(NF)] 
+}
+
+
+'
