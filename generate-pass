@@ -1,6 +1,6 @@
 #!/bin/sh
 words=$(
-strings  /usr/lib64/aspell-0.60/no.rws |
+strings  /usr/lib64/aspell-?.*/no.rws |
 sort -u | sort -R  |
 tr -d $'\t' | tail -n 3 |
 tr \\n ' ' |

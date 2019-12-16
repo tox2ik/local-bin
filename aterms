@@ -2,82 +2,54 @@
 #Xauth
 #xrdb ~/.Xdefaults
 
-#
-#     -misc-fixed-medium-r-*-*-13-*-*-*-*-*-*-*         
-#     -xos4-terminus-medium-*-*-*-14-*-72-*-*-*-*-*    
-#     -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*  
-#                                                    
-#                                                      
-# -sgi-*-medium-r-*-*-13-*-*-*-*-*-*-*
+small_fn='xft:Terminus:size=12'
+small_fb='xft:UbuntuMono:size=12'
 
-       # fn=-misc-fixed-medium-*-*-*-14-*-*-*-*-*-*-* 
-       # fb=-misc-fixed-*--*-*-*-14-*-*-*-*-*-*-* 
-       # fn=-xos4-terminus-*-r-*-*-18-*-*-*-*-*-*-*	
-       # fb=-xos4-terminus-medium-r-*-*-18-*-*-*-*-*-*-*	
-	# fn=-sgi-*-medium-r-*-*-13-*-*-*-*-*-*-*
-        #fn=-xos4-terminus-medium-r-*-12-*
+f_small="-fb $small_fb -fn $small_fn"
 
-	#fb=-sgi-*-bold-r-*-*-*-*-*-*-*-*-*-*
+fn=-xos4-terminus-*-r-*-12-*
+fb=-xos4-terminus-*-r-*-12-*
 
+fn=-*-proggyclean-*-*-*-*-13-*-*-*-*-*-*-*
+fb=-*-proggyclean-medium-*-*-*-13-*-*-*-*-*-*-*
 
+proggy13=" -fb $fn -fn $fb "
+fterminus14=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-*
 
-	small_fn='xft:Terminus:size=12'
-	small_fb='xft:UbuntuMono:size=12'
+fnru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
+fbru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
 
-	f_small="-fb $small_fb -fn $small_fn"
+fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
+fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
 
+fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
+fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
 
+fnBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
+fbBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
 
-    fn=-xos4-terminus-*-r-*-12-*
-    fb=-xos4-terminus-*-r-*-12-*
+fnmpc=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-*
+fbmpc=-xos4-*-bold-r-*-*-14-*-*-*-*-*-*-*
 
-	fn=-*-proggyclean-*-*-*-*-13-*-*-*-*-*-*-*
-	fb=-*-proggyclean-medium-*-*-*-13-*-*-*-*-*-*-*
+#fn_t14=-xos4-terminus-*-*-*-14-*
+#fb_t14=-xos4-terminus-*-*-*-14-*
+fn_t14=xft:xos4\ Terminus:size=12
+fb_t14=xft:xos4\ Terminus:style=bold
+fn_t16=xft:xos4\ Terminus:size=16
+fb_t16=xft:xos4\ Terminus:size=16:style=bold
 
-	proggy13=" -fb $fn -fn $fb "
+terminus14="-fn $fn_t14 -fb $fb_t14"
 
+fb=$fn
 
-	fterminus14=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-*
-
-	fnru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
-	fbru=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-r
-
-	fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
-	fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-*
-
-	fnBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
-	fbBIG=-misc-*-*-*-*-*-15-*-*-*-*-*-*-1
-
-	fnBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
-	fbBIG=-*-terminus-*-*-*-*-14-*-*-*-*-*-*-1
-
-	fnmpc=-xos4-*-*-r-*-*-14-*-*-*-*-*-*-*
-	fbmpc=-xos4-*-bold-r-*-*-14-*-*-*-*-*-*-*
-
-    #fn_t14=-xos4-terminus-*-*-*-14-*
-    #fb_t14=-xos4-terminus-*-*-*-14-*
-    fn_t14=xft:xos4\ Terminus:size=12
-    fb_t14=xft:xos4\ Terminus:style=bold
-    fn_t16=xft:xos4\ Terminus:size=16
-    fb_t16=xft:xos4\ Terminus:size=16:style=bold
-
-	terminus14="-fn $fn_t14 -fb $fb_t14"
-
-	 fb=$fn
-
-	color="-fg 7 "
-	argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
+color="-fg 7 "
+argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
 
 argsa="-ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"  
 argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"  
 argsb="$color -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 5 -sb -trsb -sr" 
-#argsf="$color -ls -tr -sh 25 -fb $fb -fn $fn -bw 0 -ib 3 -sb -trsb -sr " 
-#argsf="$color -ls -tr -sh 25 -bw 0 -ib 3 -sb -trsb -sr " 
-#argsfu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
 argsfu="-ls -tr -sh 12 -w 0  -b 3 +sb"  # Urxvt 
 argsfu_big="-ls -tr -sh 25 -fb $fbBIG -fn $fnBIG  -w 0  -b 3 +sb"  # Urxvt 
-logtermfile="/home/jaroslav/tmp/syslog" # the file is a fifo which syslogng logs to
-argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile" 
 
 argsr="-ls -tr -sh 5 -fb $fn -fn -xos4-*-*-*-*-*-17-*-*-*-*-*-*-* +sb"  
 argsr="-ls -tr -sh 5 -fb $fbru -fn $fnru +sb"  
@@ -93,23 +65,23 @@ su='sudo su -' g='-geometry'
 long='-sl 120000'
 short='-sl 100'
 
+notab='-pe -tabbedex'
+
 
 function get_res { xrandr | awk '/\*/ { print $1 }'; }
 function one { urxvt -ls $argsu  &  }
-
-
 function d2() { desktop_two; }
 function desktop_two {  
-	xrdb -merge ~/.Xdefaults.urxvt
+	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ $HOSTNAME == balmora ]]; then true; fi
 
 	if [[ `get_res` = "1920x1080" ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 121x56+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 117x56-2+7 &
 	elif [[ `get_res` = 2560x1440 ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $long $g 125x34+2+2 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 125x41+2-4 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 129x75-6+2 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x34+2+2 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x41+2-4 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 129x75-6+2 &
 	else
 		true
 	fi
@@ -117,15 +89,17 @@ function desktop_two {
 
 function d3() { desktop_three; }
 function desktop_three {
-
+	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ `get_res` = "1920x1080" ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $long $g 117x56-2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 121x56+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 117x56-2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 121x56+2+7 &
 	elif [[ `get_res` = 2560x1440 ]]; then
 		# width x height [+-] horisontal [+-] vertical
-		urxvt -name URxvt_hdmi -ls +sb $long $g 129x75+2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 125x35-6+7 &
-		urxvt -name URxvt_hdmi -ls +sb $long $g 125x40-6-2 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 129x75+2+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x35-6+7 &
+		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x40-6-2 &
+
+		echo urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x35-6+7 &
 	else
 		true
 	fi
@@ -144,9 +118,13 @@ function big { urxvt $l $argsfu_big  &  }
 function bigaterm { aterm $l $argsa_big  &  }
 function flux { aterm -name one $l $argsf  &  }
 function uni { urxvt  -name one $l $argsu  &  }
-function logterm { aterm  -geometry 128x67-88+13 $l $argslogterm   & }
 function oneru { export LC_CTYPE=ru_RU.KOI8-R; aterm $l $argsr $g 90x38 &  }
 function sone { echo  aterm  $l $argsb -fg $random_color $g 90x38 &  }
+function logterm {
+	logtermfile="/home/jaroslav/tmp/syslog" # the file is a fifo which syslogng logs to
+	argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile" 
+	aterm  -geometry 128x67-88+13 $l $argslogterm  &
+}
 
 
 function mpc {  ncmpc; }
