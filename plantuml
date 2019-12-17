@@ -1,0 +1,13 @@
+#!/bin/bash
+
+jar=$(
+	find ~/lib/jar/plantuml -type f -name '*.jar' -printf "%T@ %p\n" |
+		sort -nr | awk 'NR==1 {print $2; exit}')
+
+if [[ $1 = lang ]] || [[ $1 = language ]];
+then
+	shift
+	java -jar $jar -language | grep -e "${1:-.}"
+else
+	java -jar $jar "$@"
+fi
