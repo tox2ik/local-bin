@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 for a in $@;
 do
@@ -9,8 +9,20 @@ do
 			;;
 	esac
 done
-font=${2:-Droid Sans Mono}
-size=${1:-13}
+
+
+font=${2:-monospace}
+size=${1:-20}
 style=${3:-Regular}
+if fc-list  | grep -q 'Droid Sans Mono';
+then
+	font=${2:-Droid Sans Mono}
+	size=${1:-13}
+elif fc-list  | grep -q 'Terminus';
+then
+	font=${2:-Terminus}
+	size=${1:-20}
+fi
+
 printf '\33]50;%s\007' "xft:${font}:pixelsize=${size}:style=${style}"
 
