@@ -43,23 +43,23 @@ terminus14="-fn $fn_t14 -fb $fb_t14"
 fb=$fn
 
 color="-fg 7 "
-argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt 
+argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt
 
-argsa="-ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"  
-argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"  
-argsb="$color -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 5 -sb -trsb -sr" 
-argsfu="-ls -tr -sh 12 -w 0  -b 3 +sb"  # Urxvt 
-argsfu_big="-ls -tr -sh 25 -fb $fbBIG -fn $fnBIG  -w 0  -b 3 +sb"  # Urxvt 
+argsa="-ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"
+argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"
+argsb="$color -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 5 -sb -trsb -sr"
+argsfu="-ls -tr -sh 12 -w 0  -b 3 +sb"  # Urxvt
+argsfu_big="-ls -tr -sh 25 -fb $fbBIG -fn $fnBIG  -w 0  -b 3 +sb"  # Urxvt
 
-argsr="-ls -tr -sh 5 -fb $fn -fn -xos4-*-*-*-*-*-17-*-*-*-*-*-*-* +sb"  
-argsr="-ls -tr -sh 5 -fb $fbru -fn $fnru +sb"  
+argsr="-ls -tr -sh 5 -fb $fn -fn -xos4-*-*-*-*-*-17-*-*-*-*-*-*-* +sb"
+argsr="-ls -tr -sh 5 -fb $fbru -fn $fnru +sb"
 
-argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"  
+argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"
 
 
-su='sudo su -' g='-geometry'                          
-#su='sudo su -' g='-geometry'                          
-	
+su='sudo su -' g='-geometry'
+#su='sudo su -' g='-geometry'
+
 	l='-sl 120000' s='-sl 100'
 
 long='-sl 120000'
@@ -68,49 +68,147 @@ short='-sl 100'
 notab='-pe -tabbedex'
 
 
-function get_res { xrandr | awk '/\*/ { print $1 }'; }
+##function get_res { xrandr | awk '/\*/ { print $1 }'; }
 function one { urxvt -ls $argsu  &  }
-function d2() { desktop_two; }
-function desktop_two {  
+
+
+
+function _wmctrl_desktop {
+	wmctrl -d       | awk -v n=${1:-1} '$1==n { print }'
+	wmctrl -l -G -x | awk -v n=${1:-1} '$2==n { print }'
+}
+
+function get_res {
+	local x=$(xrandr  | grep \\* | tr x ' ' | awk_arg_sum  1)
+	local y=$(xrandr  | grep \\* | tr x ' ' | awk_arg_sum  2)
+	echo ${x}x$y
+}
+
+function _desktop_height { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $2}'; }
+function _desktop_width { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $1}'; }
+
+function resize2 {
+	# <G>,<X>,<Y>,<W>,<H>
+	local w=$(_desktop_width)
+	local h=$(_desktop_height)
+	local shift_left=200
+	local horizontal=5
+	local bmargin=6
+
+	if (( w > 3840 )); then w=3840; fi
+	function width_left { echo $((w/2-shift_left-4)); }
+	function width_right { echo $((w/2+shift_left-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_left+horizontal)); }
+	function y_middle { echo $((h/2+bmargin)); }
+	function height_full { echo $((h-bmargin)); }
+	function height_half { echo $((h/2-bmargin)); }
+	function height_half2 { echo $((h/2-bmargin-bmargin)); }
+
+
+	function left_tall { wmctrl -i -r $1 -e 0,2,2,`width_left`,`height_full`; }
+	function right_top { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_right`,`height_half`; }
+	function right_bot { wmctrl -i -r $1 -e 0,`x_middle`,`y_middle`,`width_right`,`height_half2`; }
+	for i in {1..60}; do
+		if [[ `_wmctrl_desktop 1 | grep URxvt_d2 | wc -l ` -gt 1 ]]; then
+			break
+		fi
+		sleep 0.03
+	done
+	let c=0
+	for i in `_wmctrl_desktop 1 | grep URxvt_d2 | awk '{ print $1}'`;do
+		let c=c+1
+		if (( c == 1)); then left_tall $i; fi
+		if (( c == 2)); then right_top $i; fi
+		if (( c == 3)); then right_bot $i; fi
+	done
+}
+
+
+
+function d2 { desktop_two; }
+function desktop_two {
 	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ $HOSTNAME == balmora ]]; then true; fi
 
-	if [[ `get_res` = "1920x1080" ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 121x56+2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 117x56-2+7 &
-	elif [[ `get_res` = 2560x1440 ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x34+2+2 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x41+2-4 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 129x75-6+2 &
+	if [[ `get_res` = 1920x1080 ]]; then
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 121x56+2+7 &
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 117x56-2+7 &
+	elif	[[ `get_res` = 2560x1440 ]] ||
+			[[ `get_res` = 6400x3600 ]]; then
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 125x34+2+2 &
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 125x41+2-4 &
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 129x75-6+2 &
 	else
+		get_res '?'
 		true
 	fi
+	resize2
 }
 
-function d3() { desktop_three; }
+function d3 { desktop_three; }
 function desktop_three {
 	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
-	if [[ `get_res` = "1920x1080" ]]; then
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 117x56-2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 121x56+2+7 &
-	elif [[ `get_res` = 2560x1440 ]]; then
+	if [[ `get_res` = 1920x1080 ]]; then
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 117x56-2+7 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 121x56+2+7 &
+	elif	[[ `get_res` = 2560x1440 ]] ||
+			[[ `get_res` = 6400x3600 ]]; then
 		# width x height [+-] horisontal [+-] vertical
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 129x75+2+7 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x35-6+7 &
-		urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x40-6-2 &
-
-		echo urxvt -name URxvt_hdmi -ls +sb $notab $long $g 125x35-6+7 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 129x75+2+7 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 125x35-6+7 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 125x40-6-2 &
 	else
 		true
 	fi
+	_d3_resize
+}
+function _d3_resize {
+	# <G>,<X>,<Y>,<W>,<H>
+	local w=$(_desktop_width)
+	local h=$(_desktop_height)
+	local shift_right=-200
+	local horizontal=5
+	local bmargin=6
 
+	if (( w > 3840 )); then w=3840; fi
+	function width_right { echo $((w/2-shift_right-4)); }
+	function width_left { echo $((w/2+shift_right-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_right+horizontal)); }
+	function y_middle { echo $((h/2+bmargin)); }
+	function height_full { echo $((h-bmargin)); }
+	function height_half { echo $((h/2-bmargin)); }
+	function height_half2 { echo $((h/2-bmargin-bmargin)); }
+
+	function right_tall { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_left`,`height_full`; }
+	function left_top { wmctrl -i -r $1 -e 0,2,2,`width_right`,`height_half`; }
+	function left_bot { wmctrl -i -r $1 -e 0,2,`y_middle`,`width_right`,`height_half2`; }
+	for i in {1..60}; do
+		if [[ `_wmctrl_desktop 2 | grep URxvt_d3 | wc -l ` -gt 1 ]]; then
+			break
+		fi
+		sleep 0.03
+	done
+
+	let c=0
+	for i in `_wmctrl_desktop 2 | grep URxvt_d3 | awk_arg 1`;do
+		let c=c+1
+		if (( c == 1)); then right_tall $i; fi
+		if (( c == 2)); then left_top $i; fi
+		if (( c == 3)); then left_bot $i; fi
+	done
 }
 
 
+function s {
+	urxvt -name URxvt_hdmi -ls +sb $notab $long -fn 'Terminus 20' &
+	urxvt -name URxvt_hdmi -ls +sb $notab $long &
+	urxvt -name URxvt_hdmi -ls +sb $notab $long &
+}
+
 function koray { urxvt -fn xft:cure -fb xft:cure -letsp -3 ;}
-function koray2 { 
-	local f=xft:xos4\ terminus:size=8; 
-	urxvt -fn "$f" -fb "$f:style=bold"; 
+function koray2 {
+	local f=xft:xos4\ terminus:size=8;
+	urxvt -fn "$f" -fb "$f:style=bold";
 }
 
 
@@ -122,14 +220,14 @@ function oneru { export LC_CTYPE=ru_RU.KOI8-R; aterm $l $argsr $g 90x38 &  }
 function sone { echo  aterm  $l $argsb -fg $random_color $g 90x38 &  }
 function logterm {
 	logtermfile="/home/jaroslav/tmp/syslog" # the file is a fifo which syslogng logs to
-	argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile" 
+	argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile"
 	aterm  -geometry 128x67-88+13 $l $argslogterm  &
 }
 
 
 function mpc {  ncmpc; }
 function ncmpc { aterm  $l $argsn $g 100x74 -e ncmpc & }
-  
+
 
 function fourFlux {
 	local font="-fn $fn_t16 -fb $fb_t16"
@@ -137,12 +235,12 @@ function fourFlux {
 	urxvt $name -fade 25 $l $argsfu $font $g 90x31+3+2 &
 	urxvt $name -fade 25 $l $argsfu $font $g 90x42+3-9 &
 	urxvt $name -fade 25 $l $argsfu $font $g 117x31-4+2 &
-	urxvt $name -fade 25 $l $argsfu $font $g 117x42-4-9 & 
+	urxvt $name -fade 25 $l $argsfu $font $g 117x42-4-9 &
 	true;
 }
 
 
-function rsixFlux {               
+function rsixFlux {
 	if [[ `get_res` = "1920x1080" ]]; then
 		true
 		sm1='91x12+3+2'
@@ -164,7 +262,7 @@ function rsixFlux {
 		sm3='91x15+3+339'
 		bg1='91x37+3-20'
 		bg2='141x41-4+2'
-		bg3='141x37-4-19' 
+		bg3='141x37-4-19'
 
 	fi
 
@@ -180,17 +278,17 @@ function rsixFlux {
 	### # sm="-name URxvt_rsix"
 	### # cmd='-e ssh -Y root@localhost'
 
-	for res in $sm1 $sm2 $sm3 ;do 
+	for res in $sm1 $sm2 $sm3 ;do
 		urxvt -fade 20 +sb $sm $l $g $res $proggy13 $cmd & sleep 0.1
 		done &
 
 	#urxvt -fade 20 +sb $sm $l $g 70x38+0+0 \
 		#-fb xft:Terminus:14 -fn xft:Terminus:14 $cmd & sleep 0.1
 
-	for res in $bg1 $bg2 $bg3 ;do 
+	for res in $bg1 $bg2 $bg3 ;do
 		urxvt -fade 20 +sb $sm $l $g $res $terminus14 $cmd & sleep 0.2
 		done &
-} 
+}
 
 function ishd {
 	xrandr | awk '
@@ -202,15 +300,12 @@ function ishd {
 
 
 if [ -z "$1" ];
-then 
-	#echo -e "usage: $0 one|two|three|..."; 
-	echo Please give me one of the following 
-	echo function names as the first argument  
-	echo to spawn a new terminal emulator:
-	cat $0 |grep ^function |awk '{print $2}'
-	# TODO: make an awk script to put all words in an array
-	# and print each one while making sure that the total 
-	# umber of characters per line is less than 80
+then
+	(
+	echo Please give me one of the following function names as the first argument to spawn a new terminal emulator:
+	echo
+	cat ${BASH_SOURCE[0]} | grep ^function | awk '{print $2}' | grep -v ^_
+	) | fmt -w 80
 fi
 
 #exec function
