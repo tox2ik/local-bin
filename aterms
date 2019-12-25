@@ -1,6 +1,6 @@
 #!/bin/bash
-#Xauth
-#xrdb ~/.Xdefaults
+
+# {{{
 
 small_fn='xft:Terminus:size=12'
 small_fb='xft:UbuntuMono:size=12'
@@ -67,137 +67,150 @@ short='-sl 100'
 
 notab='-pe -tabbedex'
 
+# }}}
+
 
 ##function get_res { xrandr | awk '/\*/ { print $1 }'; }
 function one { urxvt -ls $argsu  &  }
-
-
 
 function _wmctrl_desktop {
 	wmctrl -d       | awk -v n=${1:-1} '$1==n { print }'
 	wmctrl -l -G -x | awk -v n=${1:-1} '$2==n { print }'
 }
 
-function get_res {
-	local x=$(xrandr  | grep \\* | tr x ' ' | awk_arg_sum  1)
-	local y=$(xrandr  | grep \\* | tr x ' ' | awk_arg_sum  2)
+function get_res_total {
+	local x=$(xrandr | grep \\* | tr x ' ' | awk_arg_sum  1)
+	local y=$(xrandr | grep \\* | tr x ' ' | awk_arg_sum  2)
 	echo ${x}x$y
 }
 
-function _desktop_height { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $2}'; }
-function _desktop_width { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $1}'; }
+# assume primary monitor is in +0+0
+function get_res { xrandr  | grep -e '[0-9]\+x[0-9]\++0+0' -o | sed s/....$//; }
+function get_width { xrandr  | grep -e '[0-9]\+x[0-9]\++0+0' -o | sed s/x.*//; }
+function get_height { xrandr  | grep -e '[0-9]\+x[0-9]\++0+0' -o | sed -e 's/....$//; s/.*x//'; }
 
+function _desktop_height_total { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $2}'; }
+function _desktop_width_total { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $1}'; }
+
+function _monitors { xrandr --listmonitors | awk 'NR==1 { print $2}'; } 
+
+function _count_desktop_wclass { _wmctrl_desktop ${1:-2} | grep ${2:-URxvt_d2} | wc -l; }
+
+function _kill_wclas { wmctrl -lpx  | grep ${1:-URxvt_d3} | awk '{ print $3}' | xargs kill; }
+
+function d2 {
+	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
+	if [[ `_count_desktop_wclass 1 URxvt_d2` -lt 3 ]]; then	
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30+10+10 &
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30-10+10 &
+		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30-10-10 &
+	else
+		echo we have 3 or more terms here
+	fi
+	local w= res=$(get_res) 
+	w=${res%%x*} 
+	resize2 1 URxvt_d2 $(( w / 100 * 5))
+}
+# {{{
 function resize2 {
 	# <G>,<X>,<Y>,<W>,<H>
-	local w=$(_desktop_width)
-	local h=$(_desktop_height)
-	local shift_left=200
-	local horizontal=5
-	local bmargin=6
+	local desktop=$1
+	local filter_wclass=$2
+	local shift_from_middle=${3:-200}
+	local res=$(get_res)
+	local h=${res##*x} w=${res%%x*} 
+	# echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
 
-	if (( w > 3840 )); then w=3840; fi
-	function width_left { echo $((w/2-shift_left-4)); }
-	function width_right { echo $((w/2+shift_left-horizontal-horizontal)); }
-	function x_middle { echo $((w/2-shift_left+horizontal)); }
+	local horizontal=5 bmargin=6
+
+	# {{{
+	function width_left { echo $((w/2-shift_from_middle-4)); }
+	function width_right { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
 	function y_middle { echo $((h/2+bmargin)); }
 	function height_full { echo $((h-bmargin)); }
 	function height_half { echo $((h/2-bmargin)); }
 	function height_half2 { echo $((h/2-bmargin-bmargin)); }
-
+	# }}}
 
 	function left_tall { wmctrl -i -r $1 -e 0,2,2,`width_left`,`height_full`; }
 	function right_top { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_right`,`height_half`; }
 	function right_bot { wmctrl -i -r $1 -e 0,`x_middle`,`y_middle`,`width_right`,`height_half2`; }
+
+	# {{{
 	for i in {1..60}; do
-		if [[ `_wmctrl_desktop 1 | grep URxvt_d2 | wc -l ` -gt 1 ]]; then
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
 			break
 		fi
 		sleep 0.03
-	done
+		echo -n .
+	done # }}}
+	# {{{
 	let c=0
-	for i in `_wmctrl_desktop 1 | grep URxvt_d2 | awk '{ print $1}'`;do
+	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk '{ print $1}'`;do
 		let c=c+1
+		echo $c $i
 		if (( c == 1)); then left_tall $i; fi
 		if (( c == 2)); then right_top $i; fi
 		if (( c == 3)); then right_bot $i; fi
-	done
-}
+	done #}}}
+} # }}}
 
-
-
-function d2 { desktop_two; }
-function desktop_two {
+function d3 {
 	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
-	if [[ $HOSTNAME == balmora ]]; then true; fi
-
-	if [[ `get_res` = 1920x1080 ]]; then
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 121x56+2+7 &
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 117x56-2+7 &
-	elif	[[ `get_res` = 2560x1440 ]] ||
-			[[ `get_res` = 6400x3600 ]]; then
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 125x34+2+2 &
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 125x41+2-4 &
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 129x75-6+2 &
+	if [[ `_count_desktop_wclass 2 URxvt_d3` -lt 3 ]]; then	
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30+10+10 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30-10+10 &
+		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30-10-10 &
 	else
-		get_res '?'
-		true
+		echo we have 3 or more terms here
 	fi
-	resize2
+	local w= res=$(get_res) 
+	w=${res%%x*} 
+	resize3 2 URxvt_d3 $(( w / 100 * 5))
 }
-
-function d3 { desktop_three; }
-function desktop_three {
-	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
-	if [[ `get_res` = 1920x1080 ]]; then
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 117x56-2+7 &
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 121x56+2+7 &
-	elif	[[ `get_res` = 2560x1440 ]] ||
-			[[ `get_res` = 6400x3600 ]]; then
-		# width x height [+-] horisontal [+-] vertical
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 129x75+2+7 &
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 125x35-6+7 &
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 125x40-6-2 &
-	else
-		true
-	fi
-	_d3_resize
-}
-function _d3_resize {
+function resize3 {
 	# <G>,<X>,<Y>,<W>,<H>
-	local w=$(_desktop_width)
-	local h=$(_desktop_height)
-	local shift_right=-200
-	local horizontal=5
-	local bmargin=6
+	local desktop=$1
+	local filter_wclass=$2
+	local shift_from_middle=$3
+	local res=$(get_res)
+	local w=${res%%x*}
+	local h=${res##*x}
+	echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
 
-	if (( w > 3840 )); then w=3840; fi
-	function width_right { echo $((w/2-shift_right-4)); }
-	function width_left { echo $((w/2+shift_right-horizontal-horizontal)); }
-	function x_middle { echo $((w/2-shift_right+horizontal)); }
+	local horizontal=5 bmargin=6
+
+	# {{{
+	function width_right { echo $((w/2-shift_from_middle-4)); }
+	function width_left { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
 	function y_middle { echo $((h/2+bmargin)); }
 	function height_full { echo $((h-bmargin)); }
 	function height_half { echo $((h/2-bmargin)); }
 	function height_half2 { echo $((h/2-bmargin-bmargin)); }
+	# }}}
 
 	function right_tall { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_left`,`height_full`; }
 	function left_top { wmctrl -i -r $1 -e 0,2,2,`width_right`,`height_half`; }
 	function left_bot { wmctrl -i -r $1 -e 0,2,`y_middle`,`width_right`,`height_half2`; }
+	# {{{
 	for i in {1..60}; do
-		if [[ `_wmctrl_desktop 2 | grep URxvt_d3 | wc -l ` -gt 1 ]]; then
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
 			break
 		fi
 		sleep 0.03
-	done
-
+	done # }}}
+	# {{{
 	let c=0
-	for i in `_wmctrl_desktop 2 | grep URxvt_d3 | awk_arg 1`;do
+	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk_arg 1`;do
 		let c=c+1
 		if (( c == 1)); then right_tall $i; fi
 		if (( c == 2)); then left_top $i; fi
 		if (( c == 3)); then left_bot $i; fi
 	done
+	#}}}
 }
-
 
 function s {
 	urxvt -name URxvt_hdmi -ls +sb $notab $long -fn 'Terminus 20' &
@@ -310,3 +323,4 @@ fi
 
 #exec function
 $1
+# vim: foldmethod=marker
