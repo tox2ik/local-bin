@@ -1,0 +1,4 @@
+#!/bin/bash
+# e.g. fmt  file:///foo/bar
+path=$(echo "$2" | sed -E -e 's@^[a-z_-]+://@@')
+exec $1 "$path"
