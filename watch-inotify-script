@@ -22,12 +22,13 @@ while true; do
 	elif [[ $runee =~ .*\.php$ ]]; then php $runee
 	elif [[ $runee =~ .*\.sh$ ]]; then bash $runee;
 	elif [[ $runee =~ .*\.js$ ]]; then node $runee;
+	elif [[ $runee =~ .*\.c$ ]]; then gcc $runee $CFLAGS -o $(basename $runee .c) && ./$(basename $runee .c)
 	else
 		echo idk how to run $runee
-		break 
+		break
 	fi
 
 	sleep 0.1
-done 
+done
 
 

@@ -79,8 +79,8 @@ function _wmctrl_desktop {
 }
 
 function get_res_total {
-	local x=$(xrandr | grep \\* | tr x ' ' | awk_arg_sum  1)
-	local y=$(xrandr | grep \\* | tr x ' ' | awk_arg_sum  2)
+	local x=$(xrandr | grep \\* | tr x ' ' | awk-sum 1)
+	local y=$(xrandr | grep \\* | tr x ' ' | awk-sum  2)
 	echo ${x}x$y
 }
 

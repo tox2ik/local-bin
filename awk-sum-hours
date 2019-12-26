@@ -1,16 +1,18 @@
-#!/bin/awk -f
+#!/usr/bin/awk -f
+# $ echo -e "1:20\n1:15\n" | awk-sum-hours 
+# seconds 9300
+# hours 2:35 (2.58333)
+# sec2hrs 2 hours 35 minutes 
 BEGIN { FS=":" }
 {
 hm+=$1*60*60
  m+=$2*60
 sm+=$3
 }
-
 END {
 s = hm+m+sm
 print "seconds", s
 printf "hours %d:%d (%s)\n", s/3600, (s % 3600 /60), s/3600
-
 printf "sec2hrs "
-system("sec2hrs "hm+m+sm)
+system("sec2hrs " hm+m+sm)
 }
