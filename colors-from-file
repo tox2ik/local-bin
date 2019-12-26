@@ -1,0 +1,12 @@
+#!/usr/bin/node
+const path = require('path')
+const process = require('process')
+const getColors = require('get-image-colors')
+const fName = process.argv[2];
+
+//getColors(path.join(__dirname, fName || 'col.png'))
+getColors(fName || 'col.png')
+.then(colors => {
+  colors.map(e => console.log(e.hex()))
+})
+.catch(e => console.error(e))
