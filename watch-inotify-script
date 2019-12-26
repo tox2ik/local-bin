@@ -1,0 +1,33 @@
+#!/bin/bash
+
+runee=${1:-~/bin/script}
+
+( sleep 1; touch $runee) &
+
+while true; do
+	(
+	echo $0
+	find -L node_modules 2>/dev/null;
+	find -L vendor 2>/dev/null;
+	find -L src 2>/dev/null;
+	find -L "$@"
+	) |
+	inotifywait -e  modify -e move  -e attrib -e delete --fromfile - &>/dev/null
+
+	echo RUN:$runee;
+	echo;
+	echo;
+
+	if   [[ -x $runee ]]; then $runee
+	elif [[ $runee =~ .*\.php$ ]]; then php $runee
+	elif [[ $runee =~ .*\.sh$ ]]; then bash $runee;
+	elif [[ $runee =~ .*\.js$ ]]; then node $runee;
+	else
+		echo idk how to run $runee
+		break 
+	fi
+
+	sleep 0.1
+done 
+
+
