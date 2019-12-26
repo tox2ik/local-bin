@@ -4,15 +4,16 @@
 # hours 2:35 (2.58333)
 # sec2hrs 2 hours 35 minutes 
 BEGIN { FS=":" }
-{
-hm+=$1*60*60
- m+=$2*60
-sm+=$3
-}
+{ hs+=$1*60*60; ms+=$2*60; s+=$3 }
 END {
-s = hm+m+sm
-print "seconds", s
-printf "hours %d:%d (%s)\n", s/3600, (s % 3600 /60), s/3600
+st = hs+ms+s;
+mr = st % 3600;
+h = int(st / 3600);
+m = int(mr / 60)
+s = mr % 60
+printf "%02d:%02d:%02d\n", h, m, s;
+print "seconds", st
 printf "sec2hrs "
-system("sec2hrs " hm+m+sm)
+system("sec2hrs " st)
 }
+

@@ -1,0 +1,1 @@
+sed -E s/\\s/%/ | column -s% -c 120 -t --table-columns PKG,DESC -W DESC -E1
