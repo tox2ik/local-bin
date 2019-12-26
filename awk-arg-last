@@ -1,3 +1,2 @@
-#!/bin/bash
-
-awk "$@" '{ print $(NF) }'
+#!/usr/bin/awk -f
+{ print $(NF) }

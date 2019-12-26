@@ -1,8 +1,9 @@
 #!/bin/bash
 
 {
-find ~ -name 'Service Worker'  -type d -print0 | xargs -0 -I% sh -c 'du -sm "%/"*'
+find ~ -name 'Code Cache'         -type d -print0 | xargs -0 -I% sh -c 'du -sm "%/"*'
+find ~ -name 'Service Worker'     -type d -print0 | xargs -0 -I% sh -c 'du -sm "%/"*'
 find ~ -name 'Application Cache'  -type d -print0 | xargs -0 -I% sh -c 'du -sm "%/"*'
-find ~ -name 'IndexedDB'  -type d -print0 | xargs -0 -I% du -sm "%"
+find ~ -name 'IndexedDB'          -type d -print0 | xargs -0 -I% du -sm "%"
 
 } | sort -k3,3 | awk '{print z+=$1, $0}'

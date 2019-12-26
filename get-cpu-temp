@@ -1,0 +1,1 @@
+echo `date '+%Y-%m-%d.%H:%M'`  `sensors | awk '/^Package.id.0/ { print $4}'`

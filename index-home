@@ -1,0 +1,9 @@
+#!/bin/bash
+mkdir -p ~/Data/home-files
+cd ~
+find > ~/Data/home-files/`dateversion`
+ln -snf ~/Data/home-files/`dateversion` ~/Data/home-files/latest
+
+wc -l ~/Data/home-files/`dateversion`
+du -sk ~/Data/home-files/`dateversion`
+
