@@ -1,0 +1,1 @@
+echo -e 'stats\nquit' | nc localhost 11211 | awk ' $3 > 0 { print }' | sort -k2,2

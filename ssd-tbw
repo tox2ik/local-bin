@@ -1,0 +1,20 @@
+#!/bin/bash
+
+device=${1:-/dev/sda}
+sudo smartctl -A $device |awk '
+$0 ~ /Power_On_Hours/ { poh=$10; printf "%s / %d hours / %d days / %.2f years\n",  $2, $10, $10 / 24, $10 / 24 / 365.25 }
+$0 ~ /Total_LBAs_Written/ {
+	lbas=$10;
+	bytes=$10 * 512;
+	mb= bytes / 1024^2;
+	gb= bytes / 1024^3;
+	tb= bytes / 1024^4;
+	printf "%s / %s  / %d mb / %.1f gb / %.3f tb\n", $2, $10, mb, gb, tb
+	printf "mean writes per hour:  / %.2f",  mb/poh
+}
+$0 ~ /Airflow_Temperature_Cel/ { print $2 " / " $10}
+$0 ~ /Wear_Leveling_Count/ { printf "%s / %d (%% health)\n", $2, int($4) }
+' |
+	sed -e 's:/:@:' |
+	sed -e "s\$^\$$device @ \$" |
+	column -ts@

@@ -1,0 +1,8 @@
+#!/bin/sed -Ef
+s/(,|INNER|LEFT|WHERE|ORDER|FROM)/\n&/g
+
+s/\? AND/?\nAND/g
+
+s/\? \[/?\n[\n/g
+$a\
+

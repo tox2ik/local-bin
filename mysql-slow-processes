@@ -1,0 +1,9 @@
+# vim: ft=sh
+
+
+# //while-true " " | sed -e 's/\\n//g'
+
+while true; do 
+	mysql -e 'show full processlist' | awk -v slow=${1:-3} '"Sleep" != $5 &&  int($6) > slow { print $0}'
+	sleep 1
+done

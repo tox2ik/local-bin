@@ -1,0 +1,3 @@
+#!/bin/bash
+
+tee >(grep total | awk '{ print z+=$1, "sum" }' | tail -n1) | grep -v total$

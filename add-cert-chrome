@@ -1,0 +1,12 @@
+#!/bin/bash
+# register a (self signed) cert with chrome
+#
+export PATH=$PATH:/home/jaroslav/applications/nss_tools/usr/bin
+cert=${1:-/home/jaroslav/workspace/minica-certificates/balmora-ca.pem}
+name=$( 
+	openssl x509 -text -noout -in $cert |
+	sed -n '/Subject:.CN=/{s/.*=//;p}'
+)
+certutil -A -d ~/.pki/nssdb -t C,, -n "$name" -i $cert
+echo "added <$name>? exit-code=: $?"
+certutil -L -d ~/.pki/nssdb

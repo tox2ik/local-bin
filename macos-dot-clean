@@ -1,0 +1,2 @@
+#!/bin/bash
+find ${1:-.} -name __MACOSX -print0 | xargs -0 rm -fr

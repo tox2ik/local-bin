@@ -1,0 +1,21 @@
+#!/bin/bash
+ps -e -o pid,ppid,%mem,rss,cmd |
+	grep ${1:-[/]chrome} |
+	awk '
+	{
+	pid=$1; ppid=$2; mem=$3; rss=$4; 
+
+	$1=""; $2=""; $3=""; $4=""; 
+
+	cmd=$0;
+	gsub("^[ \t]+", "", cmd);
+	percent+=mem; ram+=rss
+	print pid, ppid, mem, rss, cmd;
+	}
+
+	END{ 
+	print "sum", 0, 0, percent, ram
+	print "mb: " int(ram/1024)
+	} 
+	'
+

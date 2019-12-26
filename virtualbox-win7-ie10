@@ -1,2 +1,0 @@
-VirtualBox --startvm "IE10 - Win7" &>/dev/null
-#VBoxHeadless  --startvm "IE10 - Win7" &>/dev/null

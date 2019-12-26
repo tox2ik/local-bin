@@ -5,8 +5,9 @@
 # /usr/portage/sys-apps/less/files/lesspipe.sh
 #
 # v01: MANPAGER=cat man $@ | grep -E '^^[[1m[A-Z]{3,}'
-# v02: gentoo lesspipe
+# v02: use gentoo lesspipe
 # v03: extract guesscompress
+# v04: 2019-12; fix manpath on ubuntu, or search folders
 
 guesscompress() {
 	case "$1" in
@@ -20,7 +21,19 @@ guesscompress() {
 		*)          echo "cat" ;;
 	esac
 }
-MAN=$(find ${MANPATH//:/ } | grep "/$1\.")
+mans=
+if type manpath 2>/dev/null; then
+	mans=$(manpath)
+elif [[ -n $MANPATH ]]; then
+	mans=$MANPATH
+else
+	mans=$(find /usr/share /usr/local -maxdepth 2 -name man -type d | tr $'\n' :)
+fi
+if [[ -z $mans ]];then
+	echo unable to detect manual paths
+	exit 1
+fi
+MAN=$(find ${mans//:/ } | grep "/$1\.")
 READ=$(guesscompress .${MAN##*.})
 $READ $MAN | sed -E '
 	/^.(SH|SS)/!d; 

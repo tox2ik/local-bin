@@ -1,0 +1,16 @@
+#!/bin/bash
+
+enable_db=$1
+
+[ -z $enable_db ] && exit 2
+
+echo ENABLING: $enable_db
+
+# not on last: store database = xyz in buffer
+#     on last: append buffer, remove newline
+sed -i ~/.my.cnf -e "
+\$!{ /database\ *=\ *.*$enable_db/{H; d} }
+\${ G; s/\n// }
+"
+
+tail ~/.my.cnf

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then 
+echo first argument is a url
+fi
+
+
+tmpf=`mktemp`
+
+symfony () { 
+    php ~/www/bin/console "$@"
+}
+
+
+get_path() {
+	php -r "echo parse_url('$1')['path'] . PHP_EOL;"  | tee $tmpf
+}
+
+
+get_method() {
+	symfony router:match "$(get_path "$1")" --method=${2:-GET} |
+		grep --colour=auto -oP '[\w\\]+(?=::)' | tr '\\' /
+}
+
+get_class() {
+	basename "$(get_method "$1" "$2")"
+}
+
+#method: $2
+# echo path: `get_path "$1" --method=${2:-GET}`
+# echo class: `get_class "$@" `
+
+controller_class=$(get_class $1 $2)
+
+if [ -n "$controller_class" ]; then
+	controller_file="$(find ~/www/src -type f | grep "$controller_class")"
+
+	echo "200: ${2:-GET} $1 -> $controller_file"
+	symfony router:match $(< $tmpf) --method=${2:-GET}
+	rm -f "$tmpf"
+
+
+	if [ -f "$controller_file" ] ; then
+		cd $(dirname $controller_file) && phpstorm $(basename $controller_file) >/dev/null &
+	fi
+else
+	echo "404: ${2:-GET} $1"
+	case "$2" in
+		   GET|get|'') bash $0 $1 POST;;
+		    POST|post) bash $0 $1 PUT;;
+		      PUT|put) bash $0 $1 DELETE;;
+		DELETE|delete) echo done.;;
+	esac
+	#echo no such path for ${2:-GET}, trying: $next
+	
+fi
+

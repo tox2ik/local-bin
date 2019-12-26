@@ -1,0 +1,2 @@
+#!/bin/bash
+top-mem -b -d1 -n1  -p `pgrep -f "${1:-bash}" -d, | sed 's/,/+/20 ; s/+.*//'`

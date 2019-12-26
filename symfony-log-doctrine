@@ -1,0 +1,1 @@
+tail -n 10  /tmp/doctrine.log | while read i ; do echo -e "$i" | sed-doctrine-split ;done
