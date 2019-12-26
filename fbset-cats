@@ -1,0 +1,1 @@
+DISPLAY=:0 /usr/bin/fbsetbg -c `$HOME/bin/fbsetbg-combine-cats.sh`

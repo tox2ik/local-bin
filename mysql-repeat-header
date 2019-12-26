@@ -1,0 +1,1 @@
+awk -v everyx=${1:-50} '{print} NR == 2 { h=$0 } NR % everyx == 0 { print; print h } '

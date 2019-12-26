@@ -1,0 +1,22 @@
+#!/bin/bash
+
+YOUR_API_KEY=$(< ~/.config/tiny-png/api-key)
+SERVICE=https://api.tinify.com/shrink
+input=${1:-/tmp/file.png}
+
+if [ ! -f $input.orig ]; then
+	cp $input $input.orig
+fi 
+
+tmp_json=/tmp/tiny-png.$$
+compressed=$(
+curl -s --user api:$YOUR_API_KEY \
+--dump-header /dev/stderr \
+--data-binary @$input $SERVICE |\
+json_pp | tee $tmp_json | awk -F '"' '/url/ { print $4}'
+)
+
+wget -nv $compressed -O $input
+du -sk $input $input.orig
+
+cat $tmp_json
