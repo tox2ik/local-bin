@@ -4,7 +4,8 @@ POS="`xwininfo -root |
 		/Width/ {w=$2} 
 		/Height/ {h=$2} 
 		END { 
-			printf "-w %d -h %d -pos 20 %d \n",w-60, 270, h/4
+			# pre-4k printf "-w %d -h %d -pos 20 %d \n",w-60, 270, h/4
+			printf "-w %d -h %d -pos 50 %d \n", w-60, 600, h/4
 	}'`"
 
 FONT='HelveticaNeueLT Com 75 BdOu:size=130'

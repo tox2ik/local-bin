@@ -18,11 +18,15 @@ if fc-list  | grep -q 'Droid Sans Mono';
 then
 	font=${2:-Droid Sans Mono}
 	size=${1:-13}
+elif fc-list  | grep -q 'xos4 Terminus'; then
+	font=${2:-"xos4 Terminus"}
+	size=${1:-13}
 elif fc-list  | grep -q 'Terminus';
 then
 	font=${2:-Terminus}
 	size=${1:-20}
 fi
 
+# todo: change italic and bold too
 printf '\33]50;%s\007' "xft:${font}:pixelsize=${size}:style=${style}"
 
