@@ -1,0 +1,7 @@
+#!/bin/bash
+
+while true; do
+	ssh -AR 8822:localhost:22 genja.org
+	echo 'reconnecting to caldera (tunnel via genja) ' `date`
+	sleep 1
+done

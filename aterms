@@ -97,6 +97,20 @@ function _count_desktop_wclass { _wmctrl_desktop ${1:-2} | grep ${2:-URxvt_d2} |
 
 function _kill_wclas { wmctrl -lpx  | grep ${1:-URxvt_d3} | awk '{ print $3}' | xargs kill; }
 
+function _anticipate_terms { #{{{
+	local desktop=$1
+	local filter_wclass=$2
+	local count=${3:-1}
+	for i in {1..60}; do
+		if [[ `winder -n -c $desktop $filter_wclass` -ge $count ]]; then
+			break
+		fi
+		sleep 0.03
+		echo -n .
+	done # }}}
+	echo ,
+}
+
 function d2 {
 	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ `_count_desktop_wclass 1 URxvt_d2` -lt 3 ]]; then	
@@ -106,56 +120,12 @@ function d2 {
 	else
 		echo we have 3 or more terms here
 	fi
-	local w= res=$(get_res) 
-	w=${res%%x*} 
-	resize2 1 URxvt_d2 $(( w / 100 * 5))
+	_anticipate_terms 3 URxvt_d2 3
+	local w=$(get-res -w)
+	winder 1 URxvt_d2 $(( -w / 100 * 5))
+	echo winder 1 URxvt_d2 $(( w / 100 * 5))
 }
-# {{{
-function resize2 {
-	# <G>,<X>,<Y>,<W>,<H>
-	local desktop=$1
-	local filter_wclass=$2
-	local shift_from_middle=${3:-200}
-	local res=$(get_res)
-	local h=${res##*x} w=${res%%x*} 
-	# echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
 
-	local horizontal=5 bmargin=6
-
-	# {{{
-	function width_left { echo $((w/2-shift_from_middle-4)); }
-	function width_right { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
-	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
-	function y_middle { echo $((h/2+bmargin)); }
-	function height_full { echo $((h-bmargin)); }
-	function height_half { echo $((h/2-bmargin)); }
-	function height_half2 { echo $((h/2-bmargin-bmargin)); }
-	# }}}
-
-	function left_tall { wmctrl -i -r $1 -e 0,2,2,`width_left`,`height_full`; }
-	function right_top { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_right`,`height_half`; }
-	function right_bot { wmctrl -i -r $1 -e 0,`x_middle`,`y_middle`,`width_right`,`height_half2`; }
-
-	echo 2: `x_middle`
-
-	# {{{
-	for i in {1..60}; do
-		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
-			break
-		fi
-		sleep 0.03
-		echo -n .
-	done # }}}
-	# {{{
-	let c=0
-	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk '{ print $1}'`;do
-		let c=c+1
-		echo $c $i
-		if (( c == 1)); then left_tall $i; fi
-		if (( c == 2)); then right_top $i; fi
-		if (( c == 3)); then right_bot $i; fi
-	done #}}}
-} # }}}
 
 function d3 {
 	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
@@ -166,53 +136,9 @@ function d3 {
 	else
 		echo we have 3 or more terms here
 	fi
-	local w= res=$(get_res) 
-	w=${res%%x*} 
-	resize3 2 URxvt_d3 $(( -w / 100 * 5))
-}
-function resize3 {
-	# <G>,<X>,<Y>,<W>,<H>
-	local desktop=$1
-	local filter_wclass=$2
-	local shift_from_middle=$3
-	local res=$(get_res)
-	local w=${res%%x*}
-	local h=${res##*x}
-	echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
-
-	local horizontal=5 bmargin=6
-
-	# {{{
-	function width_right { echo $((w/2-shift_from_middle-4)); }
-	function width_left { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
-	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
-	function y_middle { echo $((h/2+bmargin)); }
-	function height_full { echo $((h-bmargin)); }
-	function height_half { echo $((h/2-bmargin)); }
-	function height_half2 { echo $((h/2-bmargin-bmargin)); }
-	# }}}
-
-	echo 3: `x_middle`
-
-	function right_tall { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_left`,`height_full`; }
-	function left_top { wmctrl -i -r $1 -e 0,2,2,`width_right`,`height_half`; }
-	function left_bot { wmctrl -i -r $1 -e 0,2,`y_middle`,`width_right`,`height_half2`; }
-	# {{{
-	for i in {1..60}; do
-		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
-			break
-		fi
-		sleep 0.03
-	done # }}}
-	# {{{
-	let c=0
-	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk '{ print $1}'`;do
-		let c=c+1
-		if (( c == 1)); then right_tall $i; fi
-		if (( c == 2)); then left_top $i; fi
-		if (( c == 3)); then left_bot $i; fi
-	done
-	#}}}
+	_anticipate_terms 3 URxvt_d3 3
+	local w=$(get-res -w)
+	winder 2 URxvt_d3 $(( w / 100 * 5))
 }
 
 function urxvt-error-log {
@@ -327,10 +253,98 @@ elif type $base 2>/dev/null | grep -q is.a.function; then
 	$base # e.q ln ~/bin/aterms ~/bin/urxvt-error-log
 else
 	(
-	echo Please give me one of the following function names as the first argument to spawn a new terminal emulator:
+	echo Please give me one of the following function names as the first
+    echo argument to spawn a new terminal emulator:
 	echo
 	cat ${BASH_SOURCE[0]} | grep ^function | awk '{print $2}' | grep -v ^_
 	) | fmt -w 80
 
 fi
+
+function resize2 { # {{{
+	# <G>,<X>,<Y>,<W>,<H>
+	local desktop=$1
+	local filter_wclass=$2
+	local shift_from_middle=${3:-200}
+	local res=$(get_res)
+	local h=${res##*x} w=${res%%x*} 
+	# echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
+
+	local horizontal=5 bmargin=6
+
+	# {{{
+	function width_left { echo $((w/2-shift_from_middle-4)); }
+	function width_right { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
+	function y_middle { echo $((h/2+bmargin)); }
+	function height_full { echo $((h-bmargin)); }
+	function height_half { echo $((h/2-bmargin)); }
+	function height_half2 { echo $((h/2-bmargin-bmargin)); }
+	# }}}
+
+	function left_tall { wmctrl -i -r $1 -e 0,2,2,`width_left`,`height_full`; }
+	function right_top { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_right`,`height_half`; }
+	function right_bot { wmctrl -i -r $1 -e 0,`x_middle`,`y_middle`,`width_right`,`height_half2`; }
+
+	# {{{
+	for i in {1..60}; do
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
+			break
+		fi
+		sleep 0.03
+		echo -n .
+	done # }}}
+	# {{{
+	let c=0
+	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk '{ print $1}'`;do
+		let c=c+1
+		echo $c $i
+		if (( c == 1)); then left_tall $i; fi
+		if (( c == 2)); then right_top $i; fi
+		if (( c == 3)); then right_bot $i; fi
+	done #}}}
+} # }}}
+
+function resize3 { #{{{
+	# <G>,<X>,<Y>,<W>,<H>
+	local desktop=$1
+	local filter_wclass=$2
+	local shift_from_middle=$3
+	local res=$(get_res)
+	local w=${res%%x*}
+	local h=${res##*x}
+	echo W $w H $h F $filter_wclass D $desktop S $shift_from_middle
+
+	local horizontal=5 bmargin=6
+
+	# {{{
+	function width_right { echo $((w/2-shift_from_middle-4)); }
+	function width_left { echo $((w/2+shift_from_middle-horizontal-horizontal)); }
+	function x_middle { echo $((w/2-shift_from_middle+horizontal)); }
+	function y_middle { echo $((h/2+bmargin)); }
+	function height_full { echo $((h-bmargin)); }
+	function height_half { echo $((h/2-bmargin)); }
+	function height_half2 { echo $((h/2-bmargin-bmargin)); }
+	# }}}
+
+	function right_tall { wmctrl -i -r $1 -e 0,`x_middle`,2,`width_left`,`height_full`; }
+	function left_top { wmctrl -i -r $1 -e 0,2,2,`width_right`,`height_half`; }
+	function left_bot { wmctrl -i -r $1 -e 0,2,`y_middle`,`width_right`,`height_half2`; }
+	# {{{
+	for i in {1..60}; do
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
+			break
+		fi
+		sleep 0.03
+	done # }}}
+	# {{{
+	let c=0
+	for i in `_wmctrl_desktop $desktop | grep $filter_wclass | awk '{ print $1}'`;do
+		let c=c+1
+		if (( c == 1)); then right_tall $i; fi
+		if (( c == 2)); then left_top $i; fi
+		if (( c == 3)); then left_bot $i; fi
+	done
+} #}}}
 # vim: foldmethod=marker
+
