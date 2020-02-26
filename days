@@ -1,14 +1,10 @@
 #!/bin/bash
 
-jan01 () { 
-    date +%s -d `date +%Y-01-01`
-}
-dec () { 
-    j=`jan01`;
-    echo $((j + 365*24*3600))
-}
+jan01 () { date +%s -d `date +${1:-%Y}-01-01`; }
+dec () { j=`jan01 $1`; echo $((j + 365*24*3600)); }
 
-d=`jan01`; dec=`dec`; 
+d=`jan01 ${1:-%Y}`;
+dec=`dec ${1:-%Y}`; 
 
 while [ $d -lt $dec ];do
 	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
