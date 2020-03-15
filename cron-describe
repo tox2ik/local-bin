@@ -1,0 +1,12 @@
+#!/bin/bash
+crontab -l | while read i; do
+
+url=$(echo "$i" | cut -d' ' -f1-5 | urlencode.php)
+description=$(
+curl 'https://cronexpressiondescriptor.azurewebsites.net/api/descriptor/?locale=en-US&expression=%'|
+	jq -r .description
+	);
+
+echo $description / $i
+
+done 
