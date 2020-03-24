@@ -1,0 +1,1 @@
+sudo  rsync rsync://rsync.gentoo.org/gentoo-portage/ /usr/portage/ -ai
