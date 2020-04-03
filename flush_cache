@@ -1,6 +1,14 @@
+#!/bin/bash
+#
+# flush linux memory.
+# echo 1 > /proc/sys/vm/drop_caches # To free pagecache
+# echo 2 > /proc/sys/vm/drop_caches # To free dentries and inodes
+# echo 3 > /proc/sys/vm/drop_caches # To free pagecache, dentries and inodes
 sudo sync
-sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
 
-#echo 1 > /proc/sys/vm/drop_caches # To free pagecache
-#echo 2 > /proc/sys/vm/drop_caches # To free dentries and inodes
-#echo 3 > /proc/sys/vm/drop_caches # To free pagecache, dentries and inodes
+[[ -z $1 ]]   && sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+[[ $1 == 3 ]] && sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+[[ $1 == 2 ]] && sudo sh -c 'echo 2 > /proc/sys/vm/drop_caches'
+[[ $1 == 1 ]] && sudo sh -c 'echo 1 > /proc/sys/vm/drop_caches'
+
+
