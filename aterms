@@ -101,6 +101,7 @@ function _anticipate_terms { #{{{
 	local desktop=$1
 	local filter_wclass=$2
 	local count=${3:-1}
+
 	for i in {1..60}; do
 		if [[ `winder -n -c $desktop $filter_wclass` -ge $count ]]; then
 			break
@@ -112,7 +113,7 @@ function _anticipate_terms { #{{{
 }
 
 function d2 {
-	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
+	#xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ `_count_desktop_wclass 1 URxvt_d2` -lt 3 ]]; then	
 		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30+10+10 &
 		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30-10+10 &
@@ -120,15 +121,14 @@ function d2 {
 	else
 		echo we have 3 or more terms here
 	fi
-	_anticipate_terms 3 URxvt_d2 3
+	_anticipate_terms 1 URxvt_d2 3
 	local w=$(get-res -w)
 	winder 1 URxvt_d2 $(( -w / 100 * 5))
-	echo winder 1 URxvt_d2 $(( w / 100 * 5))
 }
 
 
 function d3 {
-	xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
+	#xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
 	if [[ `_count_desktop_wclass 2 URxvt_d3` -lt 3 ]]; then	
 		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30+10+10 &
 		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30-10+10 &
@@ -136,7 +136,7 @@ function d3 {
 	else
 		echo we have 3 or more terms here
 	fi
-	_anticipate_terms 3 URxvt_d3 3
+	_anticipate_terms 2 URxvt_d3 3
 	local w=$(get-res -w)
 	winder 2 URxvt_d3 $(( w / 100 * 5))
 }
