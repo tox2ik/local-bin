@@ -1,0 +1,43 @@
+#!/bin/bash
+#set -x
+
+function types() {
+	if [[ $# -gt 1 ]]; then
+		return
+	fi
+	local t=$(type $1 2>&1)
+	if [[ "$t" =~ 'is.a.function' ]]; then
+		echo -e "$t"  | sed 1d
+	fi
+	if [[ "$t" =~ 'is.aliased.to' ]]; then
+		local alias_target=$(
+			echo -e "$t"  | grep  -oP "(?<=\`).*(?=')"
+		)
+		1>&2 echo $1 is aliased to \`$alias_target"'"
+		types $alias_target	
+	fi
+
+	#todo: types mount
+	if [[ "$t" =~ "is.\.*/" ]]; then
+		type $1
+	fi
+}
+
+## todo: report bug:
+
+# this rhould return same when run in the shell;
+#
+#     $ type i  |& grep  -P "(?<=\`).*(?=')" -o 
+#     lssort
+#
+#
+#	if echo -e "$t" | grep -q 'is.aliased.to'; then
+#		q="'"
+#		echo -e "$t"  | grep  -P "(?<=\`).*(?='$)"
+#	fi
+#
+# and not:
+
+#       $ types i 
+#       lssort'
+
