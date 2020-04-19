@@ -1,0 +1,73 @@
+#!/bin/bash
+# sort by header-name length
+# output headers exceeding terminal width
+# output short headers
+# output common headers
+
+width=`tput cols`
+
+pre() { cat; }
+if [[ $# -gt 0  ]];then
+echo
+	pre() { cat "$@"; }
+fi
+
+pre "$@" | sed '/^$/q' |
+	reformime -u |
+	sed -e 's/\ \+/ /g' |
+	awk -v cc=$width '
+		function sort_headers(ia, va, ib, vb) {
+			a_colon = index(va, ":");
+			b_colon = index(vb, ":");
+			return length(substr(vb, 0, b_colon)) - length(substr(va, 0, a_colon))
+		}
+		{
+			if (length($0)>cc) {
+				long[l++] = substr($0, 1, cc-3) " x" 
+			} else {
+				short[s++] = $0
+			}
+		} END {
+			PROCINFO["sorted_in"] = "sort_headers"
+			for (i in long) { print long[i] }
+			print ""
+			for (i in short) { print short[i] }
+	}' | sed -e '
+
+	/^Cc:/{H;}
+	/^To:/{H;d}
+	/^From:/{H;d}
+
+	/^Date:/{H;d}
+	/^Subject:/{H;d}
+	/^List-ID:/{H;d}
+	/^Reply-To:/{H;d}
+	/^Return-Path:/{H;d}
+	/^Delivered-To:/{H;d}
+	/^Mailing-List:/{H;d}
+
+	
+	/^X-GMAIL-LABELS:/{H;d}
+	/^X-GMAIL-MSGID:/{H;d}
+	/^X-BeenThere:/{H;d}
+	/^X-getmail-retrieved-from-mailbox:/{H;d}
+
+	${G; x}
+'
+
+
+	# /^Cc:/{H; x; }
+	# /^To:/{H; x; s/.*/---/;}
+	# /^From:/{H; }
+
+	# /^Date:/H
+	# /^Subject:/H
+	# /^List-ID:/H
+	# /^Reply-To:/H
+	# /^Return-Path:/H
+	# /^Delivered-To:/H
+	# /^Content-Type:/H
+
+	# /^X-GMAIL:/H
+	# /^X-BeenThere:/H
+	# /^X-getmail-retrieved-from-mailbox:/H
