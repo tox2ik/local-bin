@@ -5,7 +5,8 @@ function _ioz { iozone -+h `_host` "$@"; }
 
 function q2   { _ioz -I -i{0,1,2} -s 2m -r 128k   |_f;} 
 function q100 { _ioz -I -i{0,1,2} -s 100m -r 128k |_f;}
-function a200 { _ioz -aI -i{0,1,2} -g 20m -n12m   |_f;}
+function a20  { _ioz -aI -i{0,1,2} -n 12m -g 20m  |_f;}
+function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -f ~/bin/iozones.awk; } 
