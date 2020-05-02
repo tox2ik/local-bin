@@ -1,0 +1,19 @@
+#!/bin/bash
+
+_host() { hostname }
+alias ioz="iozone -+h `_host`"
+
+function q2   { ioz -I -i{0,1,2} -s 2m -r 128k; } 
+function q100 { ioz -I -i{0,1,2} -s 100m -r 128k; }
+
+function a200 { ioz -aI -i{0,1,2} -g 20m -n12m; }
+
+function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
+function _summarize { awk -f ~/bin/iozones.awk; } 
+function _table { column -ts $'\t'; }
+
+function _label_at_path {
+	lsblk -o name,mountpoint,partlabel  -l |
+	awk -v mp=${1:-/G/tmp}  'NR>1 && NF>=2 && !_[$2]++ && index(mp, $2) {  print $1 "-" $3 }'
+}
+
