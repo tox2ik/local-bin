@@ -1,1 +1,0 @@
-iozone -aI -i{0,1,2} -g 256m -n12m
