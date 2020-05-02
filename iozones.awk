@@ -1,4 +1,12 @@
+function im(kB, p) {
+	if (p > 0)
+		return sprintf("%.1f", kB/1024)
+	else
+		return int(kB/1024)
+}
+
 BEGIN {
+min_w=max_w=min_r=max_r=-1
 data=30000
 print "kB\t",
 	  "reclen\t",
@@ -35,15 +43,41 @@ NR >= data {
 
 	score_rc += 3
 	score_wc += 3
+
+	if (min_r == -1) { min_r = $3 }
+	if (min_r  > $3) { min_r = $3 }
+	if (min_r  > $4) { min_r = $4 }
+	if (min_r  > $7) { min_r = $7 }
+
+	if (min_w == -1) { min_w = $3 }
+	if (min_w  > $5) { min_w = $5 }
+	if (min_w  > $6) { min_w = $6 }
+	if (min_w  > $8) { min_w = $8 }
+
+	if (max_r == -1) { max_r = $3 }
+	if (max_r  < $3) { max_r = $3 }
+	if (max_r  < $4) { max_r = $4 }
+	if (max_r  < $7) { max_r = $7 }
+
+	if (max_w == -1) { max_w = $3 }
+	if (max_w  < $5) { max_w = $5 }
+	if (max_w  < $6) { max_w = $6 }
+	if (max_w  < $8) { max_w = $8 }
+
+
+
+
+
+
 }
 
 END {
 #print "\t\t\t\t\t\t\t\t" cmd
 
 print "",
-	  " read " int(score_r/score_rc/1024) "\n",
-	  "write " int(score_w/score_wc/1024) "\n",
-	  "score " int(score  /(score_rc+score_wc)/1024) "\n"
+	  " read avg " im(score_r/score_rc) " " im(min_r,0) " " im(max_r, 0) "\n",
+	  "write avg " im(score_w/score_wc) " " im(min_w,0) " " im(max_w, 0) "\n",
+	  "score " im(score  /(score_rc+score_wc)) "\n"
 
 }
 
