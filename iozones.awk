@@ -32,14 +32,18 @@ NR >= data {
 	score_r += $3 + $4 + $7
 	score_w += $5 + $6 + $8
 	score += score_r + score_w
+
+	score_rc += 3
+	score_wc += 3
 }
 
 END {
 #print "\t\t\t\t\t\t\t\t" cmd
 
 print "",
-	  " read " int(score_r/1024) "\n",
-	  "write " int(score_w/1024) "\n",
-	  "score " int(score  /1024) "\n"
+	  " read " int(score_r/score_rc/1024) "\n",
+	  "write " int(score_w/score_wc/1024) "\n",
+	  "score " int(score  /(score_rc+score_wc)/1024) "\n"
 
 }
+
