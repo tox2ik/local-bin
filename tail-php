@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+
 
 tsed() {
 	tail -n 400 -f ~/logs/php_error.log |&
