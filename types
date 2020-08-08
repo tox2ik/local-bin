@@ -17,13 +17,30 @@ function types() {
 		types $alias_target	
 	fi
 
+	if [[ "$t" =~ \w+\sis\s\.*/ ]]; then
+		ls -l $1
+	fi
+
+	if [[ $t =~ [a-z].is ]]; then
+		if [[ -L $1 ]] || [[ -L `which "$1"` ]]; then
+			type $1
+			echo $i iz `realpath "$i"`
+		else
+			type $1 | awk '{$1=$2=""; print }'
+		fi
+	fi
+
 	#todo: types mount
 	if [[ "$t" =~ "is.\.*/" ]]; then
 		type $1
 	fi
 }
 
-## todo: report bug:
+if [[ $# -gt 0 ]];then
+	for i; do types $i; done
+fi
+
+## todo: report bug to bash
 
 # this rhould return same when run in the shell;
 #

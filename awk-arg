@@ -1,4 +1,5 @@
 #!/bin/bash
+# todo: rewrite in csh?
 argv=
 for i; do
 	if [[ $1 =~ ^[0-9]+$ ]]; then

@@ -7,7 +7,8 @@ elif [ $# -gt 1 ]; then
 		$0 "$file";
 	done
 else
-	cmd="qprint  -d ${1:-Fwd1.eml} "
+	# cmd="qprint  -d ${1:-Fwd1.eml} "
+	cmd="reformime -u ${1:-Fwd1.eml} "
 fi
 
 $cmd 2>/dev/null | sed '

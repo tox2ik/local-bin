@@ -1,6 +1,13 @@
 #!/bin/bash
 
 
+if echo a b | column -t -N A,B &>/dev/null; then
+	function table { column -s@ -t -N mem,vsz,rss,comm; }
+else
+	function table { column -s@ -t; }
+fi
+
+
 function bm() {
 	ps -e -o %mem,vsz,rss,comm --no-headers | 
 		sort -b  -k3,3n -k4,20
@@ -10,7 +17,7 @@ function s_ {
 	sed -Ee 's/^\s+//; s/\s+/@/; s/\s+/@/; s/\s+/@/ '
 }
 
-bm | s_ | awk -F@ '$3 { print $1 "@" $2 "@" $3 "@" $4}' | column -s@ -t -N mem,vsz,rss,comm
+bm | s_ | awk -F@ '$3 { print $1 "@" $2 "@" $3 "@" $4}' | table
 
 
 echo -e "\n%mem, virtual, rss, comm\n"
@@ -28,5 +35,7 @@ for (i in _) {
 	print int(_[i]/1024) , i "(" pp[i] ")", int(_[i]/pp[i]/1024)
 } 
 }' | sort -k 1,1nr | head -n 30
+
+
 
 

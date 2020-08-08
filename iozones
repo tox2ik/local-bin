@@ -10,6 +10,7 @@ function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -f ~/bin/iozones.awk; } 
+function _summarize { awk -f ${BASH_SOURCE[0]}.awk; } 
 function _table { column -ts $'\t'; }
 function _f { _summarize | _table; }
 

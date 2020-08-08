@@ -31,15 +31,15 @@ if [[ -z $FIXPERMS_QUIET ]]; then
 fi
 
 if [ $# -eq 4 ];then
-	chown $new_user -R $target 
+	sudo chown $new_user -R $target 
 fi
 
 if [ $# -eq 5 ];then
-	chown $new_user:$new_group -R $target 
+	sudo chown $new_user:$new_group -R $target 
 fi
 
-find $target -type d -exec chmod $dir_permissions {} +
-find $target -type f -exec chmod $file_permissions {} +
+sudo find $target -type d -exec chmod $dir_permissions {} +
+sudo find $target -type f -exec chmod $file_permissions {} +
 
 if [[ -z $FIXPERMS_QUIET ]]; then
 	echo old permissions were recorded in  $tmp

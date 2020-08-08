@@ -1,1 +1,4 @@
-sudo  rsync rsync://rsync.gentoo.org/gentoo-portage/ /usr/portage/ -ai
+#!/bin/sh
+mkdir -p /home/jaroslav/src/gentoo-overlay/
+#rsync -ai rsync://rsync.gentoo.org/gentoo-portage/ /home/jaroslav/src/gentoo-overlay/
+sudo rsync -ai rsync://rsync.gentoo.org/gentoo-portage/ /var/db/repos/gentoo/ --delete-after

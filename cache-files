@@ -14,6 +14,8 @@ find ~ \
 		-or -name 'Service Worker' \
 	')' \
 	-print -type d 
+
+
                                                                        
 #find ~ -path '*chrome*' -name IndexedDB                 -print -type d 
 #find ~ -path '*chromium*' -name IndexedDB               -print -type d 
@@ -28,3 +30,14 @@ find ~ \
 #find ~ -name 'Application Cache'  -type d -print0 | xargs -0 -I% sh -c 'du -sm "%/"*'
 #
 #} | sort -k2,2 | awk '{print z+=$1, $0}'
+
+# ~/.cache/go-build/
+# ~/.npm/_cacache
+# ~/.pdepend
+
+# ~/.composer/cache/.htaccess
+# ~/.bundle/cache/
+# ~/.kube/cache/
+# ~/.cache/howdoi/
+# ~/.cache/rubocop_cache/
+
