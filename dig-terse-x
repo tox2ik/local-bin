@@ -1,0 +1,2 @@
+#!/bin/bash
+dig +short +timeout=1 -x ${1:-8.8.8.8} 

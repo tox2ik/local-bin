@@ -1,0 +1,2 @@
+#!/bin/sh
+exec gvim '+winsize 94 55' "+Man $*" '+only!' '+set foldcolumn=4' -geometry 984x1215+744+93

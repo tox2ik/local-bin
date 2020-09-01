@@ -1,0 +1,49 @@
+#!/bin/bash
+
+now="$(date)"
+
+if [[ $# -gt 0 ]]; then
+	now="$*"
+fi
+
+(
+echo Here^ `date`
+for i in `echo "
+
+America/New_York
+ETD
+ESD
+PDT
+PST
+Europe/London
+Europe/Oslo
+Europe/Dublin
+Europe/Berlin
+Europe/Moscow
+
+UTC-7
+UTC-6
+UTC-5
+UTC-4
+UTC-3
+UTC-2
+UTC-1
+UTC
+UTC-0
+UTC+0
+UTC+1
+UTC+2
+
+"`; do
+	echo $i^ `TZ=$i date -d "$now"`
+done) | sort -k 2b -t^ | column -ts^
+
+# PDT - Pacific Daylight Time
+# PST - Pacific Standard Time
+# America/Salem
+
+
+# EST – Eastern Standard Time
+# EDT - Eastern Daylight Time
+# America/NewYork
+# America/Richmond

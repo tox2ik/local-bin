@@ -1,0 +1,9 @@
+#!/bin/bash
+lines=$(ps -eo pid,cmd)
+
+if [[ -n $1 ]]; then
+	echo -e "$lines" | grep -e "$*"
+else
+	echo -e "$lines"
+fi
+

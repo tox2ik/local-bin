@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+import numpy
+
+# Out[27]: [, 45, 111, 97, 100]
+
+print ("{}.{}.{}".format(104^108^97, 45, 111^97^100))
+
+

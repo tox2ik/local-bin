@@ -1,0 +1,2 @@
+sudo chown root:wheel "$@"
+sudo chmod 4750       "$@"

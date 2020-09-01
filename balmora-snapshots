@@ -1,0 +1,39 @@
+#!/bin/bash
+if [[ $UID -ne 0 ]]; then
+	echo sudo $0
+	exit 1
+fi
+
+# slash group: 2020
+# home  group: 1512
+#   snapshots:  100
+
+# balmora.fstab:
+#
+#	UUID=264a5b77-5bb9-464b-96c5-45192198d25b \
+#	/mnt/b1 btrfs noatime,subvol=/,noauto 0 2
+# 
+# /mnt/b1: btrfs subvolume create -i 2020 slash
+# /mnt/b1: btrfs subvolume create -i 2020 opt
+# /mnt/b1: btrfs subvolume create -i 1512 home
+# /mnt/b1: btrfs subvolume create -i  100 ss
+# /mnt/b1: btrfs subvolume create -i 3030 srv
+# /mnt/b1: btrfs subvolume create -i 3030 T
+
+
+date=$(date +%Y-%m-%d)
+
+mount /ss
+# mkdir -p /ss/{srv,opt,T,home,slash,$date}
+mkdir -p /ss/$date
+
+btrfs subvolume snapshot -i 2020 -r /      /ss/$date/slash
+btrfs subvolume snapshot -i 1512 -r /home  /ss/$date/home
+btrfs subvolume snapshot -i 1512 -r /srv   /ss/$date/srv
+btrfs subvolume snapshot -i 1512 -r /opt   /ss/$date/opt
+btrfs subvolume snapshot -i 1512 -r /T     /ss/$date/T
+umount /ss
+
+btrfs subvolume list  -tpcg  /
+
+echo todo: send to backup-fs, as on caldera
