@@ -1,0 +1,23 @@
+#!/bin/bash
+argv=
+for i; do
+	if [[ $1 =~ ^[0-9]+$ ]] && [[ -z $from ]];
+	then
+		from=$1
+	elif [[ $1 =~ ^[0-9]+$ ]];
+	then
+		to=$1
+	else
+		argv="$argv $1"
+	fi
+	shift
+done
+awk $argv -v f=${from:-1} -v t=${to:-NF} '{
+	if (t== "NF") t=NF
+	for (i=1; i<=NF; i++) {
+		if (i >= f && i <= t) {
+			printf "%s%s", FS, $(i)
+		}
+	}
+	printf "\n";
+}' | sed 's/ $//'
