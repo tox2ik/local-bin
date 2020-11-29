@@ -1,0 +1,6 @@
+#!/bin/bash
+# on same filesystem with hardlinks, use cp -flav
+#
+# https://unix.stackexchange.com/questions/127712/merging-folders-with-mv/127713
+cd "$SRC"
+find -type d -exec mkdir -vp "$DST"/{} \; -or -exec mv -nv {} "$DST"/{} \;
