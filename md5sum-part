@@ -1,0 +1,5 @@
+#!/bin/bash
+hash=$(
+	dd if="$1" bs=1M count=1 2>/dev/null | md5sum | awk '{ print $1 }'
+)
+echo $hash $1

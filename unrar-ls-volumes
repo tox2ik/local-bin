@@ -1,0 +1,46 @@
+#!/bin/bash
+: "
+
+usage:
+	find -name '*.rar' -print0 | xargs -0 -P16 -n 10 unrar-ls-volumes | sort | tr '\n' '\0' | xargs -n 20 -0 rm -fv
+
+possible schemas
+
+	archive.rar
+	archive.r00
+	archive.r01
+	archive.r02
+
+	file.part00.rar
+	file.part01.rar
+	file.part02.rar
+"
+
+for arg;
+do
+dir=$(dirname "$arg")
+rdir=$(realpath "$dir")
+base=$(basename "$arg" .rar)
+nopart=${base%%.part*}
+
+res=$(  ls -1 \
+		"$rdir/$base".r? \
+		"$rdir/$base".rar \
+		"$rdir/$base".r??  \
+		"$rdir/$base".r???  \
+		"$rdir/$base".r????  \
+		"$rdir/$nopart".part?.rar  \
+		"$rdir/$nopart".part??.rar  \
+		"$rdir/$nopart".part???.rar  \
+		"$rdir/$nopart".part????.rar \
+		2>/dev/null | sort -u
+     )
+count=$( echo -e "$res" | wc -l )
+
+if [[ $count -eq 1 ]]; then
+	continue
+else
+	echo -e "$res"
+fi
+shift
+done

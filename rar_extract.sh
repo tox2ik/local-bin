@@ -1,24 +1,36 @@
 #!/bin/bash
 
 abort=0
+dir=.
 
-if [ ! -f "$1" ];
+for i;
+do
+	if [[ -f $i ]]; then file=$i; fi
+	if [[ -d $i ]]; then dir=$i; fi
+	if [[ $i == -d ]]; then dir=1; fi
+done
+
+if [[ $dir != . ]]; then
+	dir=$(dirname -- "$file")
+fi
+
+if [ ! -f "$file" ];
 then
 	echo first arg is file to extract. quitting.
 	exit 1
-else 
+else
 	IFS=$'\n'
-	files=(`rar vb $1`)
+	files=(`rar vb "$file"`)
 
 	if [ ${#files[@]} -eq 0 ];
 	then
-		echo "$1 is not a rar archive (or contains no files)"
+		echo "$file is not a rar archive (or contains no files)"
 	fi
 fi
 
-if [ -d "$2" ];
+if [ -d "$dir" ];
 then
-	dir=`echo $2|sed -e 's,\([^/]\)$,\1/,'`
+	dir=`echo "$dir" |sed -e 's,\([^/]\)$,\1/,'`
 
 	for (( i=0; i< ${#files[@]}; i++ ));
 	do
@@ -27,7 +39,7 @@ then
 fi
 
 
-echo "Files in archive:" 
+#echo "Files in archive:"
 for (( i=0; i< ${#files[@]}; i++ ));
 	do
 		if [ -e "${files[i]}" ];
@@ -39,25 +51,25 @@ for (( i=0; i< ${#files[@]}; i++ ));
 		fi
 
 		if [ $collision -eq 1 ];
-		then 
-			echo -n " X  "
-		else 
+		then
+			echo -n "target exists: "
+		else
 			echo -n "    "
 		fi
 
-		echo  ${files[i]} 
+		_out=${files[i]}
+		echo ${_out##./}
 
 done
 
 if [ "$abort" -ne 1 ];
 then
-	if [ -z "$2" ];
+	if [[ -z "$dir" ]] || [[ $dir == . ]];
 	then
-		rar x "$1"  | sed -e '/\.\.\./d' -e '/^$/d' 
+		rar x "$file"  | sed -e '/\.\.\./d' -e '/^$/d'
 	else
-		rar x "$1" "$2" | sed -e '/\.\.\./d' -e '/^$/d' 
+		rar x "$file" "$dir" | sed -e '/\.\.\./d' -e '/^$/d'
 	fi
 else
-	echo " X: exists already, aborting extraction"
 	exit 2
 fi
