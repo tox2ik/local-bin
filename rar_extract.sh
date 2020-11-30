@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# e.g.
+#
+# find -name '*.rar' -size +10M  | grep -vie 'subs.rar$' | tr '\n' '\0' |  xargs -0 -I% rar_extract.sh -d "%"
+
 abort=0
 dir=.
 

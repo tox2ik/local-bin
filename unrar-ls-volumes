@@ -2,7 +2,7 @@
 : "
 
 usage:
-	find -name '*.rar' -print0 | xargs -0 -P16 -n 10 unrar-ls-volumes | sort | tr '\n' '\0' | xargs -n 20 -0 rm -fv
+	find -name '*.rar' -print0 | xargs -0 -P16 -n 10 unrar-ls-volumes | sort | tr '\n' '\0' | xargs -P16 -n20 -0 rm -fv
 
 possible schemas
 
