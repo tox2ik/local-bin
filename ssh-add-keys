@@ -1,13 +1,15 @@
 #!/bin/bash -l
-keys=$(find ~/.ssh/keys/*.{rsa,dsa,ed25519,pem,priv} 2>/dev/null | tr \\n ' ')
+keys=(
+$(find ~/.ssh/keys/*.{rsa,dsa,ed25519,pem,priv} 2>/dev/null )
+)
 if [[ $1 =~ (list|find) ]]; then
-	echo $keys | tr ' ' \\n
+	echo ${keys[*]} 
 	exit 0
 fi
 
 A_WEEK=604800
 SSH_ADD_LIFE=$A_WEEK
 ##bash ~/.Profile/bash/agent-ssh.sh
-smux secrets-`hostname` "ssh-add $keys"
+smux secrets-`hostname` "ssh-add ${keys[*]}"
 ssh-add -l
 systemctl --user restart vpn

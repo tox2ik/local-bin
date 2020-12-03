@@ -1,39 +1,92 @@
 #!/bin/bash
+#
+# mark merlin (script)
+#     http://marc.merlins.org/perso/btrfs/
+#        post_2014-03-22_Btrfs-Tips_-Doing-Fast-
+#        Incremental-Backups-With-Btrfs-Send-and-Receive.html
+#
+# clone everything to fresh btrf
+#     https://github.com/mwilck/btrfs-clone
+#
+# check out
+# - https://github.com/mwilck/btrfs-clone
+# - https://github.com/Thomas-Tsai/partclone
+#
+# maybe read
+# - https://helmundwalter.de/en/blog/next-gen-backup-with-btrfs-snapshots-for-root-fs-and-databases/#:~:text=Btrfs%20snapshots%20work%20on%20per,a%20backup%20job%20for%20each.
+# - https://github.com/csirac2/snazzer/#snazzer
+
+# sys-apps/util-linux (/bin/mountpoint)
+
+if [[ $1 = ls ]]; then
+	for i in /ss /G/rr; do sudo btrfs subvolume list -at --sort=path $i |  awk '{ print $(NF) }' ; done  |
+	grep -e rr -e ss | grep -v FS_T
+	exit 0
+fi
+
+
 if [[ $UID -ne 0 ]]; then
 	echo sudo $0
 	exit 1
 fi
 
-# slash group: 2020
-# home  group: 1512
-#   snapshots:  100
+# set -x
+set -o nounset
+set -o errexit
+set -o pipefail
 
-# balmora.fstab:
-#
-#	UUID=264a5b77-5bb9-464b-96c5-45192198d25b \
-#	/mnt/b1 btrfs noatime,subvol=/,noauto 0 2
-# 
-# /mnt/b1: btrfs subvolume create -i 2020 slash
-# /mnt/b1: btrfs subvolume create -i 2020 opt
-# /mnt/b1: btrfs subvolume create -i 1512 home
-# /mnt/b1: btrfs subvolume create -i  100 ss
-# /mnt/b1: btrfs subvolume create -i 3030 srv
-# /mnt/b1: btrfs subvolume create -i 3030 T
+die () {
+    msg=$*
+    trap '' ERR
+    echo >&2
+    echo "$msg" >&2
+    # This is a fancy shell core dumper
+	if echo $msg | grep -q 'Error line .* with status'; then
+			line=`echo $msg | sed 's/.*Error line \(.*\) with status.*/\1/'`
+			nl -ba $0 | grep -3 "\b$line\b" >&2
+	fi
+    exit 1
+}
+trap 'die "Error line $LINENO with status $?"' ERR
+  
+date=$(date +%Y-%m-%d.%H%M)
 
+mountpoint -q /ss    || mount /ss
+mountpoint -q /G/rr  || mount /G/rr
 
-date=$(date +%Y-%m-%d)
+mkdir -p /ss/$date /ss/last /G/rr/$date/
 
-mount /ss
-# mkdir -p /ss/{srv,opt,T,home,slash,$date}
-mkdir -p /ss/$date
+btrfs filesystem show /ss > /dev/null
+btrfs filesystem show /G  > /dev/null
 
-btrfs subvolume snapshot -i 2020 -r /      /ss/$date/slash
-btrfs subvolume snapshot -i 1512 -r /home  /ss/$date/home
-btrfs subvolume snapshot -i 1512 -r /srv   /ss/$date/srv
-btrfs subvolume snapshot -i 1512 -r /opt   /ss/$date/opt
-btrfs subvolume snapshot -i 1512 -r /T     /ss/$date/T
-umount /ss
+declare -A mp=(
+	[/T]=T
+	['/']=slash
+	[/home]=home
+)
 
-btrfs subvolume list  -tpcg  /
+for mount in ${!mp[@]}; do
+	snap=${mp[$mount]}
+	btrfs subvolume snapshot -r $mount /ss/$date/$snap
+	ln -snf ../$date/$snap /ss/last/$snap
+done
 
-echo todo: send to backup-fs, as on caldera
+sync
+for mount in ${!mp[@]}; do
+	snap=${mp[$mount]}
+
+	prev_local=$(ls -dv1 /ss/*/$snap | grep $(realpath /ss/last/$snap) -B1 | sed 1q)
+	last_remote=$( { ls -dv1 /G/rr/*/$snap | tail -n1; } || echo seed)
+	printf "prev_local..:%30s\n" $prev_local
+	printf "last_remote.:%30s\n" $last_remote
+	if [[ $last_remote == seed ]]; then
+			set -x
+			btrfs send                /ss/$date/$snap | btrfs receive /G/rr/$date/
+	else
+			set -x
+			btrfs send -p $prev_local /ss/$date/$snap | btrfs receive /G/rr/$date/
+	fi
+	set +x
+	echo
+done
+umount /ss /G/rr

@@ -22,4 +22,6 @@ PREV=$((CURRENT-1))
 [ "$1" == "prev" ] && wmctrl -s $PREV
 [ "$1" == "" ] && echo -e "$0: rotates the desktop\nusage: $0 [next|prev] "
 
-sleep 0.09 && wmctrl-notify.sh
+
+wmctrl-wait.sh $NEXT
+wmctrl-notify.sh

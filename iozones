@@ -3,9 +3,9 @@
 _host() { hostname; }
 function _ioz { iozone -+h `_host` "$@"; }
 
-function q2   { _ioz -I -i{0,1,2} -s 2m -r 128k   |_f;} 
-function q100 { _ioz -I -i{0,1,2} -s 100m -r 128k |_f;}
-function a20  { _ioz -aI -i{0,1,2} -n 12m -g 20m  |_f;}
+function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;} 
+function q100 { _ioz  -I -i{0,1,2} -s 100m -r 128k |_f;}
+function a20  { _ioz -aI -i{0,1,2} -n 12m -g 20m   |_f;}
 function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
@@ -20,7 +20,12 @@ function _label_at_path {
 }
 
 
-if type -t $1 >/dev/null;
-then
+if type -t $1 >/dev/null; then
 	$1
+fi
+
+if [[ $# -eq 0 ]]; then
+	grep 'function.[a-z]' $0
+	
+	
 fi
