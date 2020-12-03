@@ -12,4 +12,6 @@ SSH_ADD_LIFE=$A_WEEK
 ##bash ~/.Profile/bash/agent-ssh.sh
 smux secrets-`hostname` "ssh-add ${keys[*]}"
 ssh-add -l
-systemctl --user restart vpn
+if systemctl --user is-enabled -q vpn; then
+	systemctl --user restart vpn
+fi
