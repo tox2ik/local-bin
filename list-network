@@ -1,0 +1,1 @@
+tcpdump -D | column -ts. | column -ts[ | tr -d ]
