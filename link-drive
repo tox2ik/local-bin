@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if ! smartctl --version | grep -q smartctl.7;
+then
+	echo you need smartctl 7+
+	exit 1
+fi
+
+mkdir -p /dev/drives
+
+for i in /dev/sd?;
+do
+	ms=$( smartctl -ja $i | jq '.model_name + "." + .serial_number' -r)
+	ms=${ms// /_}
+	ln -snf $i "/dev/drives/$ms"
+done
+
+paste \
+	<( find /dev/drives/ -type l -print0 | sort -z | xargs -0 realpath) \
+	<( find /dev/drives/ -type l -print0 | sort -z | xargs -0 ls -1)
+
+echo ============
+
+find /dev/drives/ -type l -print0 | sort -z | xargs -0 ls -1l --color
+
