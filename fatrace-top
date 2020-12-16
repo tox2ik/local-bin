@@ -4,9 +4,13 @@ sudo fatrace -f RW | awk -v top_x=${1:-20} '
 
 # show most frequent file-access events
 {
-		file=$(NF);
-		op=$(NF-1);
-		key=op "-" file;
+		file=""
+		for (i=NF; i >= 3; i--) {
+			file= $(i) " " file
+		}
+		op=$2; gsub(/[OC]/, "", op)
+		cmd=$1; gsub(/[()0-9]/, "", cmd)
+		key=cmd op " " file;
 		ops[key]++; 
 
 } 

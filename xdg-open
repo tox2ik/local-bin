@@ -2,7 +2,7 @@
 # 2018-05-15 09:04:42 URL:https://raw.githubusercontent.com/march-linux/mimi/master/xdg-open [2649/2649] -> "xdg-open" [1]
 
 
-readonly CONFIG="$HOME/.config/mimi/mime.conf"
+readonly CONFIG="$HOME/.Profile/xdg-open/mime.conf"
 
 find_in_config() {
 	[[ -f "$CONFIG" ]] || return
@@ -30,7 +30,7 @@ url_decode() {
 }
 
 fork_run() {
-	echo "$*"
+	#echo "$*"
 	"$@" &>/dev/null &
 	exit 0
 }
@@ -59,8 +59,9 @@ usage() {
 # 5. ask
 
 [[ ! "$*" ]] && usage
+[[ $# -ne 1 ]] && { echo ${0##*/}: expecting only one argument; usage ; }
 
-arg="$*"
+arg="$@"
 ext=''
 protocol=''
 mime=''

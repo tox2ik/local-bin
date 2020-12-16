@@ -30,6 +30,8 @@ if [[ $UID -ne 0 ]]; then
 	exit 1
 fi
 
+DEBUG=${DEBUG:-}
+
 # set -x
 set -o nounset
 set -o errexit
@@ -49,7 +51,7 @@ die () {
 }
 trap 'die "Error line $LINENO with status $?"' ERR
   
-date=$(date +%Y-%m-%d.%H%M)
+date=$(date +%Y-%m-%d)
 
 mountpoint -q /ss    || mount /ss
 mountpoint -q /G/rr  || mount /G/rr
@@ -67,8 +69,10 @@ declare -A mp=(
 
 for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
-	btrfs subvolume snapshot -r $mount /ss/$date/$snap
-	ln -snf ../$date/$snap /ss/last/$snap
+	if [[ ! -e /ss/$date/$snap ]]; then
+			btrfs subvolume snapshot -r $mount /ss/$date/$snap && 
+					ln -snf ../$date/$snap /ss/last/$snap;
+	fi
 done
 
 sync
@@ -77,16 +81,26 @@ for mount in ${!mp[@]}; do
 
 	prev_local=$(ls -dv1 /ss/*/$snap | grep $(realpath /ss/last/$snap) -B1 | sed 1q)
 	last_remote=$( { ls -dv1 /G/rr/*/$snap | tail -n1; } || echo seed)
-	printf "prev_local..:%30s\n" $prev_local
-	printf "last_remote.:%30s\n" $last_remote
-	if [[ $last_remote == seed ]]; then
-			set -x
-			btrfs send                /ss/$date/$snap | btrfs receive /G/rr/$date/
-	else
-			set -x
-			btrfs send -p $prev_local /ss/$date/$snap | btrfs receive /G/rr/$date/
+	if [[ -n $DEBUG ]]; then
+			printf "prev_local..:%30s\n" $prev_local
+			printf "last_remote.:%30s\n" $last_remote
 	fi
-	set +x
-	echo
+	if [[ ! -e /G/rr/$date/$snap ]]; then
+			if [[ $last_remote == seed ]]; then
+					set -x
+					btrfs send                /ss/$date/$snap | btrfs receive /G/rr/$date/
+			else
+					set -x
+					btrfs send -p $prev_local /ss/$date/$snap | btrfs receive /G/rr/$date/
+			fi
+			set +x
+	else
+		if [[ -n $DEBUG ]]; then
+				date '+now.........:                  %Y-%m-%d (snapshot present)'
+		fi
+	fi
+	if [[ -n $DEBUG ]]; then
+			echo
+	fi
 done
 umount /ss /G/rr

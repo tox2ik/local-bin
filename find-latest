@@ -3,10 +3,10 @@
 
 function strip_1() { gawk ' BEGIN{ RS="\0"} { $1="" ; gsub(/^\s/,"", $0); print }'; }
 function strip_1n() { gawk '{ $1="" ; gsub(/^\s/,"", $0); print }'; }
-function to_null() { tr \\n \\0; } 
+function n2z() { tr \\n \\0; } 
 
 if [[ $0 == *latest0 ]]; then
-	find ${1:-./} -type f -printf "%T@ %p\0" | sort -z -n  | to_null | strip_1 | to_null
+	find ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\0" | sort -nz | n2z | strip_1 | n2z
 else 
-	find ${1:-./} -type f -printf "%T@ %p\n" | sort -n  | strip_1n
+	find ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\n" | sort -n | strip_1n
 fi
