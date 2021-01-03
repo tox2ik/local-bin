@@ -1,0 +1,5 @@
+#!/bin/sh
+
+openssl x509 -in "${1:-/etc/ssl/foo.crt}" -noout -subject -issuer -dates  -serial -fingerprint   | sed s/=/^/ | column -ts^
+
+
