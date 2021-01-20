@@ -1,8 +1,10 @@
 #!/bin/bash
 # find . -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -n
 
-function strip_1() { gawk ' BEGIN{ RS="\0"} { $1="" ; gsub(/^\s/,"", $0); print }'; }
-function strip_1n() { gawk '{ $1="" ; gsub(/^\s/,"", $0); print }'; }
+
+
+function strip_1() { awk ' BEGIN{ RS="\0"} { $1="" ; gsub(/^\s/,"", $0); print }'; }
+function strip_1n() { awk '{ $1="" ; gsub(/^\s/,"", $0); print }'; }
 function n2z() { tr \\n \\0; } 
 
 if [[ $0 == *latest0 ]]; then

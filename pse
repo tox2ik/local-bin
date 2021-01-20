@@ -2,8 +2,8 @@
 lines=$(ps -eo pid,cmd)
 
 if [[ -n $1 ]]; then
-	echo -e "$lines" | grep -e "$*"
+	echo -e "$lines" | grep -e "$*" | grep -Fve $0
 else
-	echo -e "$lines"
+	echo -e "$lines" | grep -Fve $0
 fi
 

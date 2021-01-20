@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# install and start:
+#
+#     apt-get install iio-sensor-proxy  # - IIO sensors to D-Bus proxy
+#     systemctl start iio-sensor-proxy
+#
+
+# xrandr -q --verbose | grep 'connected' | egrep -o  '\) (normal|left|inverted|right) \(' | egrep -o '(normal|left|inverted|right)'
+connected_output_port=$(xrandr  | awk '/eDP.*connected.primary/ { print $1 }')
+
+tidy-input() { monitor-sensor | sed -unEe '/(Has|changed)/{ s/[()]//g; s/.*: //; p }' ; }
+
+
+if [[ -z $connected_output_port ]]; then
+	echo failed to detect X output
+	tidy-input | awk -W interactive  '
+	{ printf "console " $0 " " }
+	/normal/    { system("echo 0 | sudo tee /sys/class/graphics/fbcon/rotate") }
+	/left-up/   { system("echo 1 | sudo tee /sys/class/graphics/fbcon/rotate") }
+	/right-up/  { system("echo 3 | sudo tee /sys/class/graphics/fbcon/rotate") }
+	/bottom-up/ { system("echo 2 | sudo tee /sys/class/graphics/fbcon/rotate") }
+	{ print "" }
+	'
+else
+	tidy-input | awk -W interactive -v OP=$connected_output_port '
+	{ print OP, $0 }
+	/normal/    { system(sprintf("xrandr --output %s --rotate  normal",   OP)) }
+	/left-up/   { system(sprintf("xrandr --output %s --rotate  left",     OP)) }
+	/right-up/  { system(sprintf("xrandr --output %s --rotate  right",    OP)) }
+	/bottom-up/ { system(sprintf("xrandr --output %s --rotate  inverted", OP)) }
+	'
+fi
