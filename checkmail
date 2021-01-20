@@ -1,0 +1,35 @@
+#!/bin/bash
+now=$(date +%s)
+count_file=~/.mail/size
+last_change=$(stat -c %Y $count_file)
+let age=now-last_change
+list_mailboxes() { make -C ~/.mail list_mailboxes | grep ^/ | grep -v -e trash -e byme; }
+count_mailbox() { grep -c -e '^From:' "$1"; }
+count_maildir() { find "$1" -type f | wc -l; }
+declare -a boxes=(
+	/var/mail/jaroslav
+	`list_mailboxes`
+)
+if [[ $age -ge ${MAILCHECK:-60} ]]; then
+	for i in ${boxes[@]}; do
+		count=0
+		if [[ -f $i ]];   then count=$(count_mailbox "$i");
+		elif [[ -d $i ]]; then count=$(count_maildir "$i");
+		else              echo wtf $i >/dev/null 1>&2; fi
+		echo $count $i
+	done
+fi > $count_file.new
+awk '
+{
+	c=$1;
+	fn=$2;
+	paths[fn]++; 
+	if (paths[fn]==2) {
+		if (c > oc[fn]) { 
+			print "You have ", (c-oc[fn]), "new messages in " fn 
+		}
+	}
+	oc[fn]=c;
+} ' $count_file $count_file.new > ~/.cache/checkmail
+if [[ -s $count_file.new ]]; then
+	mv $count_file.new $count_file; fi

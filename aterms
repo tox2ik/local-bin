@@ -101,13 +101,12 @@ function _anticipate_terms { #{{{
 	local desktop=$1
 	local filter_wclass=$2
 	local count=${3:-1}
-
-	for i in {1..60}; do
-		set -x
+	for i in {1..20}; do
+		#set -x
 		if [[ `winder -n -c $desktop $filter_wclass` -ge $count ]]; then
 			break
 		fi
-		set +x
+		#set +x
 		sleep 0.03
 		echo -n .
 	done # }}}

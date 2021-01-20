@@ -1,0 +1,16 @@
+#!/bin/bash
+# chown and chmod several files with one command
+# see fixperms if you need different modes for files and dirs (recursively)
+if [[ $# -lt 3 ]]; then
+	echo -e "usage:\n\t$0 <user> <group> <mode> FILE..."
+fi
+user=$1
+group=$2
+mode=$3
+shift
+shift
+shift
+for i; do
+	chown $user:$group "$i"
+	chmod $mode "$i"
+done

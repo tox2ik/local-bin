@@ -1,0 +1,14 @@
+#!/bin/sh
+# cronjob
+o=~/Data/home-files/$(date +%Y-%m-%d);
+find ~ > $o;
+ln -snf $o ~/Data/home-files/latest
+
+
+cd ~/Data/home-files;
+
+month=$(date +%Y-%m)
+ls ????-??-?? | awk -F- '{ m=$1 "-" $2 } !_[m]++ { print "tar cf " m ".tar " m "-*" }' | grep -v -e $month | parallel -t -j6
+ls ????-??-?? | grep -v -e $month | xargs -r rm -v
+
+ls *.tar &>/dev/null && pxz -9e *.tar
