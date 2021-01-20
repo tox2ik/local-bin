@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+
+w=$(tput cols)
+echo $w
+branches() { git branch  --format="%(objectname)"; }
+commit() { git rev-parse "${1:-master}" ; } 
+gss() { 
+	local tip="${1:-master}"
+	local commit=$(commit $tip)
+	if [[ -n $commit ]]; then
+			#git show --color $commit -q '--date=format:%y-%m-%d'  '--format=tformat:%C(yellow)%h %C(auto)%ad %C(yellow)%aN%C(auto) %<(85) %d %s'; 
+			git show --color $commit -q '--date=format:%y-%m-%d'  '--format=tformat:%C(auto)%ad%d'; 
+
+	else
+			echo dunno $tip
+	fi	
+}
+
+for i in $(branches); do gss "$i" ; done | sort -k1,1

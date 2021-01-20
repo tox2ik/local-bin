@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 going_to=${1:-0}
 function active { wmctrl -d | awk '$2 ~ /\*/ { print $1 }'; }
 i=1;

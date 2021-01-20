@@ -1,0 +1,15 @@
+#!/bin/bash
+
+for i; do case $i in --help|-help|-h|h|help) cat $0; exit 0 ;; esac done
+
+xrandr-brightness () { xrandr --output `xrandr-primary-output` --brightness ${1:-0.7}; }
+xrandr-primary-output () { xrandr | awk '
+		 $2 ~ /^connected/ { monitor[i++]=$1  } END { if (i==1) { print monitor[0]}  }
+		 $0 ~ /^connected primary/ { print $1; exit}'; }
+
+if [[ $0 =~ dim ]]; then percent=50 fraction=0.7
+else                     percent=100 fraction=1.1; fi
+
+sudo xbacklight -set $percent%
+sudo light -A $percent
+xrandr-brightness $fraction

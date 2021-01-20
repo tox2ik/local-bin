@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+mem=6500
+swap=$mem # or more.
+group=browser-jazzo2
+data_dir=$HOME/.config/chromium-jazzo
+
+if [[ $1 = plain ]]; then
+	chromium --user-data-dir=$data_dir
+	exit;
+
+fi
+
+sudo cgcreate -g memory:/$group #-a jaroslav:jaroslav  -t jaroslav:jaroslav 
+sudo chown -R $USER /sys/fs/cgroup/memory/$group
+
+if [[ $1 = mem ]]; then
+	awk '$2 > 1024^2 * 20 { print $1, int($2 / 1024^2) }' \
+		/sys/fs/cgroup/memory/$group/memory.stat |
+		column -t
+	exit;
+fi
+
+
+echo $(( 1024 * 1024 * mem ))  > /sys/fs/cgroup/memory/$group/memory.limit_in_bytes
+echo $(( 1024 * 1024 * swap )) > /sys/fs/cgroup/memory/$group/memory.memsw.limit_in_bytes
+
+
+(
+cd /sys/fs/cgroup/memory/$group
+awk '{ print FILENAME , $0 / 1024^2 }' memory.limit_in_bytes  memory.memsw.limit_in_bytes
+)
+
+firejail \
+	--profile=$HOME/.config/firejail/chromium-jazzo.profile \
+	--cgroup=/sys/fs/cgroup/memory/$group/tasks \
+	chromium --user-data-dir=$data_dir
+

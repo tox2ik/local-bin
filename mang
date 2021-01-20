@@ -1,2 +1,5 @@
 #!/bin/sh
-exec gvim '+winsize 94 55' "+Man $*" '+only!' '+set foldcolumn=4' -geometry 984x1215+744+93
+#exec gvim '+winsize 94 55' "+Man $*" '+only!' '+set foldcolumn=4' -geometry 984x1215+744+93
+#exec gvim '+winsize 94 55' "+Man $*" '+only!' '+set foldcolumn=4' -geometry 1860x1997+1037+56
+exec gvim '+winsize 94 55' "+Man $*" '+only!' '+set foldcolumn=4' -geometry 120x43+550+55
+

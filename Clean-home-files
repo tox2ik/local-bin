@@ -1,0 +1,1 @@
+mv ~/java_error_in_* ~/tmp 2>/dev/null

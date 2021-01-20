@@ -1,0 +1,10 @@
+rm -fr /var/tmp/portage/*
+rm -fr /R/archive/mirror/gentoo/distfiles/*
+
+find /usr/src/linux | grep -Ee '(\.ko|\.o\.d|\.o|\.cmd)$' | xa rm
+rm -f /usr/src/linux/.tmp_*
+rm -f /usr/src/linux/vmlinux 
+
+rm -fr /home/jaroslav/.config/skypeforlinux/Cache/*
+rm -fr /home/jaroslav/.cache/mozilla/firefox/*/Cache/*
+rm -fr /home/jaroslav/.cache/mozilla/firefox/*/cache2/*

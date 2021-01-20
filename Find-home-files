@@ -1,4 +1,5 @@
 #!/bin/sh
+mkdir -p ~/Data/home-files
 # cronjob
 o=~/Data/home-files/$(date +%Y-%m-%d);
 find ~ > $o;
@@ -8,7 +9,16 @@ ln -snf $o ~/Data/home-files/latest
 cd ~/Data/home-files;
 
 month=$(date +%Y-%m)
-ls ????-??-?? | awk -F- '{ m=$1 "-" $2 } !_[m]++ { print "tar cf " m ".tar " m "-*" }' | grep -v -e $month | parallel -t -j6
-ls ????-??-?? | grep -v -e $month | xargs -r rm -v
 
-ls *.tar &>/dev/null && pxz -9e *.tar
+if type parallel; then
+		ls ????-??-?? | awk -F- '{ m=$1 "-" $2 } !_[m]++ { print "tar cf " m ".tar " m "-*" }' | grep -v -e $month | parallel -t -j6
+		ls ????-??-?? | grep -v -e $month | xargs -r rm -v
+fi
+
+if type pxz; then
+		ls *.tar &>/dev/null && pxz -9e *.tar
+else
+		ls *.tar &>/dev/null && gzip -9 *.tar
+	
+fi
+

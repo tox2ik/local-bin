@@ -1,0 +1,10 @@
+#!/bin/bash
+one=$(awk '$5=="/" {print $1}' </proc/1/mountinfo)
+self=$(awk '$5=="/" {print $1}' </proc/$$/mountinfo)
+
+if [[ $one != $self ]]; then
+	echo yes >&2
+	exit 0
+fi
+echo no >&2
+exit 1

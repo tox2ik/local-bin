@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [[ -n $2 ]]; then
 openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& cat
 else 

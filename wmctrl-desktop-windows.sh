@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 desktop=$(wmctrl -d | awk '$2~/\*/{print $1}')
 if [[ $1 =~ ^[0-9]$ ]];
 then
