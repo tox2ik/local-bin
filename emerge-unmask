@@ -1,0 +1,41 @@
+#!/bin/bash
+
+a=/tmp/atom-unmask
+b=/tmp/atom-unmask-masked-by
+
+flaggie-unmask-atom() { 
+    export FLAG_AMD='flaggie =<category>/<name>-<version> +~amd64\n';
+    TERM= eix ${1:-virtual/perl-ExtUtils-Command} --format '<availableversions:FLAG_AMD>';
+    unset FLAG_AMD
+}
+wipe() { grep --line-buffered -v \
+		-e 'config file.*needs' \
+		-e 'Calculating' \
+		-e 'See the CONFIGURATION FILES' \
+		-e 'learn how to update config' \
+		-e 'These are the packages that would be merged' \
+		-e 'done!' \
+		-e 'MASKED PACKAGES' -e 'Gentoo Handbook'; }
+
+emerge -vp ${1:-xterm} |& wipe > $a
+grep masked.by $a      |& wipe > $b
+
+if [[ $? -eq 0 ]]; then
+	atom_name=$(awk < $b '/masked.by/ { print $2 }' \
+			| xargs -n1 atom-name \
+			| sort -u)
+	if [[ -z $atom_name ]]; then
+		cat $a
+	else 
+		unmask=`flaggie-unmask-atom $atom_name | tail -n1 `
+		echo $unmask | tee -a /tmp/unmasked
+		sudo $unmask
+		exec $0 $1
+	fi
+else
+	if cat $a | wipe | grep -q ^Total; then
+		sudo emerge -va $1
+	else
+		echo no bueno
+	fi
+fi
