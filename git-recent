@@ -4,7 +4,7 @@
 
 w=$(tput cols)
 echo $w
-branches() { git branch  --format="%(objectname)"; }
+branches() { git branch  -a --format="%(objectname)"; }
 commit() { git rev-parse "${1:-master}" ; } 
 gss() { 
 	local tip="${1:-master}"

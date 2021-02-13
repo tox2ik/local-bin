@@ -9,7 +9,7 @@ fi
 
 if [ $# -lt 1 ] ; then
 	echo usage:
-	echo `basename "$0"` ' /path/ [dir_mask] [file_mask] [user] [group]'
+	echo `basename "$0"` ' /path/ [dir_mask=755] [file_mask=644] [user] [group]'
 	exit 1
 fi
 
