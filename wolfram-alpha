@@ -1,0 +1,7 @@
+#!/bin/bash
+mkdir -p ~/tmp/wolfram-alpha/
+source ~/.secrets/access-tokes/wolfram.alpha.clixe.appid
+question=$(echo $* | urlencode.php)
+curl -D ~/tmp/wolfram-alpha/$question.headers \
+	"https://api.wolframalpha.com/v2/query?input=$question&format=plaintext&output=JSON&appid=$APPID" \
+	| tee ~/tmp/wolfram-alpha/$question.json
