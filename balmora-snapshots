@@ -50,7 +50,7 @@ die () {
     exit 1
 }
 trap 'die "Error line $LINENO with status $?"' ERR
-  
+
 date=$(date +%Y-%m-%d)
 
 mountpoint -q /ss    || mount /ss
@@ -70,7 +70,7 @@ declare -A mp=(
 for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
 	if [[ ! -e /ss/$date/$snap ]]; then
-			btrfs subvolume snapshot -r $mount /ss/$date/$snap && 
+			btrfs subvolume snapshot -r $mount /ss/$date/$snap &&
 					ln -snf ../$date/$snap /ss/last/$snap;
 	fi
 done
