@@ -1,0 +1,68 @@
+#!/bin/bash
+torr=$1
+
+be_verbose=1
+
+for i;
+do
+	case "$i" in
+		-x) meta_only=1 ;;
+		-c) check_only=1 ;;
+		-q) be_verbose=0 ;;
+	esac
+done
+
+function verb {
+	if [[ $be_verbose -eq 1 ]]; then
+		echo -e "$@" >&2
+	fi
+}
+
+if [[ $# -eq 0 ]]; then
+	echo usage: $0 /foo/bar/baz.torrent
+	exit 10
+fi
+
+if ! [[ -f $1 ]]; then
+	echo not a file: $torr >&2
+	exit 1
+fi
+
+torr_dir="$(dirname "$torr")"
+torr_fil="$(basename "$torr")"
+torr_fin="$torr_dir/.fin.$(basename "$torr" .torrent)"
+size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
+
+#verb "$size\t$torr"
+
+if [[ $meta_only = 1 ]]; then
+		exit 0
+fi
+
+cd $torr_dir
+if ! [[ -f "$torr_fin" ]]; then
+	already=$(ctorrent -c "$torr_fil" | tee "/tmp/check.$torr_fil" | grep Already/Total:)
+	percent=$(echo $already | grep -o -E '[0-9]+%')
+	if echo $already | grep -qF 100%; then
+		touch "$torr_fin"
+	fi
+fi
+
+if [[ -f "$torr_fin" ]]; then
+	verb "done\t$size\t$torr"
+fi
+
+if [[ $check_only = 1 ]]; then
+		exit 0
+fi
+
+ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr"
+ec=$?
+if [[ $ec -ne 0 ]] && [[ -f "$torr_fin" ]]; then
+		verb "seed\t$size\t$torr"
+		cd $torr_dir
+		ctorrent -dd "$torr"
+else
+		echo -e "skip\t$size/$percent\t$torr"
+fi
+
