@@ -18,6 +18,8 @@ function verb {
 	fi
 }
 
+
+
 if [[ $# -eq 0 ]]; then
 	echo usage: $0 /foo/bar/baz.torrent
 	exit 10
@@ -33,14 +35,47 @@ torr_fil="$(basename "$torr")"
 torr_fin="$torr_dir/.fin.$(basename "$torr" .torrent)"
 size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
 
-#verb "$size\t$torr"
-
 if [[ $meta_only = 1 ]]; then
 		exit 0
 fi
 
-cd $torr_dir
-if ! [[ -f "$torr_fin" ]]; then
+#size_match=0
+#{
+#ctorrent -x "$torr" | awk '
+#		$1 == "Directory:" { sub("Directory: ", "", $0); d=$0   }
+#		$1 ~ /<[0-9]+>/ { print d "/" $2 }
+#		' | tr '\n' '\0' |
+#		xargs -r0 du -B1 2>/dev/null | tr '\t' ' '
+#echo
+#ctorrent -x "$torr" | awk '
+#		$1 == "Directory:" { sub("Directory: ", "", $0); d=$0   }
+#		$1 ~ /<[0-9]+>/ { gsub("[][]", "", $3); fs[$1]=$3 }
+#		$1 ~ /<[0-9]+>/ { print fs[$1] " " d "/" $2 }
+#		'
+#} | awk '{ _[$0]++ } END {
+#		for (i in _) { if (_[i] != 2) {
+#				m++;
+#				print "X", i
+#				} }
+#		if (m!=0) {
+#		        print "missing files";
+#				exit 1}}'
+#ec=$?
+#if [[ $ec -eq 0 ]]; then
+#	size_match=1
+#fi
+
+function is_done {
+	#if [[ -f "$torr_fin" ]] || [[ $size_match -eq 1 ]]; then
+	if [[ -f "$torr_fin" ]]; then
+			return 0
+	fi
+	return 1
+}
+
+percent=✓
+if ! is_done; then
+	cd $torr_dir
 	already=$(ctorrent -c "$torr_fil" | tee "/tmp/check.$torr_fil" | grep Already/Total:)
 	percent=$(echo $already | grep -o -E '[0-9]+%')
 	if echo $already | grep -qF 100%; then
@@ -48,7 +83,7 @@ if ! [[ -f "$torr_fin" ]]; then
 	fi
 fi
 
-if [[ -f "$torr_fin" ]]; then
+if is_done; then
 	verb "done\t$size\t$torr"
 fi
 
@@ -56,13 +91,16 @@ if [[ $check_only = 1 ]]; then
 		exit 0
 fi
 
-ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr"
-ec=$?
-if [[ $ec -ne 0 ]] && [[ -f "$torr_fin" ]]; then
-		verb "seed\t$size\t$torr"
-		cd $torr_dir
-		ctorrent -dd "$torr"
-else
-		echo -e "skip\t$size/$percent\t$torr"
-fi
+function seed_finished {
+	ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr"
+	ec=$?
+	if [[ $ec -ne 0 ]] && is_done; then
+			verb "seed\t$size\t$torr"
+			cd $torr_dir
+			ctorrent -S 127.0.0.1:2780 -dd "$torr"
+	else
+			echo -e "skip\t$size/$percent\t$torr"
+	fi
+}
 
+seed_finished
