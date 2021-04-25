@@ -1,43 +1,38 @@
 #!/bin/bash
-torr=$1
 
-be_verbose=1
+function verb { if [[ $be_verbose -eq 1 ]]; then echo -e "$@" >&2; fi; }
 
-for i;
-do
-	case "$i" in
-		-x) meta_only=1 ;;
-		-c) check_only=1 ;;
-		-q) be_verbose=0 ;;
-	esac
-done
+function validate {
+	if [[ $# -eq 0 ]]; then
+		echo usage: $0 /foo/bar/baz.torrent
+		exit 10
+	fi
 
-function verb {
-	if [[ $be_verbose -eq 1 ]]; then
-		echo -e "$@" >&2
+	if ! [[ -f $torr ]]; then
+		echo not a file: $torr >&2
+		exit 1
 	fi
 }
 
+function is_done {
+	#if [[ -f "$torr_fin" ]] || [[ $size_match -eq 1 ]]; then
+	if [[ -f "$torr_fin" ]]; then
+		return 0
+	fi
+	return 1
+}
 
-
-if [[ $# -eq 0 ]]; then
-	echo usage: $0 /foo/bar/baz.torrent
-	exit 10
-fi
-
-if ! [[ -f $1 ]]; then
-	echo not a file: $torr >&2
-	exit 1
-fi
-
-torr_dir="$(dirname "$torr")"
-torr_fil="$(basename "$torr")"
-torr_fin="$torr_dir/.fin.$(basename "$torr" .torrent)"
-size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
-
-if [[ $meta_only = 1 ]]; then
-		exit 0
-fi
+function seed_finished {
+	ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr"
+	ec=$?
+	if [[ $ec -ne 0 ]] && is_done; then
+		echo -e "seed\t$size\t$torr"
+		cd "$torr_dir"
+		ctorrent -e 8760 -S 127.0.0.1:2780 -dd "$torr"
+	else
+		echo -e "skip\t$size/$percent\t$torr"
+	fi
+}
 
 #size_match=0
 #{
@@ -65,17 +60,31 @@ fi
 #	size_match=1
 #fi
 
-function is_done {
-	#if [[ -f "$torr_fin" ]] || [[ $size_match -eq 1 ]]; then
-	if [[ -f "$torr_fin" ]]; then
-			return 0
-	fi
-	return 1
-}
+###
+
+be_verbose=0
+torr=$1
+validate
+for i;
+do
+	case "$i" in
+		-x) meta_only=1 ;;
+		-c) check_only=1 ;;
+		-q) be_verbose=0 ;;
+	esac
+done
+torr_dir="$(dirname "$torr")"
+torr_fil="$(basename "$torr")"
+torr_fin="$torr_dir/.fin.$(basename "$torr" .torrent)"
+size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
+
+if [[ $meta_only = 1 ]]; then
+	exit 0
+fi
 
 percent=✓
 if ! is_done; then
-	cd $torr_dir
+	cd "$torr_dir"
 	already=$(ctorrent -c "$torr_fil" | tee "/tmp/check.$torr_fil" | grep Already/Total:)
 	percent=$(echo $already | grep -o -E '[0-9]+%')
 	if echo $already | grep -qF 100%; then
@@ -83,24 +92,8 @@ if ! is_done; then
 	fi
 fi
 
-if is_done; then
-	verb "done\t$size\t$torr"
-fi
-
 if [[ $check_only = 1 ]]; then
-		exit 0
+	exit 0
 fi
-
-function seed_finished {
-	ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr"
-	ec=$?
-	if [[ $ec -ne 0 ]] && is_done; then
-			verb "seed\t$size\t$torr"
-			cd $torr_dir
-			ctorrent -S 127.0.0.1:2780 -dd "$torr"
-	else
-			echo -e "skip\t$size/$percent\t$torr"
-	fi
-}
 
 seed_finished
