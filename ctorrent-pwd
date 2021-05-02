@@ -1,0 +1,23 @@
+#!/bin/bash
+
+declare -a args=()
+
+for i in "$@";
+do
+	if [[ -f "$i" ]]; then
+		torr=$i
+	else
+		args[${#args[@]}]=$i
+	fi
+done
+
+if ! [[ -f "$torr" ]]; then
+	echo not a file: $torr >&2
+	exit 1
+fi
+
+torr_dir="$(dirname "$torr")"
+torr_fil="$(basename "$torr")"
+cd "$torr_dir"
+ctorrent "$torr_fil" "${args[@]}"
+
