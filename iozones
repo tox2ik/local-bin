@@ -30,7 +30,7 @@ function a20  { _ioz -aI -i{0,1,2} -n 20m -g 20m   |_f;}
 function a100 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
-function io { (cd $1; iozones -v0 $2 | tr -d '[a-z] '); }
+function io { (cd $1; iozones $2 -v0 | tr -d '[a-z] '); }
 function ioa { for i in 2 10 20 100 200; do _math $(io $1 "a$i") / $(io $2 "a$i"); done; }
 function ioq { for i in 2 10 20 100 200; do _math $(io $1 "q$i") / $(io $2 "q$i"); done; }
 
