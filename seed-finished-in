@@ -1,9 +1,6 @@
 #!/bin/bash
-
 in=${1:-.}
 shift
-n=$(grep -c ^proc /proc/cpuinfo)
-let n=n+n
-
+let n=2*$(grep -c ^proc /proc/cpuinfo)
 find "$in" -name '*.torrent' -and -size -5M -print0 \
 		| xargs -P$n -I% -0 seed-finished % "$@"
