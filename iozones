@@ -1,18 +1,47 @@
 #!/bin/bash
 
+n=0
+for i; do
+	let n=n+1
+	case $i in
+			-v) let next=n+1; verb=${!next} ;;
+			-v1) verb=1;;
+			-v2) verb=2;;
+			-v3) verb=3;;
+			-q) verb=0;;
+	esac
+done
+
+if ! [[ $verb =~ ^[0-9]$ ]]; then
+	verb=0
+fi
+
 _host() { hostname; }
 function _ioz { iozone -+h `_host` "$@"; }
 
-function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;} 
+function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
+function q10  { _ioz  -I -i{0,1,2} -s 10m  -r 128k |_f;}
+function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
 function q100 { _ioz  -I -i{0,1,2} -s 100m -r 128k |_f;}
-function a20  { _ioz -aI -i{0,1,2} -n 12m -g 20m   |_f;}
+function q200 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
+function a2   { _ioz -aI -i{0,1,2} -n 2m  -g 2m    |_f;}
+function a10  { _ioz -aI -i{0,1,2} -n 10m -g 10m   |_f;}
+function a20  { _ioz -aI -i{0,1,2} -n 20m -g 20m   |_f;}
+function a100 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
+function io { (cd $1; iozones -v0 $2 | tr -d '[a-z] '); }
+function ioa { for i in 2 10 20 100 200; do _math $(io $1 "a$i") / $(io $2 "a$i"); done; }
+function ioq { for i in 2 10 20 100 200; do _math $(io $1 "q$i") / $(io $2 "q$i"); done; }
+
+function ioa100 { _math $(io $1 'a100') / $(io $2 'a100'); }
+function ioq100 { _math $(io $1 'q100') / $(io $2 'q100'); }
+
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
-function _summarize { awk -f ~/bin/iozones.awk; } 
-function _summarize { awk -f ${BASH_SOURCE[0]}.awk; } 
+function _summarize { awk -v verb=$verb -f ${BASH_SOURCE[0]}.awk; }
 function _table { column -ts $'\t'; }
 function _f { _summarize | _table; }
+function _math { echo "scale=3;$*" | bc; }
 
 function _label_at_path {
 	lsblk -o name,mountpoint,partlabel  -l |
@@ -20,12 +49,9 @@ function _label_at_path {
 }
 
 
-if type -t $1 >/dev/null; then
-	$1
-fi
-
-if [[ $# -eq 0 ]]; then
+if type "$1" &>/dev/null; then
+	fn=$1; shift
+	$fn "$@"
+elif [[ $# -eq 0 ]]; then
 	grep 'function.[a-z]' $0
-	
-	
 fi

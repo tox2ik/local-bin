@@ -8,14 +8,16 @@ function im(kB, p) {
 BEGIN {
 min_w=max_w=min_r=max_r=-1
 data=30000
-print "kB\t",
-	  "reclen\t",
-	  "write\t",
-	  "re-write\t",
-	  "read\t",
-	  "re-read\t",
-	  "random_r\t",
-	  "random_w\t"
+	if (verb >= 2) {
+		print "kB\t",
+			  "reclen\t",
+			  "write\t",
+			  "re-write\t",
+			  "read\t",
+			  "re-read\t",
+			  "random_r\t",
+			  "random_w\t"
+	}
 }
 $1 == "Command" { cmd=$0; gsub(/^\s+/, "", cmd) }
 $1 == "random" { data=NR+2 }
@@ -29,14 +31,17 @@ NR >= data {
 	rw=int($6/1024)
 	rar=int($7/1024)
 	raw=int($8/1024)
-	print test "\t",
-		  rec "\t",
-		  r0 "\t",
-		  rr "\t",
-		  w0 "\t",
-		  rw "\t",
-		  rar "\t",
-		  raw
+
+	if (verb >= 2) {
+		print test "\t",
+			  rec "\t",
+			  r0 "\t",
+			  rr "\t",
+			  w0 "\t",
+			  rw "\t",
+			  rar "\t",
+			  raw
+	}
 	score_r += $3 + $4 + $7
 	score_w += $5 + $6 + $8
 	score += score_r + score_w
@@ -74,10 +79,13 @@ NR >= data {
 END {
 #print "\t\t\t\t\t\t\t\t" cmd
 
-print "",
-	  " read avg " im(score_r/score_rc) " " im(min_r,0) " " im(max_r, 0) "\n",
-	  "write avg " im(score_w/score_wc) " " im(min_w,0) " " im(max_w, 0) "\n",
-	  "score " im(score  /(score_rc+score_wc)) "\n"
+	  if (verb >= 1) {
+	  print "",
+			   " read avg " im(score_r/score_rc) "\tmin "  im(min_r,0) "\tmax " im(max_r, 0) "\n",
+			   "write avg " im(score_w/score_wc) "\tmin " im(min_w,0) "\tmax " im(max_w, 0) "\n";
+	  }
+	  print "",
+			"score " im(score  /(score_rc+score_wc)) "\n"
 
 }
 
