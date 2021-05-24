@@ -1,0 +1,83 @@
+#!/bin/bash -l
+
+function types_() {
+	#shopt -s expand_aliases
+	if [[ $# -gt 1 ]]; then
+		return
+	fi
+	local t=$(type $1 2>&1)
+
+	if [[ $t =~ is.a.function ]]; then
+		echo -e "$t" | sed 1d
+		return
+	fi
+
+	if [[ $t =~ is.aliased.to ]]; then
+		local alias_target=$( echo "$t"  | grep  -oP "(?<=\`).*(?=')")
+		alias -p | grep "^alias.$1="
+		if [[ $i =~ ^[a-zA-Z0-9_-]+$ ]]; then
+				types $alias_target
+		fi
+		return
+	fi
+
+	for i in $t; do
+			if [[ -L $i ]]; then
+				local rl=$(readlink "$i")
+				local rp=$(realpath "$i")
+				ls --color "$i"
+				if [[ $rl =~ ^/ ]]; then
+						ls --color "$rl"
+				else
+					cd "$(dirname "$i")"
+					ls --color -d "$(dirname "$i")"/ | tr -d '\n'
+					ls --color "$rl"
+				fi
+				if [[ $rl != $rp ]]; then
+						ls --color "$rp"
+				fi
+
+			elif [[ -f $i ]]; then
+				if type file &>/dev/null && type fmt &>/dev/null; then
+						file $i | fmt -ut
+						return
+				else
+						echo $i
+						return
+				fi
+			fi
+	done
+
+	#todo: types mount
+	if [[ "$t" =~ "is.\.*/" ]]; then
+		type $1
+	fi
+}
+
+function types {
+	if [[ $# -gt 0 ]];then
+		for i; do types_ $i; done
+	fi
+}
+
+types "$@"
+
+
+## todo: report bug to bash
+
+# this rhould return same when run in the shell;
+#
+#     $ type i  |& grep  -P "(?<=\`).*(?=')" -o
+#     lssort
+#
+#
+#	if echo -e "$t" | grep -q 'is.aliased.to'; then
+#		q="'"
+#		echo -e "$t"  | grep  -P "(?<=\`).*(?='$)"
+#	fi
+#
+# and not:
+
+#       $ types i
+#       lssort'
+
