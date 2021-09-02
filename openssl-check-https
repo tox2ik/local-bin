@@ -1,6 +1,48 @@
 #!/bin/bash
-if [[ -n $2 ]]; then
-openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& cat
+if [[ $2 == deep ]]; then
+
+rm -f /tmp/examine-cert-*
+
+awk_script=$0.awk
+
+openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  \
+		|& awk -f $awk_script \
+		| sed -Ee 's/^(depth=[0-9]+)/\1\n    /' \
+		| sed -Ee 's/^(subject|issuer)=/&\n     /' \
+		| sed -Ee 's/,/,\n    /g' \
+		| sed -Ee '/(C|ST|O|OU|CN|L) =/ s/=/=\t/g' \
+		| sed -Ee 's/^---$/&\n/'
+
+for i in $(find /tmp -maxdepth 1 -name "examine-cert-*.crt" 2>/dev/null | sort -nr); do
+	echo
+	echo CERT: $i
+	echo
+	{
+	openssl x509 -noout -subject -issuer -dates  -serial -fingerprint -in $i \
+			| sed -Ee 's/^(subject|issuer)=/&\n     /' \
+			| sed -Ee 's/,/,\n    /g' \
+			| sed -e 's/=\ /^/' -e 's/=/^/'
+	openssl x509 -noout -text -in $i \
+			| grep DNS: \
+			| sed -Ee 's/^\s+//' -e 's/, /,\n/g' -e s/:/^/g \
+			| LANG=C sort --version-sort
+	} | column -ts^
+
+
+done
+
+elif [[ $2 == simple ]]; then
+		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& grep -o -e 'CN.=.*' | sort -u
+elif [[ -n $2 ]]; then
+		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& cat
 else
-openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& grep CN.=.* -o
+		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  \
+				|& grep -o \
+				-e 'issuer=.*' \
+				-e 'CN.=.*' \
+				| sed 's/issuer=/&\n /' \
+				| awk '! uniq[$0]++ { print }' \
+				| tr ',' '\n'
+
+
 fi
