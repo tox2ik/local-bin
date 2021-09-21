@@ -13,7 +13,8 @@ mk_links() {
 		done
 }
 
-is_num() { echo $1 | grep -Eq '^[\.0-9]{1,}$'; }
+#is_num() { echo $1 | grep -Eq '^[\.0-9]{1,}$'; }
+is_num() { [[ $1 =~ ^[\.0-9]{1,}$ ]] && return 0 || return 1; }
 
 from_to=$(basename $0)
 if [[ ${#from_to} -eq 7 ]]; then
@@ -38,11 +39,18 @@ else
 		echo $0 FROM TO AMMOUNT
 		exit 1
 	fi
-	if echo $1 | grep -Eq '^[\.0-9]{1,}$'; then
-			AMOUNT=$1 FROM=$2 TO=$3;
-	else
-			AMOUNT=$3 FROM=$1 TO=$2;
-	fi
+
+	num=
+	for i in "$@"; do
+		if is_num $i; then
+			num=$num$i
+		elif [[ -z $FROM ]]; then
+			FROM=$i
+		else
+			TO=$i
+		fi
+	done
+	AMOUNT=$num
 fi
 
 

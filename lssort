@@ -1,18 +1,22 @@
 #!/bin/bash
-
-# what?
-# lists files after folders like windoze explorer
-# this is somewhat obsolete with a recent version of coreutils as ls now 
-# supports --group-directories-first
-# 
 #
-# bugs: 
+# lssort lists files in a folder in a structured way, usually
+# taking less space for the output than normal ls would.
+#
+# - list dirs starting with _ first
+#   then dirs
+#   then files
+#   then symlinks and other stuff
+#
+# - lists files after folders like windoze explorer
+#   now also possible with: ls --group-directories-first
+#
+# bugs:
 #    - <> in filename
 #    - device files are missing
-# 
+#
 # files named e.g -l (valid parameters)
-
-
+#
 
 function trim {
     local var="$@"
@@ -43,21 +47,14 @@ function arrayContains {
 	return 0
 }
 
-# d dir f file p named pipe (FIFO) l sylink s socket D door (Solaris) 
+# d dir f file p named pipe (FIFO) l sylink s socket D door (Solaris)
 # c character (unbuffered) special b block (buffered) special
 
-function finddirs {
-	# mindepth 1 excludes the . directory
-	$FIND "$@" \
-		-mindepth 1 -maxdepth 1 -depth -type d \
-		-printf '%f\0'
-}
-
-function findfiles {
-	$FIND "$@" \
-		-maxdepth 1 -depth -type f \
-		-printf "%f\0"
-}
+# mindepth 1 excludes the . directory
+# -depth causes depth-first traversal
+function finddirs_ { $FIND "$@" -mindepth 1 -maxdepth 1 -depth -type d      -name '_*' -printf '%f\0'; }
+function finddirs  { $FIND "$@" -mindepth 1 -maxdepth 1 -depth -type d -not -name '_*' -printf '%f\0'; }
+function findfiles { $FIND "$@" -maxdepth 1             -depth -type f                 -printf '%f\0'; }
 
 function findspecials {
 	$FIND "$@" \
@@ -67,7 +64,7 @@ function findspecials {
 
 # bug: ls -[aA] will never work
 function filter_out_hidden {
-	$GREP -zv '^\..*' 
+	$GREP -zv '^\..*'
 }
 
 ##
@@ -79,15 +76,16 @@ FPATHS=""
 LSSWITCHES=""
 
 
-LS=/bin/ls\ --color=auto
-GREP=/bin/grep
-type /usr/bin/grep &>/dev/null && GREP=/usr/bin/grep
-type /usr/bin/ls &>/dev/null && LS=/usr/bin/ls\ --color=auto
-
+LS=ls\ --color=auto
+GREP=grep
 FIND=/usr/bin/find
+
+type /usr/bin/grep &>/dev/null && GREP=/usr/bin/grep
+type /usr/bin/ls   &>/dev/null && LS=/usr/bin/ls\ --color=auto
+
 GNUBIN=/Users/jaroslav/opt/grep/libexec/gnubin
 
-if [ -f $GNUBIN/ls ]; then LS=$GNUBIN/ls; fi
+if [ -f $GNUBIN/ls ];   then LS=$GNUBIN/ls; fi
 if [ -f $GNUBIN/grep ]; then GREP=$GNUBIN/grep; fi
 if [ -f $GNUBIN/find ]; then FIND=$GNUBIN/find; fi
 
@@ -95,17 +93,18 @@ ARG=$1
 ARGC=0
 while [ "$ARG" != "" ];
 do
-	if [ `arrayContains validswitches[@] $ARG ;echo $?` -eq 0 ];then
-		LSSWITCHES="${LSSWITCHES} $ARG"
+	if arrayContains validswitches[@] $ARG;
+	then
+		LSSWITCHES="$LSSWITCHES $ARG"
 		unset ARG
 	fi
-	
+
 	if [ -d "$ARG" ];then
 		#PATHS="${PATHS} $ARG"
-		PATHS[${ARGC}]=$ARG
+		PATHS[$ARGC]=$ARG
 		let ARGC=ARGC+1
 	else
-		FPATHS="${FPATHS}\0$ARG"
+		FPATHS="$FPATHS\0$ARG"
 	fi
 	shift
 	ARG=$1
@@ -114,14 +113,14 @@ done
 #PATHS=`trim $PATHS`
 FPATHS=`trim "$FPATHS"`
 
-if [ ${#FPATHS} -eq 0 ]; then 
+if [ ${#FPATHS} -eq 0 ]; then
 	if [ ${#PATHS[@]} -eq 0 ]; then
 		PATHS=(".")
 	fi
 fi
 for arg in "${PATHS[@]}";
 do
-	if [[ ${#arg} -eq 1 && "$arg" == "/" ]];then 
+	if [[ ${#arg} -eq 1 && "$arg" == "/" ]];then
 		p=/
 	else
 		#p=${arg%%/}
@@ -131,8 +130,9 @@ do
 	( cd "$p"
 
 		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
+		finddirs_    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES --
+		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES    --
 		findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		[ ${#PATHS[@]} -gt 1 ] && echo
 	)
@@ -140,5 +140,5 @@ done
 
 if [ -n "$FPATHS" ]; then
 	echo -ne "$FPATHS\0" | xargs -0 -r $LS $LSSWITCHES --
-fi 
+fi
 

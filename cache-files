@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-#find ~ -path '*chrome*' -name Cache                           -print -type d 
+#find ~ -path '*chrome*' -name Cache                           -print -type d
 find ~ \
 	'(' \
 		-path '*chrome*' \
@@ -13,14 +13,14 @@ find ~ \
 		-or -name IndexedDB \
 		-or -name 'Service Worker' \
 	')' \
-	-print -type d 
+	-print -type d
 
 
-                                                                       
-#find ~ -path '*chrome*' -name IndexedDB                 -print -type d 
-#find ~ -path '*chromium*' -name IndexedDB               -print -type d 
-#find ~ -path '*chrome*' -name 'Service Worker'          -print -type d 
-#find ~ -path '*chromium*' -name 'Service Worker'        -print -type d 
+
+#find ~ -path '*chrome*' -name IndexedDB                 -print -type d
+#find ~ -path '*chromium*' -name IndexedDB               -print -type d
+#find ~ -path '*chrome*' -name 'Service Worker'          -print -type d
+#find ~ -path '*chromium*' -name 'Service Worker'        -print -type d
 	#()| xargs -0 -I% du -sm "%"
 
 #{

@@ -1,94 +1,171 @@
 #!/bin/bash
 
+
+
+###
+
+be_verbose=0
 function verb { if [[ $be_verbose -eq 1 ]]; then echo -e "$@" >&2; fi; }
 
+if [ $# -eq 0 ]; then
+	echo usage: $0 /foo/bar/baz.torrent
+	echo "  -x  meta_only=1"
+	echo "  -c  check_only=1"
+	echo "  -s  mark_skip=1 - do not try to verify or seed"
+	echo "  -v  be_verbose=1"
+	exit 10
+fi
+
+
+percent=✓
+torr=
+
+for i; do
+	case "$i" in
+		-x) meta_only=1 ;;
+		-c) check_only=1 ;;
+		-s) mark_skip=1 ;;
+		-v) be_verbose=1 ;;
+		-h) exec $0;;
+		*) test -f "$i" && [[ $i =~ .*torrent$ ]] && torr=$i
+	esac
+done
+
+if ! test -f "$torr"; then
+	echo not a file: $torr >&2
+	exit 1
+fi
+
+
+torr_dir="$(dirname "$torr")"
+torr_fil="$(basename "$torr")"
+torr_real="$(realpath "$torr")"
+torr_fin="$(basename "$torr" .torrent).finished"
+torr_skip="$(basename "$torr" .torrent).skip"
+#size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
+
+
+cd "$torr_dir"
+
+torre_internal_mb() { ctorrent -T -x "$torr_fil" \
+	| sed -nE '/^</ { s/.*\[//; s/\]// ;p}' \
+	| awk '{ s+=$1 } END { printf "%.2f\n", s/1024/1024 }'; }
+ctorrenT() { ctorrent "$@" |& sed '/^Filename contains non-printable characters; use -T to convert./d'; }
+torr_target_dir() { ctorrenT -x "$torr_fil" | sed -nE '/^Directory: / { s///; p}'; }
+torr_target_files() { ctorrenT -x "$torr_fil" | sed -nE '
+		/^<[0-9]>\s{1,2}/ { s///;  s/ \[[0-9]+\]$//; p }
+
+	'
+}
+torr_targets() {
+	local d=`torr_target_dir`
+	if [[ -n $d ]]; then
+		torr_target_files | sed "s%^%$d/%"
+	else
+		torr_target_files
+	fi
+}
+
+torr_actual_mb() {
+	torr_targets | tr '\n' '\0' | xargs -0 du -bc 2>/dev/null \
+		| awk '$2 == "total" { t+=$1 } END { printf "%.2f\n", t/1024/1024 }'
+}
+
+
+#echo; echo; echo;
+#echo files:
+#set +x
+#torr_target_files
+#
+#echo targets:
+#torr_targets
+#
+#echo D: `torr_target_dir`
+#echo Act: `torr_actual_mb`
+#echo Int: `torre_internal_mb`
+#sleep 3
+#echo; echo; echo;
+#set -x
+## exit
+
+function is_started {
+	if [[ `torr_actual_mb` = "0.00" ]]; then
+		return 1
+	fi
+	return 0
+}
 
 function is_done {
-	#if [[ -f "$torr_fin" ]] || [[ $size_match -eq 1 ]]; then
+	if [[ `torr_actual_mb` != `torre_internal_mb` ]]; then
+
+		echo Actual: `torr_actual_mb`
+		echo Intern: `torre_internal_mb`
+		echo torr..: $torr
+
+		rm -fv "$torr_fin"
+
+		return 1
+	fi
+
 	if [[ -f "$torr_fin" ]]; then
 		return 0
 	fi
 	return 1
 }
 
+function is_skip {
+	if [[ -f "$torr_skip" ]]; then
+		return 0
+	fi
+	return 1
+}
 
-#size_match=0
-#{
-#ctorrent -x "$torr" | awk '
-#		$1 == "Directory:" { sub("Directory: ", "", $0); d=$0   }
-#		$1 ~ /<[0-9]+>/ { print d "/" $2 }
-#		' | tr '\n' '\0' |
-#		xargs -r0 du -B1 2>/dev/null | tr '\t' ' '
-#echo
-#ctorrent -x "$torr" | awk '
-#		$1 == "Directory:" { sub("Directory: ", "", $0); d=$0   }
-#		$1 ~ /<[0-9]+>/ { gsub("[][]", "", $3); fs[$1]=$3 }
-#		$1 ~ /<[0-9]+>/ { print fs[$1] " " d "/" $2 }
-#		'
-#} | awk '{ _[$0]++ } END {
-#		for (i in _) { if (_[i] != 2) {
-#				m++;
-#				print "X", i
-#				} }
-#		if (m!=0) {
-#		        print "missing files";
-#				exit 1}}'
-#ec=$?
-#if [[ $ec -eq 0 ]]; then
-#	size_match=1
-#fi
-
-###
-
-be_verbose=0
-torr=$1
-
-if [[ $# -eq 0 ]]; then
-	echo usage: $0 /foo/bar/baz.torrent
-	exit 10
-fi
-
-if ! [[ -f $torr ]]; then
-	echo not a file: $torr >&2
-	exit 1
-fi
-
-for i;
-do
-	case "$i" in
-		-x) meta_only=1 ;;
-		-c) check_only=1 ;;
-		-q) be_verbose=0 ;;
-	esac
-done
-torr_dir="$(dirname "$torr")"
-torr_fil="$(basename "$torr")"
-torr_fin=".fin.$(basename "$torr" .torrent)"
-size=$(ctorrent -x "$torr"  | grep ^Total | sed 's/^Total: //; s/ MB//' )
 
 if [[ $meta_only = 1 ]]; then
 	exit 0
 fi
 
-cd "$torr_dir"
-percent=✓
-if ! is_done; then
-	already=$(ctorrent -c "$torr_fil" | tee "/tmp/check.$torr_fil" | grep Already/Total:)
-	percent=$(echo $already | grep -o -E '[0-9]+%')
-	if echo $already | grep -qF 100%; then
-		touch "$torr_fin"
-	fi
+
+if [[ $mark_skip = 1 ]]; then
+	touch $torr_skip
+	exit 0
+fi
+
+
+if ! is_started; then
+	echo -e "gone\t ✗\t$torr"
+	exit 0
+fi
+
+if ! is_skip; then
+		if ! is_done; then
+				already=$(ctorrent -c "$torr_fil" | tee /tmp/seed-finished | tee "/tmp/check.$torr_fil" | grep Already/Total:)
+				percent=$(echo $already | grep -o -E '[0-9]+%')
+				if echo $already | grep -qF 100%; then
+						touch "$torr_fin"
+				fi
+		fi
 fi
 
 if [[ $check_only = 1 ]]; then
 	exit 0
 fi
 
+
+
+
 ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr_fil"
 ec=$?
 if [[ $ec -ne 0 ]] && is_done; then
 		echo -e "seed\t$size\t$torr"
-		ctorrent -e 8760 -S 127.0.0.1:2780 -dd "$torr_fil"
+
+		verb ctorrent -e 8760 -S 127.0.0.1:2780 -dd "'$torr_fil'"
+		exec ctorrent -e 8760 -S 127.0.0.1:2780 -dd "$torr_fil"
+
 else
-		echo -e "skip\t$size/$percent\t$torr"
+		if is_skip; then
+				echo -e "ignr\t$size/$percent\t$torr"
+		else
+				echo -e "skip\t$size/$percent\t$torr"
+		fi
 fi

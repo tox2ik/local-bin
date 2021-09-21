@@ -3,6 +3,10 @@
 for a in $@;
 do
 	case $a in
+		--list|-list|-l|ls)
+			fc-list | awk -F: '{ print $2 }' | tr ',' '\n' | sed -E 's/^\s+//' | sort -u
+			exit
+			;;
 		--help|-help|-h)
 			echo "usage: `basename $0` size family style"
 			exit
@@ -28,5 +32,6 @@ then
 fi
 
 # todo: change italic and bold too
+# todo merge with function ufs
 printf '\33]50;%s\007' "xft:${font}:pixelsize=${size}:style=${style}"
 
