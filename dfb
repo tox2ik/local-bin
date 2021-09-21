@@ -1,0 +1,20 @@
+#!/bin/sh
+#df  -B1g -T  -t{btrfs,fuseblk,ext4}  | sort -u -k 1,1 | sort -b -k 2,2 -k 7,7
+
+
+df-chart "$@"
+echo
+
+block=1g unit=gigs
+[[ $1 = m ]] && { block=1m unit=megs; }
+
+{
+echo fs type $unit used left use% mounted;
+
+df -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} | grep -v -e /snap/ -e Filesystem | sort -b -k 2,2 -k 1,1 -k 7,7
+} | column -t | sed 's/^/   /'
+
+
+
+
+
