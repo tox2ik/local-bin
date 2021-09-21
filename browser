@@ -1,0 +1,21 @@
+#!/bin/sh
+
+read -d. -rs browsers <<BROS
+
+google-chrome-stable
+
+	firefox
+	opera
+
+	chromium
+	chromium-browser
+	chrome-unstable
+	google-chrome-unstable
+.
+BROS
+
+for i in $browsers; do
+	if type $i &> /dev/null; then
+		exec $i "$@"
+	fi
+done
