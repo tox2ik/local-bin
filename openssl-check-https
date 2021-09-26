@@ -1,4 +1,8 @@
 #!/bin/bash
+
+default=wwhttps://www.youtube.com/watch?v=8rbW_Z76I_Qhttps://static-ss.xnxx-cdn.com/v-0b935663c20/v3/img/player/icon-play.svgw.eyepacs.com
+
+
 if [[ $2 == deep ]]; then
 
 rm -f /tmp/examine-cert-*
@@ -32,11 +36,11 @@ for i in $(find /tmp -maxdepth 1 -name "examine-cert-*.crt" 2>/dev/null | sort -
 done
 
 elif [[ $2 == simple ]]; then
-		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& grep -o -e 'CN.=.*' | sort -u
+		openssl s_client -showcerts -connect ${1:-$default}:443 < /dev/null  |& grep -o -e 'CN.=.*' | sort -u
 elif [[ -n $2 ]]; then
-		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  |& cat
+		openssl s_client -showcerts -connect ${1:-$default}:443 < /dev/null  |& cat
 else
-		openssl s_client -showcerts -connect ${1:-silicamagazine.com}:443 < /dev/null  \
+		openssl s_client -showcerts -connect ${1:-$default}:443 < /dev/null  \
 				|& grep -o \
 				-e 'issuer=.*' \
 				-e 'CN.=.*' \
