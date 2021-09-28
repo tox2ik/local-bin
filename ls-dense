@@ -1,0 +1,23 @@
+#!/bin/bash
+# figure out how many files are in sub-directories of $target
+
+_i=$IFS target=${1:-.};
+IFS='
+';
+
+childrens_names=$(find "$target" -maxdepth 1  -mindepth 1 -type d)
+
+for i in $childrens_names; do
+	children=$(   find "$i" -maxdepth 1 -mindepth 1 | wc -l)
+	descendants=$(find "$i" -mindepth 1             | wc -l)
+	printf "%6d %6d %s\n" $descendants $children ${i/.\/};
+done | sort -k2n -k1n --debug
+
+IFS=$_i # resetting IFS here is not strictly necessary
+
+copy_lsds() {
+	local host=${1:-hack-0003v8}
+	local region=${2:-us1}
+	scp /usr/local/bin/ls-dense f.$region.$host:~/
+	adc gear:admin -t -y -G $region $host -C 'mv ls-dense /usr/local/bin/ls-dense'
+}
