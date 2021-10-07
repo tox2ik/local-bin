@@ -1,0 +1,25 @@
+#!/bin/bash
+
+domain=${1:-os-test-eu.objects.eu2.frbit.com}
+
+function cert_chain {
+	openssl s_client -showcerts -connect $domain:443 < /dev/null 2>/dev/null \
+		| sed -n '/-----BEGIN/,/-----END/p' \
+		| sed '/-----BEGIN/i^'
+}
+
+cert_chain | sed 's/\^//'
+echo
+
+IFS=^;
+for i in $(cert_chain); do
+	if [[ $# -gt 1 ]]; then
+		echo -e "$i" | openssl x509 -noout  -subject -issuer -dates  -serial -fingerprint  2>/dev/null
+	else
+		echo -e "$i" | openssl x509 -noout  -subject -enddate -issuer 2>/dev/null
+	fi
+	echo ^
+done  \
+| sed s/=/^/ \
+| column -ts^
+
