@@ -1,3 +1,4 @@
+#!/bin/busybox sh
 #!/bin/bash
 now=$(date +%F)
 from=$(date -d "$1" +%s)

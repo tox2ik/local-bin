@@ -1,7 +1,8 @@
+#!/bin/busybox sh
 #!/bin/sh
 
 if [ $# -gt 0 ]; then
-	date +%Y-%m-%d\ %H:%M:%S
-else 
-	date +%Y-%m-%d\ %H:%M
+	exec date +%Y-%m-%d\ %H:%M:%S
+else
+	exec date +%Y-%m-%d\ %H:%M
 fi
