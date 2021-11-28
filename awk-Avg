@@ -1,0 +1,12 @@
+#!/bin/bash
+# todo: rewrite in csh?
+argv=
+for i; do
+	if [[ $1 =~ ^[0-9]+$ ]]; then
+		field=$1
+	else
+		argv="$argv $1"
+	fi
+	shift
+done
+awk $argv -v argnum=${field:-1} '{ sum+=$(argnum) } END { print sum / NR }'
