@@ -3,6 +3,7 @@
 df_input() {
 		block=1g unit=gigs
 		[[ $1 = m ]] && { block=1m unit=megs; }
+		[[ $1 = t ]] && { block=1t unit=ters; }
 		{
 		 df  -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} | grep -v -e /snap/ -e Filesystem | sort -b -k 2,2 -k 1,1 -k 7,7
 		} | sort -u -k1,1 | sort -k 6n
@@ -45,11 +46,9 @@ l_left=5
 l_percent=3
 
 if [[ $1 = m ]]; then
-
 	l_name=15
-	l_size=7
-	l_left=7
-
+	l_size=9
+	l_left=9
 fi
 
 
@@ -74,8 +73,6 @@ while read fs type gigs used left use mounted; do
 		echo FAIL: $fs
 	fi
 	use=${use%%%}
-
-
 
 	width_bar=$( echo "scale=3; (`cols` -$width_text -2 )/100 * $use" | bc )
 	width_bar=${width_bar/.*/}
