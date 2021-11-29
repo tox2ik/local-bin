@@ -53,8 +53,7 @@ torre_internal_mb() { ctorrent -T -x "$torr_fil" \
 ctorrenT() { ctorrent "$@" |& sed '/^Filename contains non-printable characters; use -T to convert./d'; }
 torr_target_dir() { ctorrenT -x "$torr_fil" | sed -nE '/^Directory: / { s///; p}'; }
 torr_target_files() { ctorrenT -x "$torr_fil" | sed -nE '
-		/^<[0-9]>\s{1,2}/ { s///;  s/ \[[0-9]+\]$//; p }
-
+		/^<[0-9]+>\s{1,2}/ { s///;  s/ \[[0-9]+\]$//; p }
 	'
 }
 torr_targets() {

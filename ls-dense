@@ -11,7 +11,7 @@ for i in $childrens_names; do
 	children=$(   find "$i" -maxdepth 1 -mindepth 1 | wc -l)
 	descendants=$(find "$i" -mindepth 1             | wc -l)
 	printf "%6d %6d %s\n" $descendants $children ${i/.\/};
-done | sort -k2n -k1n --debug
+done | sort -k2n -k1n
 
 IFS=$_i # resetting IFS here is not strictly necessary
 

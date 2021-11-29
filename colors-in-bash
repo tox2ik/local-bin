@@ -11,12 +11,18 @@
 # ! cyan     6        14
 # ! white    7        15
 
-for code in {0..15}; do 
+for code in {0..15}; do
 	if [[ code%8 -eq 0 ]];then echo ;fi
 	printf "%5s" `echo -n -e "\e[38;05;${code}m $code: color"`
 done
+
+for code in {0..15}; do
+	if [[ code%8 -eq 0 ]];then echo ;fi
+	printf "%5s" `echo -n -e "\e[38;05;${code};01m $code: color"`
+done
+
 echo
-for code in {16..255}; do 
+for code in {16..255}; do
 	if [[ code%8 -eq 0 ]];then echo ;fi
 	printf "%5s" `echo -n -e "\e[38;05;${code}m $code: color"`
 done

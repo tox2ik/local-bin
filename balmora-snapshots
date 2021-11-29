@@ -37,7 +37,9 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
+
 die () {
+	set +x
     msg=$*
     trap '' ERR
     echo >&2
@@ -47,7 +49,11 @@ die () {
 			line=`echo $msg | sed 's/.*Error line \(.*\) with status.*/\1/'`
 			nl -ba $0 | grep -3 "\b$line\b" >&2
 	fi
-    exit 1
+	touch ~/__________________CHECK_BACKUPS__.$(date +%Y-%m-%d).balmora-snapshots
+	if [ -o errexit ]
+	then
+			exit 55
+	fi
 }
 trap 'die "Error line $LINENO with status $?"' ERR
 
@@ -67,6 +73,9 @@ declare -A mp=(
 	[/home]=home
 )
 
+##
+## Create daily snapshots to avoid losing data
+##
 for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
 	if [[ ! -e /ss/$date/$snap ]]; then
@@ -74,29 +83,67 @@ for mount in ${!mp[@]}; do
 					ln -snf ../$date/$snap /ss/last/$snap;
 	fi
 done
-
 sync
+
+
+##
+## Send snapshots to a secondary volume for redundancy
+##
 for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
 
 	prev_local=$(ls -dv1 /ss/*/$snap | grep $(realpath /ss/last/$snap) -B1 | sed 1q)
 	last_remote=$( { ls -dv1 /G/rr/*/$snap | tail -n1; } || echo seed)
+
 	if [[ -n $DEBUG ]]; then
 			printf "prev_local..:%30s\n" $prev_local
 			printf "last_remote.:%30s\n" $last_remote
 	fi
+
 	if [[ ! -e /G/rr/$date/$snap ]]; then
 			if [[ $last_remote == seed ]]; then
 					set -x
 					btrfs send                /ss/$date/$snap | btrfs receive /G/rr/$date/
 			else
-					set -x
-					btrfs send -p $prev_local /ss/$date/$snap | btrfs receive /G/rr/$date/
+					rr=/tmp/backups.err.$$
+					echo RR $rr
+					declare -a ps=()
+
+					function incremental {
+						set -x
+						btrfs send -v -p $prev_local /ss/$date/$snap 2>$rr | btrfs receive -v /G/rr/$date 2>$rr
+						ps=( "${PIPESTATUS[@]}" )
+						set +x
+					}
+
+					function reseed {
+						if [[ ${ps[0]} -ne 0 ]]; then
+							export DEBUG=1
+							echo -e "\e[33;01m"
+							echo -e "remote end failed  ${ps[0]}"
+							echo -e "\e[0m"
+							eval $(grep -oE '[a-z_]+=[0-9a-z-]+' $rr)
+							#... if ${ps[0]} == 141
+							parent=$(btrfs subvolume list -sru /ss \
+										|  awk -v u=$parent_uuid  '$(NF-2) == u { print $NF }')
+							set -x
+							parent_date=${parent%%/*}
+							btrfs send /ss/$parent | btrfs receive /G/rr/$parent_date/
+							set +x
+							incremental
+							exit ${ps[0]}
+						fi
+					}
+
+					set +o errexit
+					incremental
+					reseed
+					set -o errexit
 			fi
 			set +x
 	else
 		if [[ -n $DEBUG ]]; then
-				date '+now.........:                  %Y-%m-%d (snapshot present)'
+				date '+present.....:              %Y-%m-%d (snapshot exists)'
 		fi
 	fi
 	if [[ -n $DEBUG ]]; then

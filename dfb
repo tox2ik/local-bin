@@ -6,6 +6,7 @@ echo
 
 block=1g unit=gigs
 [ "$1" = m ] && { block=1m unit=megs; }
+[ "$1" = d ] && { block=1t unit=megs; }
 
 {
 	echo fs type $unit used left use% mounted;

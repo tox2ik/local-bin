@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?php 
+<?php
 
 $fn = basename($argv[0], '.php');
 
@@ -19,7 +19,8 @@ if (count($argv) == 2) {
     //$h1 = fopen('r', STDIN);
 
     while ($line = fgets(STDIN)) {
-        print_r($fn(trim($line)));
+        echo $fn($line);
+        //print_r($fn(trim($line)));
     }
 }
 
