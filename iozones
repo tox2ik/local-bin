@@ -49,10 +49,21 @@ function _math { echo "scale=3;$*" | bc; }
 function _identify {
 	block=$(basename $(df --output=source . | sed 1d))
 	sys=$(find /sys/devices/ -name $block | xargs realpath | sort -u )
+	function part_dev_models {
+		for i in $( find /sys/devices/virtual/block/md2/slaves/ -type l \
+				| sed 's/[0-9]\+$//' \
+				| xargs -n1 basename \
+				| xargs -n1 find /sys/devices -name \
+				| xargs -n1 realpath \
+				| sort -u); do
+			cat $i/device/model
+		done
+
+
+	}
 	model=$( (2>/dev/null cat $sys/../device/model ||
 			  2>/dev/null cat $sys/device/model ||
-			  2>/dev/null cat $sys/../slaves/*/device/model ||
-			  2>/dev/null cat $sys/slaves/*/device/model ) \
+			  2>/dev/null cat $sys/../slaves/*/device/model || part_dev_models ) \
 			| sed 's/ \+$//; s/ /_/g' \
 			| awk '{ _[$0]++ } END { for (i in _) { print i "-x" _[i] } }' )
 	time=$(date +%Y.%j.%H%M)
