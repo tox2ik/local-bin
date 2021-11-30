@@ -21,13 +21,17 @@ _host() { hostname; }
 function _ioz { iozone -+h `_host` "$@"; }
 
 function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
-function q10  { _ioz  -I -i{0,1,2} -s 10m  -r 128k |_f;}
 function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
-function q100 { _ioz  -I -i{0,1,2} -s 100m -r 128k |_f;}
 function q200 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
+
+
+
+function s16  { _ioz -aI -i{0,1,2} -q 64k -g 16m    |_f;}
+function l64  { _ioz -aI -i{0,1,2} -y 128k -n 64m -g 64m |_f; }
+
 function a2   { _ioz -aI -i{0,1,2} -n 2m  -g 2m    |_f;}
-function a10  { _ioz -aI -i{0,1,2} -n 10m -g 10m   |_f;}
 function a20  { _ioz -aI -i{0,1,2} -n 20m -g 20m   |_f;}
+function a50  { _ioz -aI -i{0,1,2} -n 50m -g 50m   |_f;}
 function a100 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
 
