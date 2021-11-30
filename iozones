@@ -44,7 +44,10 @@ function _table { column -ts $'\t'; }
 function _f { i=".iozones.$fn.$(_identify)"; tee "$i" | _summarize | _table;
 		echo Run ended: $(date) >> "$i";
 		echo $i >> "$i";
-		echo $fn >> "$i"; }
+		echo $fn >> "$i";
+		time=$(grep Run "$i" | sed 's/[^:]\+: //' | xargs -I{} date +%s -d '{}' | sort -nr | paste -sd- | bc)
+		echo test duration: $time >> "$i";
+}
 function _math { echo "scale=3;$*" | bc; }
 function _identify {
 	block=$(basename $(df --output=source . | sed 1d))
