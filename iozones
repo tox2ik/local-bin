@@ -48,7 +48,7 @@ function _f { i=".iozones.$fn.$(_identify)"; tee "$i" | _summarize | _table;
 function _math { echo "scale=3;$*" | bc; }
 function _identify {
 	block=$(basename $(df --output=source . | sed 1d))
-	sys=$(find /sys/devices/ -name $block)
+	sys=$(find /sys/devices/ -name $block | xargs realpath | sort -u )
 	model=$( (2>/dev/null cat $sys/../device/model ||
 	          2>/dev/null cat $sys/device/model ||
 			  2>/dev/null cat $sys/../slaves/*/device/model ) \
