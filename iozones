@@ -41,8 +41,23 @@ function ioq100 { _math $(io $1 'q100') / $(io $2 'q100'); }
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -v verb=$verb -f ${BASH_SOURCE[0]}.awk; }
 function _table { column -ts $'\t'; }
-function _f { _summarize | _table; }
+function _f { i=".iozones.$fn.$(_identify)"; tee "$i" | _summarize | _table;
+		echo Run ended: $(date) >> "$i";
+		echo $i >> "$i";
+		echo $fn >> "$i"; }
 function _math { echo "scale=3;$*" | bc; }
+function _identify {
+	block=$(basename $(df --output=source . | sed 1d))
+	sys=$(find /sys/devices/ -name $block)
+	model=$( (cat $sys/../device/model ||
+	          cat $sys/device/model ||
+			  cat $sys/../slaves/*/device/model ) \
+			| sed 's/ \+$//; s/ /_/g' \
+			| awk '{ _[$0]++ } END { for (i in _) { print i "-x" _[i] } }' )
+	time=$(date +%Y.%j.%H%M)
+	echo $model.$time
+
+}
 
 function _label_at_path {
 	lsblk -o name,mountpoint,partlabel  -l |
