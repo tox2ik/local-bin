@@ -49,7 +49,11 @@ function z264 { _ioz -aI -i{0,1,2} -s 264m -z |_f;}
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -v verb=$verb -f ${BASH_SOURCE[0]}.awk; }
 function _table { column -ts $'\t'; }
-function _f { i=".iozones.$fn.$(_identify)"; tee "$i" | _summarize | _table;
+function _f {
+		i=".iozones.$fn.$(_identify).iozone";
+
+		tee "$i" | _summarize | _table;
+
 		echo Run ended: $(date) >> "$i";
 		echo $i >> "$i";
 		echo $fn >> "$i";

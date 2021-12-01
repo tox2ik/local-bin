@@ -25,22 +25,22 @@ NR >= data && NF==0 { data=999999 }
 NR >= data {
 	test=$1
 	rec=$2
-	r0=int($3/1024) # read
-	rr=int($4/1024) # re-read
-	w0=int($5/1024) # write
-	rw=int($6/1024) # re-write
-	rar=int($7/1024) # random read
-	raw=int($8/1024) # random write
+	r0=int($3) # read
+	rr=int($4) # re-read
+	w0=int($5) # write
+	rw=int($6) # re-write
+	rar=int($7) # random read
+	raw=int($8) # random write
 
 	if (verb >= 2) {
 		print test "\t",
 			  rec "\t",
-			  r0 "\t",
-			  rr "\t",
-			  w0 "\t",
-			  rw "\t",
-			  rar "\t",
-			  raw
+			  im(r0) "\t",
+			  im(rr) "\t",
+			  im(w0) "\t",
+			  im(rw) "\t",
+			  im(rar) "\t",
+			  im(raw)
 	}
 	score_r += r0 + rr + rar
 	score_w += w0 + fw + raw
@@ -54,25 +54,27 @@ NR >= data {
 	if (min_r  > rr) { min_r = rr }
 	if (min_r  > rar) { min_r = rar }
 
-	if (min_w == -1) { min_w = w0 }
-	if (min_w  > w0) { min_w = w0 }
-	if (min_w  > rw) { min_w = rw }
-	if (min_w  > raw) { min_w = raw }
+	#if (min_w == -1) { min_w = w0 }
+	#if (min_w  > w0) { min_w = w0 }
+	#if (min_w  > rw) { min_w = rw }
+	#if (min_w  > raw) { min_w = raw }
 
 	if (max_r == -1) { max_r = r0 }
 	if (max_r  < r0) { max_r = r0 }
 	if (max_r  < rr) { max_r = rr }
 	if (max_r  < rar) { max_r = rar }
 
-	if (max_w == -1) { max_w = w0 }
-	if (max_w  < w0) { max_w = w0 }
-	if (max_w  < rw) { max_w = rw }
-	if (max_w  < raw) { max_w = raw }
+	#if (max_w == -1) { max_w = w0 }
+	#if (max_w  < w0) { max_w = w0 }
+	#if (max_w  < rw) { max_w = rw }
+	#if (max_w  < raw) { max_w = raw }
 
 }
 
 END {
 #print "\t\t\t\t\t\t\t\t" cmd
+#
+
 
 	  if (verb >= 1) {
 	  print "",
