@@ -82,9 +82,13 @@ function _identify {
 			| awk '{ _[$0]++ } END { for (i in _) { print i "-x" _[i] } }' )
 	time=$(date +%Y.%j.%H%M)
 	if [[ -f $sys/md/chunk_size ]]; then
-		chunk=.$(awk '{ print $1 / 1024 }' $sys/md/chunk_size)
+		chunk=.c-$(awk '{ print $1 / 1024 }' $sys/md/chunk_size)
 	fi
-	echo "${model}${chunk}.${fstype}.${time}"
+	if [[ $fstype = ext4 ]]; then
+			block=$(dumpe2fs /dev/md4 -h |&  awk '/Block size/ { print $(NF) / 1024 "k" } ') # btrfs ? other?
+			block=.b-$block
+	fi
+	echo "${model}${chunk}.${fstype}${block}.${time}"
 
 }
 
