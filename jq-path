@@ -1,0 +1,2 @@
+#!/usr/bin/jq -f
+path(..)

@@ -48,8 +48,8 @@ l_percent=3
 
 if [[ $1 = m ]]; then
 	l_name=15
-	l_size=9
-	l_left=9
+	l_size=12
+	l_left=12
 fi
 
 
