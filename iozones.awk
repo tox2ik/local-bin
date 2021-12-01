@@ -49,6 +49,16 @@ NR >= data {
 	score_rc += 3
 	score_wc += 3
 
+	if (rec < 32) {
+		score_r_rand_tiny += rar
+		score_w_rand_tiny += raw
+		score_c_rand_tiny += 1
+	} else {
+		score_r_rand_large += rar
+		score_w_rand_large += raw
+		score_c_rand_large += 1
+	}
+
 	if (min_r == -1) { min_r = r0 }
 	if (min_r  > r0) { min_r = r0 }
 	if (min_r  > rr) { min_r = rr }
@@ -72,17 +82,20 @@ NR >= data {
 }
 
 END {
-#print "\t\t\t\t\t\t\t\t" cmd
-#
-
 
 	  if (verb >= 1) {
 	  print "",
-			   " read avg " im(score_r/score_rc) "\tmin "  im(min_r,0) "\tmax " im(max_r, 0) "\n",
-			   "write avg " im(score_w/score_wc) "\tmin " im(min_w,0) "\tmax " im(max_w, 0) "\n";
+			   " read all avg " im(score_r/score_rc) "\tmin "  im(min_r,0) "\tmax " im(max_r, 0) "\n",
+			   "write all avg " im(score_w/score_wc) "\tmin " im(min_w,0) "\tmax " im(max_w, 0) "\n";
+
+	  print "",
+			   " read rnd avg " im(score_r_rand_tiny/score_c_rand_tiny) " tiny \n",
+			   " read rnd avg " im(score_r_rand_large/score_c_rand_large) " large \n",
+			   "write rnd avg " im(score_w_rand_tiny/score_c_rand_tiny) " tiny \n",
+			   "write rnd avg " im(score_w_rand_large/score_c_rand_large) " large \n";
 	  }
 	  print "",
-			im(score  /(score_rc+score_wc)) "\n"
+			im(score / (score_rc+score_wc)) "\n"
 
 }
 
