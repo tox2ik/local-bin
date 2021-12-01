@@ -63,6 +63,7 @@ function _f {
 function _math { echo "scale=3;$*" | bc; }
 function _identify {
 	block=$(basename $(df --output=source . | sed 1d))
+	fstype=$(df --output=fstype . | sed 1d) # basename $(dirname $(echo /sys/fs/*/md4))
 	sys=$(find /sys/devices/ -name $block | xargs realpath | sort -u )
 	function part_dev_models {
 		for i in $( find $sys/slaves/ -type l \
@@ -73,8 +74,6 @@ function _identify {
 				| sort -u); do
 			cat $i/device/model
 		done
-
-
 	}
 	model=$( (2>/dev/null cat $sys/../device/model ||
 			  2>/dev/null cat $sys/device/model ||
@@ -82,7 +81,10 @@ function _identify {
 			| sed 's/ \+$//; s/ /_/g' \
 			| awk '{ _[$0]++ } END { for (i in _) { print i "-x" _[i] } }' )
 	time=$(date +%Y.%j.%H%M)
-	echo $model.$time
+	if [[ -f $sys/md/chunk_size ]]; then
+		chunk=.$(awk '{ print $1 / 1024 }' $sys/md/chunk_size)
+	fi
+	echo "${model}${chunk}.${fstype}.${time}"
 
 }
 
