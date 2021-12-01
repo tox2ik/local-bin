@@ -54,20 +54,20 @@ NR >= data {
 	if (min_r  > rr) { min_r = rr }
 	if (min_r  > rar) { min_r = rar }
 
-	#if (min_w == -1) { min_w = w0 }
-	#if (min_w  > w0) { min_w = w0 }
-	#if (min_w  > rw) { min_w = rw }
-	#if (min_w  > raw) { min_w = raw }
+	if (min_w == -1) { min_w = w0 }
+	if (min_w  > w0) { min_w = w0 }
+	if (min_w  > rw) { min_w = rw }
+	if (min_w  > raw) { min_w = raw }
 
 	if (max_r == -1) { max_r = r0 }
 	if (max_r  < r0) { max_r = r0 }
 	if (max_r  < rr) { max_r = rr }
 	if (max_r  < rar) { max_r = rar }
 
-	#if (max_w == -1) { max_w = w0 }
-	#if (max_w  < w0) { max_w = w0 }
-	#if (max_w  < rw) { max_w = rw }
-	#if (max_w  < raw) { max_w = raw }
+	if (max_w == -1) { max_w = w0 }
+	if (max_w  < w0) { max_w = w0 }
+	if (max_w  < rw) { max_w = rw }
+	if (max_w  < raw) { max_w = raw }
 
 }
 
