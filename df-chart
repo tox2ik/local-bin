@@ -42,14 +42,14 @@ bar() {
 
 
 l_name=15
-l_size=5
-l_left=5
+l_size=7
+l_left=7
 l_percent=3
 
 if [[ $1 = m ]]; then
 	l_name=15
-	l_size=12
-	l_left=12
+	l_size=10
+	l_left=10
 fi
 
 
