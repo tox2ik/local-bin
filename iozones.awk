@@ -42,8 +42,8 @@ NR >= data {
 			  rar "\t",
 			  raw
 	}
-	score_r += $3 + $4 + $7
-	score_w += $5 + $6 + $8
+	score_r += r0 + rr + rar
+	score_w += w0 + fw + raw
 	score += score_r + score_w
 
 	score_rc += 3
