@@ -18,31 +18,33 @@ if ! [[ $verb =~ ^[0-9]$ ]]; then
 fi
 
 _host() { hostname; }
-function _ioz { iozone -+h `_host` "$@"; }
+function _ioz { iozone -M -+T -+h `_host` "$@"; }
 
 function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
 function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
 function q200 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
 
-
-
 function s16  { _ioz -aI -i{0,1,2} -q 64k -g 16m    |_f;}
 function l64  { _ioz -aI -i{0,1,2} -y 128k -n 64m -g 64m |_f; }
 
-function a2   { _ioz -aI -i{0,1,2} -n 2m  -g 2m    |_f;}
-function a20  { _ioz -aI -i{0,1,2} -n 20m -g 20m   |_f;}
-function a50  { _ioz -aI -i{0,1,2} -n 50m -g 50m   |_f;}
-function a100 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
-function a200 { _ioz -aI -i{0,1,2} -n 12m -g 200m  |_f;}
-function z250 { _ioz -aI -i{0,1,2} -s 250m -z |_f;}
-function z20  { _ioz -aI -i{0,1,2} -s 20m -z |_f;}
+function a0   { _ioz -aI -i{0,1,2}         |_f;}
+function a2   { _ioz -aI -i{0,1,2} -s 2m   |_f;}
+function a20  { _ioz -aI -i{0,1,2} -s 20m  |_f;}
+function a50  { _ioz -aI -i{0,1,2} -s 50m  |_f;}
+function a100 { _ioz -aI -i{0,1,2} -s 100m |_f;}
+function a200 { _ioz -aI -i{0,1,2} -s 200m |_f;}
 
-function io { (cd $1; bash $self $2 -v0 | tr -d '[a-z] '); }
-function ioa { for i in 2 10 20 100 200; do _math $(io $1 "a$i") / $(io $2 "a$i"); done; }
-function ioq { for i in 2 10 20 100 200; do _math $(io $1 "q$i") / $(io $2 "q$i"); done; }
+function z16  { _ioz -aI -i{0,1,2} -s 16m -z  |_f;}
+function z64  { _ioz -aI -i{0,1,2} -s 64m -z  |_f;}
+function z128 { _ioz -aI -i{0,1,2} -s 128m -z |_f;}
+function z264 { _ioz -aI -i{0,1,2} -s 264m -z |_f;}
 
-function ioa100 { _math $(io $1 'a100') / $(io $2 'a100'); }
-function ioq100 { _math $(io $1 'q100') / $(io $2 'q100'); }
+
+#function io { (cd $1; bash $self $2 -v0 | tr -d '[a-z] '); }
+#function ioa { for i in 2 10 20 100 200; do _math $(io $1 "a$i") / $(io $2 "a$i"); done; }
+#function ioq { for i in 2 10 20 100 200; do _math $(io $1 "q$i") / $(io $2 "q$i"); done; }
+#function ioa100 { _math $(io $1 'a100') / $(io $2 'a100'); }
+#function ioq100 { _math $(io $1 'q100') / $(io $2 'q100'); }
 
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -v verb=$verb -f ${BASH_SOURCE[0]}.awk; }
