@@ -39,6 +39,10 @@ function z64  { _ioz -aI -i{0,1,2} -s 64m -z  |_f;}
 function z128 { _ioz -aI -i{0,1,2} -s 128m -z |_f;}
 function z264 { _ioz -aI -i{0,1,2} -s 264m -z |_f;}
 
+function v0 { verb=0; cat "$1" | _sum; }
+function v1 { verb=1; cat "$1" | _sum; }
+function v2 { verb=2; cat "$1" | _sum; }
+
 
 #function io { (cd $1; bash $self $2 -v0 | tr -d '[a-z] '); }
 #function ioa { for i in 2 10 20 100 200; do _math $(io $1 "a$i") / $(io $2 "a$i"); done; }
@@ -49,6 +53,7 @@ function z264 { _ioz -aI -i{0,1,2} -s 264m -z |_f;}
 function _strip_contributors { sed -e /Contributors/,/Skidanov/d; }
 function _summarize { awk -v verb=$verb -f ${BASH_SOURCE[0]}.awk; }
 function _table { column -ts $'\t'; }
+function _sum { _summarize | _table; }
 function _f {
 		i=".iozones.$fn.$(_identify).iozone";
 
@@ -103,5 +108,5 @@ if type "$1" &>/dev/null; then
 	fn=$1; shift
 	$fn "$@"
 elif [[ $# -eq 0 ]]; then
-	grep 'function.[a-z]' $0
+	grep -e '^$' -e '^function.[a-z]' $0 | sed /v2/q
 fi
