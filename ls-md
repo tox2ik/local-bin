@@ -1,0 +1,23 @@
+#!/bin/bash
+
+declare -a mm=( )
+
+for i in /sys/devices/virtual/block/md*; do
+	if [[ -d $i ]]; then
+		mm+=(  $(< $i/dev)  )
+		for ii in $(find $i/slaves -type l); do
+			echo $(basename $i) $(basename $ii)
+			mm+=(  $(< $ii/dev)  )
+		done
+		echo
+	fi
+done
+#| column -t | sort -k3b,3 --
+
+pat=${mm[@]}
+pat="(${pat// /|})"
+
+lsblk  -o fstype,LABEL,fssize,kname,size,MAJ:MIN,model \
+	| awk -v pat=$pat '$0 ~ pat && !_[$0]++' \
+	| sort -k 5,5nr -k 1,1 -k 2,2
+
