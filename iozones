@@ -18,7 +18,7 @@ if ! [[ $verb =~ ^[0-9]$ ]]; then
 fi
 
 _host() { hostname; }
-function _ioz { iozone -M -+T -+h `_host` "$@"; }
+function _ioz { [[ -n $DEBUG ]] && set -x ; iozone -M -+T -+h `_host` "$@"; }
 
 function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
 function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
@@ -33,6 +33,7 @@ function a20  { _ioz -aI -i{0,1,2} -s 20m  |_f;}
 function a50  { _ioz -aI -i{0,1,2} -s 50m  |_f;}
 function a100 { _ioz -aI -i{0,1,2} -s 100m |_f;}
 function a200 { _ioz -aI -i{0,1,2} -s 200m |_f;}
+function a2000 { _ioz -aI -i{0,1,2} -s 2000m |_f;}
 
 function z16  { _ioz -aI -i{0,1,2} -s 16m -z  |_f;}
 function z64  { _ioz -aI -i{0,1,2} -s 64m -z  |_f;}
@@ -56,6 +57,7 @@ function _table { column -ts $'\t'; }
 function _sum { _summarize | _table; }
 function _f {
 		i=".iozones.$fn.$(_identify).iozone";
+		[[ -n $DEBUG ]] && echo $i
 
 		tee "$i" | _summarize | _table;
 
