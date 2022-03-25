@@ -1,0 +1,78 @@
+#!/bin/bash
+
+
+if [[ -z $google_tl_api_key ]]; then
+	google_tl_api_key=$(< ~/.secrets/google/cli-translate-api-key)
+fi
+
+function translate_v2 {
+	local f=$1 t=$2
+	shift 2
+	curl -X POST https://translation.googleapis.com/language/translate/v2 \
+		-d q="$@" \
+		-d source=$f \
+		-d target=$t \
+		-d key=$google_tl_api_key
+}
+function translate_word_from_cache {
+	local f=$1 t=$2 word=$3
+	< ~/lib/words/$f-to-$t.glossary \
+		awk -F^ -v ec=1 -v word=$word '
+			function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
+			function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
+			function trim(s) { return rtrim(ltrim(s)); }
+
+			trim($1) == word { print trim($2); ec=0; exit(0); } END { exit(ec);} '
+}
+function detect_v2 {
+	curl -X POST https://translation.googleapis.com/language/translate/v2/detect \
+		-d key=$(< ~/.secrets/google/cli-translate-api-key) \
+		-d q="$1"
+}
+
+_detect_confidence80() { jq -r '.data.detections[][]|select(.confidence > 0.8 ) | .language'; }
+_translated_first() { jq -r '.data.translations[0].translatedText'; }
+
+declare -a args=()
+dst=en
+#src=no
+
+for i; do
+	if [[ -n $dashdash ]]; then
+		text=$@
+	fi
+	case $i in
+			--) dashdash=1 ;;
+			t=*|to=*|dst=*|d=*) dst=${i:2} ;;
+			f=*|from=*|src=*|s=*) src=${i:2} ;;
+			*) args+=( $i ) ;;
+	esac
+	shift
+done
+
+
+if [[ ${#args[@]} -eq 1 ]]; then
+
+	word=${args[0]}
+
+	if [[ -z $src ]]; then
+		answers=$(detect_v2 $word)
+		src=$(echo "$answers" | _detect_confidence80)
+	fi
+
+
+	result=$(translate_word_from_cache $src $dst $word)
+	translation=$result
+	if [[ -z $result ]]; then
+		result=$(translate_v2 $src $dst $word)
+		translation=$(echo "$result" | _translated_first)
+		if [[ -n $word ]] && [[ -n $translation ]] && [[ $translation != null ]]; then
+			mkdir -p ~/lib/words
+			echo $word ^ $translation >> ~/lib/words/$src-to-$dst.glossary
+		fi
+	fi
+
+	echo $word ^ $translation "($src -> $dst)"
+
+fi
+
