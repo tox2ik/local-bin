@@ -14,10 +14,3 @@ for i in $childrens_names; do
 done | sort -k2n -k1n
 
 IFS=$_i # resetting IFS here is not strictly necessary
-
-copy_lsds() {
-	local host=${1:-hack-0003v8}
-	local region=${2:-us1}
-	scp /usr/local/bin/ls-dense f.$region.$host:~/
-	adc gear:admin -t -y -G $region $host -C 'mv ls-dense /usr/local/bin/ls-dense'
-}
