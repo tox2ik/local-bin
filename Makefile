@@ -3,7 +3,7 @@ ln:
 
 v2022-url:
 	find .probably-useful -type f | xargs -I% echo https://raw.githubusercontent.com/tox2ik/local-bin/v2022/% | tee .probably-useful/.urls
-	git add .probably-useful/.urls
+	git add .probably-useful/.urls Makefile
 	git commit -m 'update urls'
 
 v2022: v2022-url
