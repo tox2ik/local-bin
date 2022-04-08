@@ -8,7 +8,7 @@ xrandr-primary-output () { xrandr | awk '
 		 $0 ~ /^connected primary/ { print $1; exit}'; }
 
 if [[ $0 =~ dim ]]; then percent=50 fraction=0.7
-else                     percent=100 fraction=1.1; fi
+else                     percent=100 fraction=1.0; fi
 
 sudo xbacklight -set $percent%
 sudo light -A $percent

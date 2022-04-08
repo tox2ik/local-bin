@@ -23,6 +23,13 @@ cols() {
 
 label() {
 	local devpath=${1-/dev/sda}
+	local type=$2
+
+	if [[ $type = nfs ]]; then
+		echo $devpath
+		return
+	fi
+
 	label=$(lsblk -no label $devpath)
 	if [[ -z $label ]]; then
 		label=$(lsblk -no partlabel $devpath)
@@ -30,7 +37,11 @@ label() {
 	if [[ -z $label ]]; then
 		label=$(lsblk -no mountpoint $devpath)
 	fi
-	echo $label
+	if [[ -z $label ]]; then
+		echo $devpath
+	else
+		echo $label
+	fi
 }
 
 bar() {
@@ -41,13 +52,13 @@ bar() {
 
 
 
-l_name=15
+l_name=20
 l_size=7
 l_left=7
 l_percent=3
 
 if [[ $1 = m ]]; then
-	l_name=15
+	l_name=20
 	l_size=10
 	l_left=10
 fi
@@ -82,7 +93,7 @@ while read fs type gigs used left use mounted; do
 	block=─
 	block=▆
 
-	printf "%${l_name}s %-${l_size}s%-${l_left}d %-${l_percent}s %s\n" `label $fs` $gigs $left $use `bar $width_bar "$block"`
+	printf "%${l_name}s %-${l_size}s%-${l_left}d %-${l_percent}s %s\n" `label $fs $type` $gigs $left $use `bar $width_bar "$block"`
 done < <(df_input "$@")
 
 

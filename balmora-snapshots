@@ -1,12 +1,14 @@
 #!/bin/bash
 #
-# mark merlin (script)
+# Inspiration / etc
+#
+# - Mark Merlin (script)
 #     http://marc.merlins.org/perso/btrfs/
 #        post_2014-03-22_Btrfs-Tips_-Doing-Fast-
 #        Incremental-Backups-With-Btrfs-Send-and-Receive.html
 #
-# clone everything to fresh btrf
-#     https://github.com/mwilck/btrfs-clone
+# - Martin Wilck
+#   clone everything to fresh btrf: https://github.com/mwilck/btrfs-clone
 #
 # check out
 # - https://github.com/mwilck/btrfs-clone
@@ -15,11 +17,21 @@
 # maybe read
 # - https://helmundwalter.de/en/blog/next-gen-backup-with-btrfs-snapshots-for-root-fs-and-databases/#:~:text=Btrfs%20snapshots%20work%20on%20per,a%20backup%20job%20for%20each.
 # - https://github.com/csirac2/snazzer/#snazzer
+#
+# Dependencies
+#
+# - sys-apps/util-linux (/bin/mountpoint)
 
-# sys-apps/util-linux (/bin/mountpoint)
+if [[ $USER != root ]]; then
+	exec sudo $0 "$@"
+fi
+
+
+mountpoint -q /ss    || mount /ss
+mountpoint -q /B/rr  || mount /B/rr
 
 if [[ $1 = ls ]]; then
-	for i in /ss /G/rr; do sudo btrfs subvolume list -at --sort=path $i |  awk '{ print $(NF) }' ; done  |
+	for i in /ss /B/rr; do sudo btrfs subvolume list -at --sort=path $i |  awk '{ print $(NF) }' ; done  |
 	grep -e rr -e ss | grep -v FS_T
 	exit 0
 fi
@@ -59,13 +71,11 @@ trap 'die "Error line $LINENO with status $?"' ERR
 
 date=$(date +%Y-%m-%d)
 
-mountpoint -q /ss    || mount /ss
-mountpoint -q /G/rr  || mount /G/rr
 
-mkdir -p /ss/$date /ss/last /G/rr/$date/
+mkdir -p /ss/$date /ss/last /B/rr/$date/
 
-btrfs filesystem show /ss > /dev/null
-btrfs filesystem show /G  > /dev/null
+btrfs filesystem show /ss   > /dev/null
+btrfs filesystem show /B/rr > /dev/null
 
 declare -A mp=(
 	[/T]=T
@@ -93,25 +103,25 @@ for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
 
 	prev_local=$(ls -dv1 /ss/*/$snap | grep $(realpath /ss/last/$snap) -B1 | sed 1q)
-	last_remote=$( { ls -dv1 /G/rr/*/$snap | tail -n1; } || echo seed)
+	last_remote=$( { ls -dv1 /B/rr/*/$snap | tail -n1; } || echo seed)
 
 	if [[ -n $DEBUG ]]; then
 			printf "prev_local..:%30s\n" $prev_local
 			printf "last_remote.:%30s\n" $last_remote
 	fi
 
-	if [[ ! -e /G/rr/$date/$snap ]]; then
+	if [[ ! -e /B/rr/$date/$snap ]]; then
 			if [[ $last_remote == seed ]]; then
-					set -x
-					btrfs send                /ss/$date/$snap | btrfs receive /G/rr/$date/
+					#set -x
+					btrfs send                /ss/$date/$snap | btrfs receive /B/rr/$date/
 			else
 					rr=/tmp/backups.err.$$
 					echo RR $rr
 					declare -a ps=()
 
 					function incremental {
-						set -x
-						btrfs send -v -p $prev_local /ss/$date/$snap 2>$rr | btrfs receive -v /G/rr/$date 2>$rr
+						#set -x
+						btrfs send -v -p $prev_local /ss/$date/$snap 2>$rr | btrfs receive -v /B/rr/$date 2>$rr
 						ps=( "${PIPESTATUS[@]}" )
 						set +x
 					}
@@ -126,9 +136,9 @@ for mount in ${!mp[@]}; do
 							#... if ${ps[0]} == 141
 							parent=$(btrfs subvolume list -sru /ss \
 										|  awk -v u=$parent_uuid  '$(NF-2) == u { print $NF }')
-							set -x
+							#set -x
 							parent_date=${parent%%/*}
-							btrfs send /ss/$parent | btrfs receive /G/rr/$parent_date/
+							btrfs send /ss/$parent | btrfs receive /B/rr/$parent_date/
 							set +x
 							incremental
 							exit ${ps[0]}
@@ -150,4 +160,4 @@ for mount in ${!mp[@]}; do
 			echo
 	fi
 done
-umount /ss /G/rr
+umount /ss /B/rr

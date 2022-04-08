@@ -9,15 +9,17 @@ function translate_v2 {
 	local f=$1 t=$2
 	shift 2
 	curl -X POST https://translation.googleapis.com/language/translate/v2 \
-		-d q="$@" \
+		-d q="$*" \
 		-d source=$f \
 		-d target=$t \
 		-d key=$google_tl_api_key
 }
 function translate_word_from_cache {
-	local f=$1 t=$2 word=$3
-	< ~/lib/words/$f-to-$t.glossary \
-		awk -F^ -v ec=1 -v word=$word '
+	local f=$1 t=$2
+	shift 2
+	word="$*"
+	cat ~/lib/words/$f-to-$t.glossary |
+		awk -F^ -v ec=1 -v word="$word" '
 			function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
 			function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
 			function trim(s) { return rtrim(ltrim(s)); }
@@ -27,7 +29,7 @@ function translate_word_from_cache {
 function detect_v2 {
 	curl -X POST https://translation.googleapis.com/language/translate/v2/detect \
 		-d key=$(< ~/.secrets/google/cli-translate-api-key) \
-		-d q="$1"
+		-d q="$*"
 }
 
 _detect_confidence80() { jq -r '.data.detections[][]|select(.confidence > 0.8 ) | .language'; }
@@ -35,6 +37,8 @@ _translated_first() { jq -r '.data.translations[0].translatedText'; }
 
 declare -a args=()
 dst=en
+default_to=no
+default_to=de
 #src=no
 
 for i; do
@@ -43,6 +47,10 @@ for i; do
 	fi
 	case $i in
 			--) dashdash=1 ;;
+			no|nor) dst=no ;;
+			ru|rus) dst=ru ;;
+			de) dst=de ;;
+			en) dst=en ;;
 			t=*|to=*|dst=*|d=*) dst=${i:2} ;;
 			f=*|from=*|src=*|s=*) src=${i:2} ;;
 			*) args+=( $i ) ;;
@@ -51,22 +59,38 @@ for i; do
 done
 
 
-if [[ ${#args[@]} -eq 1 ]]; then
+##
+## single word
+##
+#if [[ ${#args[@]} -eq 1 ]]; then
+if [[ ${#args[@]} -ge 1 ]]; then
 
-	word=${args[0]}
+	#word=${args[0]}
+	word=${args[*]}
 
+	# detect from language if not given
 	if [[ -z $src ]]; then
 		answers=$(detect_v2 $word)
 		src=$(echo "$answers" | _detect_confidence80)
+		if [[ $src = $dst ]]; then
+			dst=$default_to
+		fi
 	fi
 
-
+	# look up in local cache file
 	result=$(translate_word_from_cache $src $dst $word)
 	translation=$result
+
+	# ask google for translation
 	if [[ -z $result ]]; then
 		result=$(translate_v2 $src $dst $word)
 		translation=$(echo "$result" | _translated_first)
-		if [[ -n $word ]] && [[ -n $translation ]] && [[ $translation != null ]]; then
+
+		# save translation
+		if [[ -n $word ]] \
+				&& [[ -n $translation ]] \
+				&& [[ $translation != null ]] \
+				&& [[ $translation != $word ]]; then
 			mkdir -p ~/lib/words
 			echo $word ^ $translation >> ~/lib/words/$src-to-$dst.glossary
 		fi
@@ -76,3 +100,15 @@ if [[ ${#args[@]} -eq 1 ]]; then
 
 fi
 
+
+: '
+todo:
+
+- look up words that can not be guessed to belong to a language from exiting files  
+	$ tl Schuhregal
+	cat: /home/jaroslav/lib/words/en-to-Schuhregal.glossary: No such file or directory
+	curl: (22) The requested URL returned error: 400
+	Schuhregal ^ null ( -> en)
+
+
+'

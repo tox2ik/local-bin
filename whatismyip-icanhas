@@ -1,1 +1,3 @@
+#!/bin/bash
 wget http://icanhazip.com -qO-
+# curl 'https://api.ipify.org?format=json'

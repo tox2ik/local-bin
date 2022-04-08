@@ -1,14 +1,16 @@
 #!/bin/bash
 
-#sensors nvme-*
+if [[ $USER != root ]]; then
+	exec sudo $0
+fi
 
-for i in `sensors 'nvme-*' | grep ^nvme-`; do
-		sensors $i  | awk 'NR == 1 { sensor=$0 } /Composite/ { temp=$2 } END { print sensor, temp } '
-done
+sensors 'nvme-*' | awk '/^nvme-/ {  printf "%s: ", $1 } /Composite/ { print $2 } '
 
 
-_smartctl() { sudo smartctl $1 -a | awk '/[Tt]emp/ { print $NF }'; }
+_smartctl() { sudo  | awk '/[Tt]emp/ { print $NF }'; }
 
 for i in `find /dev -name 'sd?'`; do
-	echo $i: $(_smartctl $i)°C
-done
+	echo $i: $(
+		smartctl $i -a | awk '/Model:/ {printf "%s: ", $0 } /[Tt]emp/ { print $NF"°C" }'
+		)
+done | sed 's/Device.Model:\ \+//'

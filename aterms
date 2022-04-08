@@ -60,10 +60,9 @@ argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"
 su='sudo su -' g='-geometry'
 #su='sudo su -' g='-geometry'
 
-	l='-sl 120000' s='-sl 100'
+	l='-sl 360000' #s='-sl 100'
 
-long='-sl 120000'
-short='-sl 100'
+long='-sl 360000'
 
 notab='-pe -tabbedex'
 

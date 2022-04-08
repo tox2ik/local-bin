@@ -33,6 +33,8 @@ function a20  { _ioz -aI -i{0,1,2} -s 20m  |_f;}
 function a50  { _ioz -aI -i{0,1,2} -s 50m  |_f;}
 function a100 { _ioz -aI -i{0,1,2} -s 100m |_f;}
 function a200 { _ioz -aI -i{0,1,2} -s 200m |_f;}
+function a400 { _ioz -aI -i{0,1,2} -s 400m |_f;}
+function a800 { _ioz -aI -i{0,1,2} -s 800m |_f;}
 function a2000 { _ioz -aI -i{0,1,2} -s 2000m |_f;}
 
 function z16  { _ioz -aI -i{0,1,2} -s 16m -z  |_f;}
