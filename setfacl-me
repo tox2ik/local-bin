@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo setfacl -R -m u:$USER:rwX ${1:-/T/trsys/tidsrapportering/git/var/}

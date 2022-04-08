@@ -1,0 +1,2 @@
+#!/bin/sh
+sed -E 's/\[(NO|YES)/\n  &\t/g; s/[,;] /\n&/g '; echo
