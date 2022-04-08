@@ -1,2 +1,1 @@
-o=$(gzip -kc "$1" | base64 -w 120)
-echo "echo \"$o\" | base64 -d | zcat > $1" 
+.probably-useful/base64-file

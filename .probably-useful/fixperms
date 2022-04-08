@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if find -version  | grep -q 'GNU findutils'; then
+	true
+else 
+	echo $0 works with GNU find.
+	exit 1
+fi
+
+if [ $# -lt 1 ] ; then
+	echo usage:
+	echo `basename "$0"` ' /path/ [dir_mask=755] [file_mask=644] [user] [group]'
+	exit 1
+fi
+
+tmp=`mktemp /tmp/fixperms.XXX`
+
+target=${1:-.}
+dir_permissions=${2:-755}
+file_permissions=${3:-644}
+new_user=${4:-$USER}
+new_group=${5:-`id -gn $new_user`}
+
+if  [ ! -e "$target" ]; then
+	echo error: $target is not a file or a folder ;
+	exit 1
+fi
+
+if [[ -z $FIXPERMS_QUIET ]]; then
+	find "$target" -printf "%u:%g %m %p\n" > $tmp
+fi
+
+if [ $# -eq 4 ];then
+	sudo chown $new_user -R $target 
+fi
+
+if [ $# -eq 5 ];then
+	sudo chown $new_user:$new_group -R $target 
+fi
+
+sudo find $target -type d -exec chmod $dir_permissions {} +
+sudo find $target -type f -exec chmod $file_permissions {} +
+
+if [[ -z $FIXPERMS_QUIET ]]; then
+	echo old permissions were recorded in  $tmp
+fi

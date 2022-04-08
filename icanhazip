@@ -1,6 +1,1 @@
-#!/bin/bash
-ip= 
-type dig &>/dev/null && ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
-[[ -z $ip ]] && ip=$(curl -s ifconfig.me)
-[[ -z $ip ]] && ip=$(curl -s http://checkip.dyndns.org/ | grep -o "[[:digit:].]\+")
-printf "%s\n" $ip
+.probably-useful/icanhazip

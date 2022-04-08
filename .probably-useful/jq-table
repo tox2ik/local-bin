@@ -1,0 +1,2 @@
+ #!/bin/sh
+ exec sh -c "jq -rf ~/src/jq/obects-2-table.jq | column -ts $'\t'"

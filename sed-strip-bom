@@ -1,2 +1,1 @@
-#!/bin/sh
-sed 's/\xEF\xBB\xBF//'
+.probably-useful/sed-strip-bom

@@ -1,1 +1,1 @@
-cut -c 1-$(tput cols)
+.probably-useful/cutt

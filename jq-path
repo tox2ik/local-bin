@@ -1,2 +1,1 @@
-#!/usr/bin/jq -rf
-path(..)
+.probably-useful/jq-path

@@ -1,9 +1,1 @@
-#!/bin/bash
-getent passwd | awk -F: '{ print $1 }' | xargs -I% sh -c 'crontab -l -u % | sed "/^$/d; /^#/d; s/^/% /"' 2>/dev/null
-echo
-cat /etc/crontab /etc/anacrontab 2>/dev/null | sed '/^$/d; /^#/d;'
-echo
-run-parts --list /etc/cron.hourly;
-run-parts --list /etc/cron.daily;
-run-parts --list /etc/cron.weekly;
-run-parts --list /etc/cron.monthly;
+.probably-useful/ls-crons

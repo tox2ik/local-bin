@@ -1,1 +1,1 @@
-sed 's/\x1b\[[0-9;]*m//g'
+.probably-useful/strip-ansi-colors

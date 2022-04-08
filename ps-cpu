@@ -1,1 +1,1 @@
-ps -eo pcpu,pid,user,args | sort -k1 -r -n | head -10
+.probably-useful/ps-cpu

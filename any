@@ -1,6 +1,1 @@
-#!/bin/bash
-args=-i
-for i; do
-	args="$args -e $i"
-done
-exec grep -iE $args
+.probably-useful/any

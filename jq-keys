@@ -1,2 +1,1 @@
-#!/usr/bin/jq -f
-keys
+.probably-useful/jq-keys
