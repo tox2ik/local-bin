@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [[ $# -eq 0 ]]; then
+	merge_period=$(
+		qlop -m | cut -c 1-7 | awk-count-dupes |sort -k2 -k1n  | tail -n 7 | awk '$1 > 100 { l=$2} END { print l }'
+	)
+else
+	merge_period=$1
+fi
+
+if [[ $1 == ls ]]; then
+	{
+		echo -e "merges period"
+		qlop -m | cut -c 1-7 | awk-count-dupes |sort -k2 -k1n  | tail -n 12
+		qlop -m | cut -c 1-10 | awk-count-dupes |sort -k2 -k1n  | tail -n 10
+	} | table
+	exit
+fi
+
+
+merged_atoms_during_period() { qlop -m | grep $merge_period | awk-arg-last | sort -u; }
+filter_no_unmerge() { sans unmerge | tr -d : ; }
+filter_table() { column -t -s ' '; }
+sort_by_longest() { sort -k 2n ; }
+
+echo using period $merge_period >&2
+{ for atom in $(merged_atoms_during_period); do
+	echo qlop -Ma $atom; done
+} | parallel -J 32 \
+	| filter_no_unmerge \
+	| filter_table \
+	| sort_by_longest
