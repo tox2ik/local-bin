@@ -2,7 +2,6 @@
 #
 # 2018-05-15 09:04:42 URL:https://raw.githubusercontent.com/march-linux/mimi/master/xdg-open [2649/2649] -> "xdg-open" [1]
 
-
 readonly CONFIG="$HOME/.Profile/xdg-open/mime.conf"
 
 find_in_config() {
@@ -15,7 +14,7 @@ need_terminal() {
 }
 
 find_exec_in_desktop_file() {
-	awk -F '[= ]' '$1 == "Exec" {print $2; exit}'
+	awk -F '[= ]' '$1 == "Exec" { for (i=2; i<=NF ; i++) { printf "%s ", $(i) }; print ""; exit}'
 }
 
 find_desktop_file_by() {
@@ -68,24 +67,23 @@ protocol=''
 mime=''
 general_mime=''
 
-# fix file://
 if [[ "$arg" =~ ^file://(.*)$ ]]; then
-	# strip file://
+	: strip file://
 	arg="$(url_decode <<<"${BASH_REMATCH[1]}")"
 	protocol=file
 fi
 
+: find ext of file or dir
 if [[ -e "$arg" ]]; then
-	# file or dir
-	mime="$(file -ib "$arg" | cut -d';' -f1)"
+	mime="$(file -ib "$arg" | awk -F';' '{ print $1 }')"
 	if [[ -f "$arg" ]]; then
 		ext="$(tr '[:upper:]' '[:lower:]' <<< "${arg##*.}")"
 	fi
 fi
 
-# protocol to mime ext
+: protocol to mime ext
 if [[ "$arg" =~ ^([a-zA-Z-]+): ]]; then
-	# use protocol to guess mime ext
+	: use protocol to guess mime ext
 	protocol="${BASH_REMATCH[1]}"
 	case "$protocol" in
 		http|https)
@@ -103,20 +101,28 @@ if [[ "$arg" =~ ^([a-zA-Z-]+): ]]; then
 fi
 
 
-# application mime is specific
+: application mime is specific
 [[ "$mime" =~ ^(audio|image|text|video)/ ]] && general_mime="${BASH_REMATCH[1]}/"
 
 exist "$TERM" || TERM="$(find_in_config TERM)"
 
-# config
+if test $ext = desktop; then
+	app=($(find_exec_in_desktop_file <"$arg"))
+	# probably want to shift arg by one.
+	fork_run "${app[@]}" "$arg"
+fi
+
+
+
 for search in $ext $protocol $mime $general_mime; do
+	: open ^ from config ^ search=$search
 	app=($(find_in_config "$search"))
 	[[ "${app[0]}" == TERM ]] && exist "$TERM" && app[0]="$TERM"
 	[[ "${app[*]}" ]] && fork_run "${app[@]}" "$arg"
 done
 
-# .desktop
 for search in $mime $general_mime; do
+	: open ^ from .desktop file on system
 	desktop="$(find_desktop_file_by MimeType "$search")"
 	if [[ "$desktop" ]]; then
 		echo "$desktop"
@@ -130,8 +136,10 @@ for search in $mime $general_mime; do
 	fi
 done
 
-# ask
+
+: ask
 if exist dmenu; then
 	app=($(IFS=: stest -flx $PATH | sort -u | dmenu -p "how to open $arg"))
+	echo $arg >> /tmp/xdg-open.`date +%Y-%m-%d`
 	[[ "${app[*]}" ]] && fork_run "${app[@]}" "$arg"
 fi

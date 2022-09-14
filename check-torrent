@@ -1,4 +1,8 @@
 #!/bin/bash
+if [[ $# -eq 0 ]]; then
+	find -mindepth 1 -maxdepth 1 -name '*torrent' -print0 | xargs -n1 -0 $0
+	exit
+fi
 f=$(mktemp /tmp/check-torrent-XXX)
 ctorrent -c "$1" > $f
 {

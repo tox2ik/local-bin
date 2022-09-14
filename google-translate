@@ -1,5 +1,8 @@
 #!/bin/bash
 
+DEBUG=-D/dev/stderr
+DEBUG=
+
 
 if [[ -z $google_tl_api_key ]]; then
 	google_tl_api_key=$(< ~/.secrets/google/cli-translate-api-key)
@@ -8,7 +11,7 @@ fi
 function translate_v2 {
 	local f=$1 t=$2
 	shift 2
-	curl -X POST https://translation.googleapis.com/language/translate/v2 \
+	curl $DEBUG -X POST https://translation.googleapis.com/language/translate/v2 \
 		-d q="$*" \
 		-d source=$f \
 		-d target=$t \
@@ -27,7 +30,7 @@ function translate_word_from_cache {
 			trim($1) == word { print trim($2); ec=0; exit(0); } END { exit(ec);} '
 }
 function detect_v2 {
-	curl -X POST https://translation.googleapis.com/language/translate/v2/detect \
+	curl $DEBUG -X POST https://translation.googleapis.com/language/translate/v2/detect \
 		-d key=$(< ~/.secrets/google/cli-translate-api-key) \
 		-d q="$*"
 }

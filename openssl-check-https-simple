@@ -1,9 +1,10 @@
 #!/bin/bash
 
 domain=${1:-os-test-eu.objects.eu2.frbit.com}
+port=${2:-443}
 
 function cert_chain {
-	openssl s_client -showcerts -connect $domain:443 < /dev/null 2>/dev/null \
+	openssl s_client -showcerts -connect $domain:$port < /dev/null 2>/dev/null \
 		| sed -n '/-----BEGIN/,/-----END/p' \
 		| sed '/-----BEGIN/i^'
 }

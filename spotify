@@ -1,0 +1,6 @@
+#!/bin/sh
+if wmctrl  -l | awk -v ec=2 '$4 == "Spotify" { ec=0 } END { exit ec } '; then
+	wmctrl -a Spotify
+else
+	exec flatpak run com.spotify.Client
+fi

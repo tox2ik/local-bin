@@ -60,9 +60,8 @@ argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"
 su='sudo su -' g='-geometry'
 #su='sudo su -' g='-geometry'
 
-	l='-sl 360000' #s='-sl 100'
-
-long='-sl 360000'
+   l='-sl 36000' #s='-sl 100'
+long='-sl 36000'
 
 notab='-pe -tabbedex'
 
@@ -90,7 +89,7 @@ function get_height { xrandr  | grep -e '[0-9]\+x[0-9]\++0+0' -o | sed -e 's/...
 function _desktop_height_total { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $2}'; }
 function _desktop_width_total { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'  | awk -Fx '{print $1}'; }
 
-function _monitors { xrandr --listmonitors | awk 'NR==1 { print $2}'; } 
+function _monitors { xrandr --listmonitors | awk 'NR==1 { print $2}'; }
 
 function _count_desktop_wclass { _wmctrl_desktop ${1:-2} | grep ${2:-URxvt_d2} | wc -l; }
 
@@ -114,10 +113,10 @@ function _anticipate_terms { #{{{
 
 function d2 {
 	#xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
-	if [[ `_count_desktop_wclass 1 URxvt_d2` -lt 3 ]]; then	
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30+10+10 &
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30-10+10 &
-		urxvt -name URxvt_d2 -ls +sb $notab $long $g 120x30-10-10 &
+	if [[ `_count_desktop_wclass 1 URxvt_d2` -lt 3 ]]; then
+		urxvt -name URxvt_d2 -ls $notab $long $g 120x30+10+10 &
+		urxvt -name URxvt_d2 -ls $notab $long $g 120x30-10+10 &
+		urxvt -name URxvt_d2 -ls $notab $long $g 120x30-10-10 &
 	else
 		echo we have 3 or more terms here
 	fi
@@ -129,10 +128,10 @@ function d2 {
 
 function d3 {
 	#xrdb -merge ~/.Profile/Xdefaults/Xdefaults.urxvt
-	if [[ `_count_desktop_wclass 2 URxvt_d3` -lt 3 ]]; then	
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30+10+10 &
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30-10+10 &
-		urxvt -name URxvt_d3 -ls +sb $notab $long $g 120x30-10-10 &
+	if [[ `_count_desktop_wclass 2 URxvt_d3` -lt 3 ]]; then
+		urxvt -name URxvt_d3 $notab $long $g 120x30+10+10 &
+		urxvt -name URxvt_d3 $notab $long $g 120x30-10+10 &
+		urxvt -name URxvt_d3 $notab $long $g 120x30-10-10 &
 	else
 		echo we have 3 or more terms here
 	fi

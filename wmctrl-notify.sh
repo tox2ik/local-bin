@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#####
+#####
+export DISPLAY=:0
+#####
+#####
+
 if ! [[ -f /usr/bin/notify-send ]] && type apt &>/dev/null; then
 	sudo apt-get install -y libnotify-bin
 fi

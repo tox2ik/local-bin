@@ -2,13 +2,16 @@
 
 declare -a args=()
 
-for i in "$@";
-do
-	if [[ -f "$i" ]]; then
-		torr=$i
-	else
-		args[${#args[@]}]=$i
-	fi
+if [[ $# -eq 0 ]]; then
+	for i in *.torrent; do
+		bash $0 "$i"
+	done
+	exit
+fi
+
+for i in "$@"; do
+	if [[ -f "$i" ]]; then torr=$i;
+	else args[${#args[@]}]=$i; fi
 done
 
 if ! [[ -f "$torr" ]]; then
@@ -19,5 +22,6 @@ fi
 torr_dir="$(dirname "$torr")"
 torr_fil="$(basename "$torr")"
 cd "$torr_dir"
-ctorrent "$torr_fil" "${args[@]}"
+echo ctorrent "'$torr_fil'" "${args[@]}" >&1
+exec ctorrent -dd "$torr_fil" "${args[@]}"
 

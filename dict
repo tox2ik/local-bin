@@ -15,12 +15,18 @@ if [ ! -x  $COLORIT ]; then
 fi
 
 if [ -x $DICT ]; then
-	found=`$DICT $WORD 1>/dev/null 2>&1; echo $?`
-	if [ 0 -eq $found ]; then
-		echo "$1" >> $HIST
+	found=`$DICT $WORD 2>/dev/null`
+	if [ $? -eq 0 ]; then
+		echo "$WORD" >> $HIST
 	fi
-else 
+	lines=`echo -e "$found" | wc -l`
+	term=`tput lines`
+	if [[ $term -gt 0 && $term -ge $lines ]]; then
+		PAGER=/bin/cat
+	fi
+else
 	echo Install dict from http://sf.net/projects/dict
 fi
 
-$DICT -f "$1" | colorit | $PAGER
+echo -e "$found" | grep -ve From.WordNet | colorit | $PAGER
+#$DICT -f "$WORD" | colorit | $PAGER

@@ -10,11 +10,21 @@ fi
 A_WEEK=604800
 SSH_ADD_LIFE=$A_WEEK
 
-smux "secrets-$(hostname)" "ssh-add ${keys[*]}"
-echo have $(ssh-add -l | wc -l) keys
-if systemctl --user is-enabled -q vpn; then
-	systemctl --user restart vpn
-fi
+out=$(
+	# how to capture only stderr into a var?
+	smux "secrets-$(hostname)" "ssh-add ${keys[*]}" #2>&1
+)
 
-sleep 1
-# bash ~/.Profile/bash/agent-ssh.sh
+## if echo $out | grep -q failed; then
+## 	echo FAIL >&2
+## 	sleep 0.1
+## 	exit 1
+## fi
+
+echo have $(ssh-add -l | wc -l) keys
+
+{ systemctl --user is-enabled -q vpn \
+&& systemctl --user restart vpn & } &
+
+sleep 0.5
+bash ~/.Profile/bash/agent-ssh.sh

@@ -1,5 +1,12 @@
 #!/bin/bash
-if [ $# -lt 2 ]; 
+
+#####
+#####
+export DISPLAY=:0
+#####
+#####
+
+if [ $# -lt 2 ];
 then
 	LAST=`wmctrl -d | sed -n '${ s/\([0-9]\+\).*/\1/ ;p }'`
 fi
@@ -7,10 +14,10 @@ function swap() {
 	local f=${1:-0} l=${2:-$LAST}
 	wmctrl -d | awk -v first=$f -v last=$l '
 		$2 ~ /\*/ { active=$1 }
-		END { 
-			if (active != first) {	goto=first } 
+		END {
+			if (active != first) {	goto=first }
 			else { 					goto=last }
-			system("wmctrl -s " goto) 
+			system("wmctrl -s " goto)
 			print goto
 		}'
 }
