@@ -1,24 +1,47 @@
 #!/bin/bash
 
-jan01 () { date +%s -d `date +%Y-01-01`; }
-dec () { let j=`jan01`; echo $((j + 365*24*3600)); }
+declare -A wd_min=() wd_max=() r_mon=() r_day=()
+declare -A monname=(
+[01]=January [02]=February [03]=March [04]=April [05]=May [06]=June
+[07]=July [08]=August [09]=September [10]=October [11]=November [12]=December)
 
-d=`jan01`;
-dec=`dec`; 
+Y=`date +%Y`
+nY=$(( Y + 1 ))
+jan_01    () { date +%s -d `date +%Y-01-01`; }
+jan_01_ny () { date +%s -d `date +$nY-01-01`; }
 
-while [ $d -lt $dec ]; do
-	date -d@$d '+%Y-%m w %V : %d - %d %B' | tr A-Z a-z
-	let d=$d+604800;
-done | awk '
-{ $7 = $7 + 6;                  # guess the last day in a week
-   if ($7 <  10) { $7 = sprintf("%02d", $7) }
-   if ($7 >= 30) { $7 = "  " }  # hide the last day of last week (spilling over 30/31)
- }
+last_date=`jan_01_ny`;
 
-!_[$3$(NF)]++ {                             # collect unique week-numbers and month
-	month_week[$(NF)]++;                # enumerate the weeks in a month 1-5
-	print $0, "week " month_week[$(NF)] 
-}
+if [[ ! `date -d @$last_date` =~ $nY ]]; then
+	echo bug: wrong year in december 3x
+	exit 1
+fi
 
+set -e
+d=`jan_01`
+while [ $d -lt $last_date ]; do
+	set -- `date -d@$d '+%W %d %m %Y'`
+	#echo W: $1 xx D: $2 M: $3 Y: $4
+	week=$1 day=$2 mon=$3 yer=$4
+	mday=${mon#0}$day
+	if [[ -z ${wd_min[$week]} ]] || [[ $mday -lt ${wd_min[$week]} ]]; then wd_min[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi
+	if [[ -z ${wd_max[$week]} ]] || [[ $mday -gt ${wd_max[$week]} ]]; then wd_max[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi
+	d=$(( d + 24 * 3600 ))
+done
 
-'
+for i in {00..53}; do
+	min=${wd_min[$i]}
+	max=${wd_max[$i]}
+
+	if [[ -n $min ]]; then minr=${r_day[$min]}; fi
+	if [[ -n $max ]]; then maxr=${r_day[$max]}; fi
+
+	if [[ -n $min ]] && [[ -n $max ]]; then
+		m=${r_mon[$min]}
+		mn=${monname[$m]}
+		if [[ $m == 01 ]] && [[ $i == 00 ]]; then
+			i=52
+		fi
+		echo $Y-$m w $i : $minr - $maxr ${mn,,}
+	fi
+done
