@@ -36,7 +36,7 @@ fi
 MAN=$(find ${mans//:/ } | grep "/$1\.")
 READ=$(guesscompress .${MAN##*.})
 $READ $MAN | sed -E '
-	/^.(SH|SS)/!d; 
+	/^.(SH|SS)/!d;
 	s/^.SH //;
 	s/^.SS /    /;
 	s/"//g;

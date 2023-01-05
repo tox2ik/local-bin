@@ -11,3 +11,6 @@ v2022: v2022-url
 
 v2022-install:
 	@echo 'curl https://raw.githubusercontent.com/tox2ik/local-bin/v2022/.probably-useful/.urls | xargs -n1 curl -sO'
+
+lint:
+	file * | grep Bourne-Again |awk -F: '{print $$1}' |sort| xargs -P 16 -n1 shellcheck-count  | sort -k 3,3n

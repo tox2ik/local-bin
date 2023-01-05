@@ -6,7 +6,7 @@ mk_links() {
 		do
 			for j in $c;
 			do
-				if [[ $i != $j ]]; then
+				if [[ $i != "$j" ]]; then
 					ln -snf ~/bin/xe ~/.local/bin/$i-$j;
 				fi
 			done
@@ -74,18 +74,16 @@ get_free_currency_api() {
 # }}}
 
 get_conversion_wolfram() {
-	local response=$(
-		wolfram-alpha $AMOUNT $FROM in $TO \
-			| jq -r '.queryresult.pods[] | select(.primary==true) | .subpods[].plaintext'
-	)
+	local response=$( wolfram-alpha $AMOUNT $FROM in $TO \
+		| jq -r '.queryresult.pods[] | select(.primary==true) | .subpods[].plaintext')
 	if [[ -n $response ]]; then
-			#value=$(echo $response | grep -Eo '[[:digit:]]{1,}\.[[:digit:]]{2}' )
-			value=$(echo $response | tr ' ' \\n  | grep -E '[0-9\.]+' -m1 -o)
-			rate=$(echo "scale=6; $value / $AMOUNT" | bc)
-			printf "%.2f\n" $value
-			echo `date --iso-8601` "$AMOUNT $FROM x $rate $TO = $value" >> ~/Data/currency-conversion-results
-			echo "$AMOUNT $FROM x $rate $TO = $value" >&2
-			echo $response >&2
+		#value=$(echo $response | grep -Eo '[[:digit:]]{1,}\.[[:digit:]]{2}' )
+		value=$(echo $response | tr ' ' \\n  | grep -E '[0-9\.]+' -m1 -o)
+		rate=$(echo "scale=6; $value / $AMOUNT" | bc)
+		printf "%.2f\n" $value
+		echo "`date --iso-8601` $AMOUNT $FROM x $rate $TO = $value" >> ~/Data/currency-conversion-results
+		echo "$AMOUNT $FROM x $rate $TO = $value" >&2
+		echo $response >&2
 	fi
 }
 

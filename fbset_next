@@ -1,27 +1,27 @@
 #!/bin/sh
 
-HOME=/home/jaroslav
-WALLS=$HOME/images/wallpapers/deviant/grafitti
-WALLS1=$HOME/images/wallpapers/s.t.a.l.k.e.r-deviant  
-WALLS2=$HOME/images/wallpapers/deviant/2013-12
+#HOME=/home/jaroslav
+#WALLS=$HOME/images/wallpapers/deviant/grafitti
+#WALLS1=$HOME/images/wallpapers/s.t.a.l.k.e.r-deviant
+#WALLS2=$HOME/images/wallpapers/deviant/2013-12
+#/home/jaroslav/images/wallpapers/deviant/2013-12/The_Bridge_by_Gate_To_Nowhere.jpg
+#/home/jaroslav/images/wallpapers/deviant/2013-12/marchin_on_wallpaper_by_apofiss-d310cb9.jpg
 
-function find_bg {
-	find \
-		$WALLS1 \
-		$WALLS2 \
-		-type f | sort -R | tail -n 1
-}
 
-function fbset_next() {
-	local BG=`find_bg`
-	DISPLAY=${1:-:0.0} fbsetbg -a $BG
+rand() { find ${1:-~/tmp/ss} -type f -not -name current -not -name '*.ini' -not -name '.directory' -not -name '*.tar' -not -name '*.sh' | sort -R | head -n1 | tee -a ~/.last/wall; }
+
+
+function set_bg() {
+	local BG=`rand ${1?~/images/wallpapers}`
+	DISPLAY=${2?:0.0} fbsetbg -a "$BG"
 	echo $BG
 }
 
-#/home/jaroslav/images/wallpapers/deviant/2013-12/The_Bridge_by_Gate_To_Nowhere.jpg
-#/home/jaroslav/images/wallpapers/deviant/2013-12/marchin_on_wallpaper_by_apofiss-d310cb9.jpg
-alias next_wall=fbset_next
+type x-display-1 &>/dev/null && s1=`x-display-1`
+type x-display-2 &>/dev/null && s2=`x-display-2`
+type x-display-3 &>/dev/null && s3=`x-display-3`
 
-echo $0
 
-[ `basename -- "$0"` = "fbset_next" ] && fbset_next $1
+if [[ -n $s1 ]]; then set_bg ~jaro/images/wallpapers $s1; fi
+if [[ -n $s2 ]]; then set_bg ~jaro/images/wallpapers $s2; fi
+if [[ -n $s3 ]]; then set_bg ~jaro/images/wallpapers $s3; fi

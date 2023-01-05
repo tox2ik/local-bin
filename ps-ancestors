@@ -1,0 +1,37 @@
+#!/bin/bash
+
+ps -eo pid=,ppid=,cmd= | awk '
+{
+pid=$1;
+pids[NR]=pid
+ppid[pid]=$2;
+$1=""; $2="";
+sub(/^([[:space:]])+/, "")
+cmd[pid]=$0
+}
+
+END {
+while (p) { }
+
+for (i in pids) {
+	_p = pids[i]
+	p = pids[i]
+
+	L=0
+	CC=""
+	while (p > 0 ) {
+		if (ppid[p]) {
+			L++
+			CC=CC " "  sprintf("%d", ppid[p])
+		}
+		p = ppid[p]
+	}
+
+	printf "%d - %d -%s - %s", _p, L, CC, cmd[_p]
+
+	print ""
+
+	#print "-", L, cmd[_p]
+
+}
+}'

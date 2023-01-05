@@ -21,6 +21,7 @@ declare -A short=(
 	[-f]=-type\ f
 	[-td]=-type\ d
 	[-tf]=-type\ f
+	[-tl]=-type\ l
 	[-n]=-name
 	[-i]=-iname
 	[-max]=-maxdepth
@@ -116,6 +117,7 @@ for i; do
 	s/^@%//
 	s/^-t?f$/-type f/
 	s/^-t?d$/-type d/
+	s/^-t?l$/-type l/
 	s/^-n$/-name/
 	s/^-i$/-iname/
 	')"

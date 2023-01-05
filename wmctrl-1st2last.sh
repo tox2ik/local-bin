@@ -3,6 +3,7 @@
 #####
 #####
 export DISPLAY=:0
+hash x-display-1 && export DISPLAY=`x-display-1`
 #####
 #####
 
@@ -29,19 +30,5 @@ going_to=$(swap $FIRST $LAST)
 wmctrl-wait.sh $going_to
 wmctrl-notify.sh
 
-function detect_screens { # {{{ # not currently used
-	screens=($(
-		for d  in {0..3}; do
-			for s in {0..3}; do
-				ds=:$d.$s
-				DISPLAY=$ds xrandr &>/dev/null && echo $ds
-			done
-		done
-		))
-		for i in ${screens[@]}; do
-			echo DISPLAY=$i swap $1
-			DISPLAY=$i swap $1
-		done
-} # }}}
 
 # vim: fdm=marker

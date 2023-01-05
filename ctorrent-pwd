@@ -21,7 +21,16 @@ fi
 
 torr_dir="$(dirname "$torr")"
 torr_fil="$(basename "$torr")"
-cd "$torr_dir"
-echo ctorrent "'$torr_fil'" "${args[@]}" >&1
-exec ctorrent -dd "$torr_fil" "${args[@]}"
+
+
+function is_running () { ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr_fil"; return $?; }
+
+if is_running; then
+	echo skip $torr_fil
+else
+	cd "$torr_dir"
+	echo ctorrent "'$torr_fil'" "${args[@]}" >&1
+	exec ctorrent -dd -S ${CTORRENT_CTCS:-127.0.0.7:57777} "$torr_fil" "${args[@]}"
+fi
+
 

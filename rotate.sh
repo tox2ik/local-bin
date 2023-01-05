@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck disable=SC2004,SC2021,SC2004,SC2015,SC2268,SC2019,SC2018
 #
 # compiz-rotate-wmctrl - Rotate the cube using wmctrl
 #
@@ -6,6 +7,7 @@
 # Released under GPLv3
 
 VER="1.0"
+
 
 
 function rotate() {
@@ -34,7 +36,7 @@ function usage() {
 # The action to be performed. $ACT could be 'left' or 'right' to rotate
 # left or right, accordingly. $ACT could also be the number of the face
 # to rotate into.
-ACT=$(echo $1 |tr '[A-Z]' '[a-z]')
+ACT=$(echo $1 |tr 'A-Z' 'a-z')
 
 [ "x$ACT" == "x" ] && { usage; exit 1; } || {
   case $ACT in

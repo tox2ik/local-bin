@@ -1,9 +1,7 @@
 #!/bin/bash
 
 #####
-#####
-export DISPLAY=:0
-#####
+export DISPLAY=`x-display-1`
 #####
 
 if ! [[ -f /usr/bin/notify-send ]] && type apt &>/dev/null; then

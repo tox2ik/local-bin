@@ -1,11 +1,10 @@
-#!/bin/busybox sh
 #!/bin/bash
-now=$(date +%F)
-from=$(date -d "$1" +%s)
-to=$(date -d "${2:-$now}" +%s)
+#!/bin/busybox sh
+now=$(  date +%F                 2>/dev/null || /bin/date +%F                )
+from=$( date -d "$1" +%s         2>/dev/null || /bin/date -d "$1" +%s        )
+to=$(   date -d "${2:-$now}" +%s 2>/dev/null || /bin/date -d "${2:-$now}" +%s)
 
 diff=$(( to - from))
-
 
 echo $diff seconds
 echo $(( diff / 3600 )) hours $(( diff % 3600 / 60 )) mins

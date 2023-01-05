@@ -1,6 +1,8 @@
 #!/bin/bash
-
+# shellcheck disable=SC2125,SC2017
 # {{{
+
+winder=/home/jaroslav/.local/bin/winder
 
 small_fn='xft:Terminus:size=12'
 small_fb='xft:UbuntuMono:size=12'
@@ -45,9 +47,10 @@ fb=$fn
 color="-fg 7 "
 argsu="-ls -tr -sh 25 -fb $fb -fn $fn  -w 0  -b 3 +sb"  # Urxvt
 
-argsa="-ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"
-argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"
+argsa="       -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 3 +sb"
 argsb="$color -ls -tr -sh 5 -fb $fb -fn $fn -bw 0 -ib 5 -sb -trsb -sr"
+
+argsa_big="-ls -tr -sh 5 -fb $fbBIG -fn $fnBIG -bw 0 -ib 3 +sb"
 argsfu="-ls -tr -sh 12 -w 0  -b 3 +sb"  # Urxvt
 argsfu_big="-ls -tr -sh 25 -fb $fbBIG -fn $fnBIG  -w 0  -b 3 +sb"  # Urxvt
 
@@ -57,7 +60,8 @@ argsr="-ls -tr -sh 5 -fb $fbru -fn $fnru +sb"
 argsn="-ls -tr -sh 5 -fb $fbmpc -fn $fnmpc +sb"
 
 
-su='sudo su -' g='-geometry'
+g='-geometry'
+#su='sudo su -' 
 #su='sudo su -' g='-geometry'
 
    l='-sl 36000' #s='-sl 100'
@@ -91,7 +95,7 @@ function _desktop_width_total { wmctrl -d | awk -v n=${1:-1} '$1==n { print $9}'
 
 function _monitors { xrandr --listmonitors | awk 'NR==1 { print $2}'; }
 
-function _count_desktop_wclass { _wmctrl_desktop ${1:-2} | grep ${2:-URxvt_d2} | wc -l; }
+function _count_desktop_wclass { _wmctrl_desktop ${1:-2} | grep ${2:-URxvt_d2} -c; }
 
 function _kill_wclas { wmctrl -lpx  | grep ${1:-URxvt_d3} | awk '{ print $3}' | xargs kill; }
 
@@ -101,7 +105,7 @@ function _anticipate_terms { #{{{
 	local count=${3:-1}
 	for i in {1..20}; do
 		#set -x
-		if [[ `winder -n -c $desktop $filter_wclass` -ge $count ]]; then
+		if [[ `$winder -n -c $desktop $filter_wclass` -ge $count ]]; then
 			break
 		fi
 		#set +x
@@ -122,8 +126,9 @@ function d2 {
 	fi
 	_anticipate_terms 1 URxvt_d2 3
 	local w=$(get-res -w)
-	winder 1 URxvt_d2 $(( -w / 100 * 5))
+	$winder 1 URxvt_d2 $(( -w / 100 * 5))
 }
+
 
 
 function d3 {
@@ -137,7 +142,7 @@ function d3 {
 	fi
 	_anticipate_terms 2 URxvt_d3 3
 	local w=$(get-res -w)
-	winder 2 URxvt_d3 $(( w / 100 * 5))
+	$winder 2 URxvt_d3 $(( w / 100 * 5))
 }
 
 function urxvt-error-log {
@@ -159,10 +164,11 @@ function koray2 {
 
 function big { urxvt $l $argsfu_big  &  }
 function bigaterm { aterm $l $argsa_big  &  }
-function flux { aterm -name one $l $argsf  &  }
+function flux { aterm -name one $l $argsa  &  }
 function uni { urxvt  -name one $l $argsu  &  }
 function oneru { export LC_CTYPE=ru_RU.KOI8-R; aterm $l $argsr $g 90x38 &  }
-function sone { echo  aterm  $l $argsb -fg $random_color $g 90x38 &  }
+#function sone { echo  aterm  $l $argsb -fg $random_color $g 90x38 &  }
+function sone {  aterm  $l $argsb  $g 90x38 &  }
 function logterm {
 	logtermfile="/home/jaroslav/tmp/syslog" # the file is a fifo which syslogng logs to
 	argslogterm="-name logterm -ls -tr -sh 5 -fb $fb -fn $fterminus14 -bw 0 -ib 3 -sb -trsb -sr -e cat $logtermfile"
@@ -287,7 +293,7 @@ function resize2 { # {{{
 
 	# {{{
 	for i in {1..60}; do
-		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass -c ` -gt 1 ]]; then
 			break
 		fi
 		sleep 0.03
@@ -331,7 +337,7 @@ function resize3 { #{{{
 	function left_bot { wmctrl -i -r $1 -e 0,2,`y_middle`,`width_right`,`height_half2`; }
 	# {{{
 	for i in {1..60}; do
-		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass | wc -l ` -gt 1 ]]; then
+		if [[ `_wmctrl_desktop $desktop | grep $filter_wclass -c` -gt 1 ]]; then
 			break
 		fi
 		sleep 0.03

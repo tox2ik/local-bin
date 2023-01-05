@@ -1,7 +1,8 @@
 #!/bin/bash
 for p in /dev/pts/*; do
-	for i in $(sudo fuser $p); do
-		ps -o pid= -o command= -p $i; 
-	done; 
+	echo $p:
+	for i in $(sudo fuser $p 2>/dev/null); do
+		ps -o pid= -o command= -p $i;
+	done;
 	echo
 done

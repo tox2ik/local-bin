@@ -1,5 +1,5 @@
 #!/bin/bash
-# $ wmctrl -d 
+# $ wmctrl -d
 # 0  - DG: 1680x2250  VP: N/A  WA: 0,0 1680x2250  firefox
 # 1  * DG: 1680x2250  VP: 0,0  WA: 0,0 1680x2250  terms
 # 2  - DG: 1680x2250  VP: N/A  WA: 0,0 1680x2250  misc
@@ -7,10 +7,12 @@
 # $ wmctrl -d | sed -n '/[0-9]\+ \+\*/ { s/ \+.*// ;p}'
 # 1
 
+export DISPLAY=`x-display-1`
+
 WMCTRLD=$(wmctrl -d)
 DESKTOPS=(`echo -e "$WMCTRLD" | sed -n '/^[0-9]/ {  s/ \+.*// ; p; }' | tr $'\n' ' '`)
 CURRENT=$(echo -e "$WMCTRLD" | sed -n '/[0-9]\+ \+\*/ { s/ \+.*// ;p }')
-LASTINDEX=$(( ${#DESKTOPS[@]} -1  )) 
+LASTINDEX=$(( ${#DESKTOPS[@]} -1  ))
 NEXT=$((CURRENT+1))
 PREV=$((CURRENT-1))
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2046
 
 declare -A wd_min=() wd_max=() r_mon=() r_day=()
 declare -A monname=(
@@ -22,7 +23,7 @@ d=`jan_01`
 while [ $d -lt $last_date ]; do
 	set -- `date -d@$d '+%W %d %m %Y'`
 	#echo W: $1 xx D: $2 M: $3 Y: $4
-	week=$1 day=$2 mon=$3 yer=$4
+	week=$1 day=$2 mon=$3
 	mday=${mon#0}$day
 	if [[ -z ${wd_min[$week]} ]] || [[ $mday -lt ${wd_min[$week]} ]]; then wd_min[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi
 	if [[ -z ${wd_max[$week]} ]] || [[ $mday -gt ${wd_max[$week]} ]]; then wd_max[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi

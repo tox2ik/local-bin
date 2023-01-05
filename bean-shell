@@ -1,2 +1,0 @@
-#!/bin/bash
-java -jar ~/lib/bsh/bsh-2.0b4.jar

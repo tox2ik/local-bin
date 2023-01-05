@@ -6,6 +6,7 @@ df_input() {
 		[[ $1 = m ]] && { block=1m unit=megs; }
 		[[ $1 = t ]] && { block=1t unit=ters; }
 		{
+		 2>/dev/null \
 		 df  -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} | grep -v -e /snap/ -e Filesystem | sort -b -k 2,2 -k 1,1 -k 7,7
 		} | sort -u -k1,1 | sort -k 6n
 }

@@ -158,8 +158,11 @@ ec=$?
 if [[ $ec -ne 0 ]] && is_done; then
 		echo -e "seed\t$size\t$torr"
 
-		verb ctorrent -e 8760 -S 127.0.0.1:2780 -dd "'$torr_fil'"
-		exec ctorrent -e 8760 -S 127.0.0.1:2780 -dd "$torr_fil"
+		serv=${CTORRENT_CTCS:-127.0.0.7:57777}
+
+		seed_hours=336 # two weeks
+		verb ctorrent -e $seed_hours -S $serv -dd "'$torr_fil'"
+		exec ctorrent -e $seed_hours -S $serv -dd "$torr_fil"
 
 else
 		if is_skip; then

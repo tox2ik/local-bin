@@ -12,6 +12,7 @@ SSH_ADD_LIFE=$A_WEEK
 
 out=$(
 	# how to capture only stderr into a var?
+	## ? You could discard the zsh error but restore stderr for the rm command though with (rm -- * 2>&3 3>&-) 3>&2 2> /dev/null
 	smux "secrets-$(hostname)" "ssh-add ${keys[*]}" #2>&1
 )
 
@@ -26,5 +27,7 @@ echo have $(ssh-add -l | wc -l) keys
 { systemctl --user is-enabled -q vpn \
 && systemctl --user restart vpn & } &
 
-sleep 0.5
-bash ~/.Profile/bash/agent-ssh.sh
+sleep 3
+# screen - don't clear after exit?
+
+# bash ~/.Profile/bash/agent-ssh.sh

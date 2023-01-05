@@ -1,8 +1,8 @@
 #!/bin/bash
+# shellcheck disable=SC2046,SC2206
 
 DEBUG=-D/dev/stderr
 DEBUG=
-
 
 if [[ -z $google_tl_api_key ]]; then
 	google_tl_api_key=$(< ~/.secrets/google/cli-translate-api-key)
@@ -45,11 +45,9 @@ default_to=de
 #src=no
 
 for i; do
-	if [[ -n $dashdash ]]; then
-		text=$@
-	fi
+	#if [[ -n $dashdash ]]; then text=$@ fi
 	case $i in
-			--) dashdash=1 ;;
+			#--) dashdash=1 ;;
 			no|nor) dst=no ;;
 			ru|rus) dst=ru ;;
 			de) dst=de ;;
@@ -93,9 +91,13 @@ if [[ ${#args[@]} -ge 1 ]]; then
 		if [[ -n $word ]] \
 				&& [[ -n $translation ]] \
 				&& [[ $translation != null ]] \
-				&& [[ $translation != $word ]]; then
+				&& [[ $translation != "$word" ]]; then
 			mkdir -p ~/lib/words
-			echo $word ^ $translation >> ~/lib/words/$src-to-$dst.glossary
+			if [[ -v nosave ]] || [[ -v NOSAVE ]]; then
+				:
+			else
+				echo $word ^ $translation >> ~/lib/words/$src-to-$dst.glossary
+			fi
 		fi
 	fi
 
@@ -107,7 +109,7 @@ fi
 : '
 todo:
 
-- look up words that can not be guessed to belong to a language from exiting files  
+- look up words that can not be guessed to belong to a language from exiting files
 	$ tl Schuhregal
 	cat: /home/jaroslav/lib/words/en-to-Schuhregal.glossary: No such file or directory
 	curl: (22) The requested URL returned error: 400
