@@ -1,12 +1,10 @@
 #!/bin/bash
 function isnum { [[ $1 =~ ^-*[0-9]+$ ]] && return 0 || return 1; }
-declare -a proc_ids;                  \
-  isnum $1                             \
-	  && proc_ids=( $1                ) \
-	  || proc_ids=( $(pidof ${1:-ps}) )
+declare -a proc_ids;                \
+  isnum $1                           \
+    && proc_ids=( $1                ) \
+    || proc_ids=( $(pidof ${1:-ps}) )
 
 for i in ${proc_ids[@]};
   do reredirect -m /dev/null $i
     done
-
-
