@@ -6,5 +6,4 @@ declare -a proc_ids;                \
     || proc_ids=( $(pidof ${1:-ps}) )
 
 for i in ${proc_ids[@]};
-  do reredirect -m /dev/null $i
-    done
+	{ reredirect -m /dev/null $i; }
