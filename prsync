@@ -1,6 +1,6 @@
 #!/bin/bash -x
 from=${1:-/G/distfiles}
-to=${2:-/R/mirror/gentoo/distfiles}
+to=${2:-/R/os-files/mirror/gentoo/distfiles}
 
 rr() { rsync -a -h -i --info=stats1 "$1" "$to/$1"; };
 export -f rr
