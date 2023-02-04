@@ -1,0 +1,15 @@
+#!/bin/bash -x
+from=${1:-/G/distfiles}
+to=${2:-/R/mirror/gentoo/distfiles}
+
+rr() { rsync -a -h -i --info=stats1 "$1" "$to/$1"; };
+export -f rr
+export to
+
+cd "$from" || { echo "can not cd to '$from'"; exit 2; }
+
+a=`date +%s`
+find -type d -mindepth 1 -print0 | parallel -0 -j32  rr ::::
+find -type f             -print0 | parallel -0 -j32  rr ::::
+
+echo "done in sec: $(( `date +%s` - a ))"
