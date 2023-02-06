@@ -118,17 +118,19 @@ while read fs type gigs used left use mounted; do
 	if [[ $use -gt 88 ]]; then code=136 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 	if [[ $use -gt 98 ]]; then code=204 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 
+	# Rounder numbers.
 	if [[ $gigs -gt 999 ]]; then gigs=$(( gigs /100 *100 )); fi
 	if [[ $gigs -gt 99 ]];  then gigs=$(( gigs /10 *10 )); fi
 	if [[ $gigs -gt 9 ]];   then [[ $((gigs % 10)) -lt 4 ]] && gigs=$(( gigs - gigs%10 )); fi
 
-	if [[ $left -gt 999 ]]; then left=$(( gigs /100 *100 )); fi
-	if [[ $left -gt 99 ]];  then left=$(( gigs /10 *10 )); fi
+	if [[ $left -gt 999 ]]; then left=$(( left /100 *100 )); fi
+	if [[ $left -gt 99 ]];  then left=$(( left /10 *10 )); fi
 	if [[ $left -gt 9 ]];   then [[ $((left % 10)) -lt 4 ]] && left=$(( left - left%10 )); fi
 
+	gigs=${gigs//0/O}
+	left=${left//0/O}
 
-
-	printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}d %-${l_percent}s %s\n" \
+	printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s %s\n" \
 		$_l $_mp $gigs $left $use $__bar
 
 done < <(df_input "$@")
