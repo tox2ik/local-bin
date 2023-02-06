@@ -75,13 +75,13 @@ function _identify {
 	fstype=$(df --output=fstype . | sed 1d) # basename $(dirname $(echo /sys/fs/*/md4))
 	sys=$(find /sys/devices/ -name $block | xargs realpath | sort -u )
 	function part_dev_models {
-		for i in $( find $sys/slaves/ -type l \
+		for i in $( 2>/dev/null find $sys/slaves/ -type l \
 				| sed 's/[0-9]\+$//' \
 				| xargs -n1 basename \
 				| xargs -n1 find /sys/devices -name \
 				| xargs -n1 realpath \
 				| sort -u); do
-			cat $i/device/model
+			[[ -f  $i/device/model ]] && cat $i/device/model
 		done
 	}
 	model=$( (2>/dev/null cat $sys/../device/model ||

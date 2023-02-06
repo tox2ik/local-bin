@@ -1,6 +1,5 @@
 #!/bin/bash -l
 
-source /etc/profile
 
 while true;
 do

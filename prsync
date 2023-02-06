@@ -1,22 +1,38 @@
-#!/bin/bash -x
+#!/bin/bash
 from=${1:-/G/distfiles}
 to=${2:-/R/os-files/mirror/gentoo/distfiles}
+a=`date +%s`
+
 
 rr() {
-if [[ -d "$1" ]]; then d=/; fi
-rsync -a -h -i --info=stats1 "$1$d" "$to/$1$d"; };
+	if [[ -d "$1" ]]; then d=/; fi
+	set -x
+	if timeout 3s rsync -ahi --info=stats1 "$1$d" "$to/$1$d"; then
+		: timo
+	else
+		rsync -ahi --info=progress2,stats1 --no-i-r "$1$d" "$to/$1$d";
+	fi
+};
 export -f rr
 export to
 
-cd "$from" || { echo "can not cd to '$from'"; exit 2; }
 
-a=`date +%s`
+set -e
+set -x
 
-if timeout 20s rsync -a $from/ $to/; then
-	:
+back=$(realpath $PWD)
+
+if [[ -d "$1" ]]; then d=/; fi
+if timeout 4s rsync -a $from$d $to$d; then
+	: now parallel
 else
-	find -mindepth 1 -type d -print0 | parallel -0 -j32  rr ::::
-	find             -type f -print0 | parallel -0 -j32  rr ::::
+	cd "$from" || { echo "can not cd to '$from'"; exit 2; }
+	find -mindepth 1  -maxdepth 2 -type d -print0 | parallel -v -0 -j32  rr ::::
+	find -size +500k              -type f -print0 | parallel -v -0 -j32  rr ::::
 fi
+
+cd "$back" || { echo "can not cd to '$back'"; exit 2; }
+
+rsync -ahi --info=stats1,progress2 --no-i-r "$from$d" "$to$d"
 
 echo "done in sec: $(( `date +%s` - a ))" >&2

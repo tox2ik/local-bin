@@ -14,3 +14,4 @@ v2022-install:
 
 lint:
 	file * | grep Bourne-Again |awk -F: '{print $$1}' |sort| xargs -P 16 -n1 shellcheck-count  | sort -k 3,3n
+

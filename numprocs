@@ -1,1 +1,2 @@
-grep -c ^proc /proc/cpuinfo
+#!/bin/sh
+grep -c ^proc /proc/cpuinfo || getconf _NPROCESSORS_ONLN

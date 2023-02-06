@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #df  -B1g -T  -t{btrfs,fuseblk,ext4}  | sort -u -k 1,1 | sort -b -k 2,2 -k 7,7
 
 df-chart "$@"
@@ -9,17 +9,46 @@ block=1g unit=gigs
 [ "$1" = t ] && { block=1t unit=ters; }
 
 {
-	echo fs type $unit used avail use% mounted;
+	echo þfsþtypeþ$unitþusedþavailþuse%þmounted;
 	df -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} \
 		| grep -v \
 			-e tmpfs \
 			-e /snap/ \
 			-e devtmpfs\
 			-e Filesystem \
-		| sort -b -k 2,2 -k 1,1 -k 7,7
+		| sort -b -k 2,2 -k 1,1 -k 7,7 | while read fs type unit used avail use mounted; do
+
+			current="$fs $type $unit $used $avail $use"
+			if [[ $current == $last ]]; then
+				echo þ ·þ ·þ ·þ ·þ ·þ ·þ$mounted
+			else
+
+				i=0
+			    if [[ ${#fs} -ge 15 ]]; then
+					# shorten /dev/mapper/fooobaaar to map/fooobaaar
+			    	d=$(basename `dirname $fs`)
+					[[ $d == mapper ]] && d=…map
+			    	fs=$d/`basename $fs`
+			    fi
+
+			    for i in {0..12}; do
+			    	[[ ${fs:i:1} == ${fz:i:1} ]] || break; done;
+
+			    if [[ $fs != $fz ]] && [[ $i -gt 5 ]] && [[ /dev/sd != ${fs:0:i} ]]; then
+			    	printf -v _fs " ·%0$((i-3))d…%s" 0 ${fs:i}
+					_fs=${_fs//0/ } #_fs=${_fs//0/-} #_fs=${_fs//0/·} #_fs=${_fs//0/…}
+				else
+					_fs=$fs
+			    fi
+
+				echo "þ$_fsþ$typeþ$unitþ$usedþ$availþ$useþ$mounted"
+			fi
+			last="$fs $type $unit $used $avail $use"
+			fz=$fs
+			done
 } \
-| column -t \
-| sed 's/^/   /'
+| column -ts þ \
+| sed 's/^/ /'
 
 
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # shellcheck disable=SC2046,SC2206
 
-DEBUG=-D/dev/stderr
+DEBUG=-D/dev/stderr\ -v
 DEBUG=
 
 if [[ -z $google_tl_api_key ]]; then
@@ -21,18 +21,31 @@ function translate_word_from_cache {
 	local f=$1 t=$2
 	shift 2
 	word="$*"
-	cat ~/lib/words/$f-to-$t.glossary |
-		awk -F^ -v ec=1 -v word="$word" '
-			function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
-			function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
-			function trim(s) { return rtrim(ltrim(s)); }
+	if [[ ! -f ~/lib/words/$f-to-$t.glossary ]]; then
+		echo ERROR unable to detect dict file\?: ~/lib/words/$f-to-$t.glossary >&2
+	else
+		cat ~/lib/words/$f-to-$t.glossary |
+			awk -F^ -v ec=1 -v word="$word" '
+				function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
+				function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
+				function trim(s) { return rtrim(ltrim(s)); }
 
-			trim($1) == word { print trim($2); ec=0; exit(0); } END { exit(ec);} '
+				trim($1) == word { print trim($2); ec=0; exit(0); } END { exit(ec);} '
+	fi
 }
+
 function detect_v2 {
 	curl $DEBUG -X POST https://translation.googleapis.com/language/translate/v2/detect \
-		-d key=$(< ~/.secrets/google/cli-translate-api-key) \
+		-d key=$google_tl_api_key \
 		-d q="$*"
+}
+
+function exit55error {
+	local answers=$1
+	if test true = `jq 'has("error")' <<< "$answers"`; then
+		jq <<< "$answers"
+		exit 55
+	fi
 }
 
 _detect_confidence80() { jq -r '.data.detections[][]|select(.confidence > 0.8 ) | .language'; }
@@ -72,6 +85,7 @@ if [[ ${#args[@]} -ge 1 ]]; then
 	# detect from language if not given
 	if [[ -z $src ]]; then
 		answers=$(detect_v2 $word)
+		exit55error "$answers"
 		src=$(echo "$answers" | _detect_confidence80)
 		if [[ $src = $dst ]]; then
 			dst=$default_to

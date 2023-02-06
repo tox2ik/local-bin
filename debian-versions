@@ -13,7 +13,7 @@ if [ -f "$ref" ] && [ "$1" != -u ]; then cat $ref; exit; fi
 
 versions=$(
 	curl "https://en.wikipedia.org/wiki/${Os}_version_history" |
-	html2text -nobs -style pretty -width 500 |
+	html2text -nobs -width 500 | # -style pretty 
 	sed -n -e "
 	/^Ubuntu/{
 	  /\[edit/{

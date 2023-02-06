@@ -1,13 +1,47 @@
 #!/bin/bash
 
-jan01 () { date +%s -d `date +${1:-%Y}-01-01`; }
-dec () { j=`jan01 $1`; echo $((j + 365*24*3600)); }
 
-d=`jan01 ${1:-%Y}`;
-dec=`dec ${1:-%Y}`; 
+if [[ $# -eq 2 ]]; then
+	yFrom=$1
+	yTo=$1
+	if [[ ${#1} -eq 4 ]]; then yFrom=$1-01-01; fi
+	if [[ ${#2} -eq 4 ]]; then yTo=$2-01-01; fi
+	d=$( date +%s -d "$yFrom")
+	dec=$( date +%s -d "$yTo")
+else
+
+	jan01 () { date +%s -d `date +${1:-%Y}-01-01`; }
+	dec () { j=`jan01 $1`; echo $((j + 365*24*3600)); }
+
+	d=`jan01 ${1:-%Y}`;
+	dec=`dec ${1:-%Y}`;
+fi
 
 while [ $d -lt $dec ];do
 	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
-	let d=$d+86400; 
-done  | sort -u
-#| awk '!_[$(NF)]++ { print }'
+	let d=$d+86400;
+done
+
+
+#while (( $d < $dec ));do
+#	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
+#	d=$(( d +86400 ))
+#done
+
+#for i in {1..365}; do
+#	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
+#	d=$(( d +86400 ))
+#done
+
+
+#while [ $d -lt $dec ];do
+#	echo "'+%j %Y-%m-%d %B %V %A ' -d@$d"
+#	let d=$d+86400;
+#done | xargs -P12 -n2 date | sort -n
+#
+
+#while [ $d -lt $dec ];do
+#	echo "'+%j %Y-%m-%d %B %V %A' -d@$d"
+#	let d=$d+86400;
+#done | xargs  -n 2  -P0 date
+#| sort -n

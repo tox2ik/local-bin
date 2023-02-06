@@ -7,8 +7,9 @@ df_input() {
 		[[ $1 = t ]] && { block=1t unit=ters; }
 		{
 		 2>/dev/null \
-		 df  -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} | grep -v -e /snap/ -e Filesystem | sort -b -k 2,2 -k 1,1 -k 7,7
-		} | sort -u -k1,1 | sort -k 6n
+		 df  -B$block -T  -x{fuse.sshfs,overlay,devtmpfs,tmpfs} | grep -v -e /snap/ -e Filesystem
+		} | sort -u -k 3nr,3 -k2,2
+		#| sort -k 6n
 }
 
 
@@ -19,6 +20,9 @@ cols() {
 	elif type tput &>/dev/null; then
 		out=$(tput cols)
 	fi
+
+	if [[ $out -gt 120 ]]; then
+		out=120; fi
 	echo $out
 }
 
@@ -45,31 +49,39 @@ label() {
 	fi
 }
 
+block=─
+block=▆
 bar() {
-	local n=$1 replace=${2:-:}
+	local n=$1 replace=${2:-:} last=${3:-\&}
 	#printf "%0${n}d" 0 | tr '0' "$replace"
-	printf "%0${n}d" 0 | sed "s/0/$replace/g"
+	printf "%0${n}d" 0 | sed "s/0/$replace/g; s/.$/$last/"
 }
 
 
 
 l_name=20
+l_mount=15
 l_size=7
 l_left=7
 l_percent=3
 
 if [[ $1 = m ]]; then
 	l_name=20
+	l_mount=16
 	l_size=10
 	l_left=10
 fi
 
 
-width_text=$(( $l_name + $l_size + $l_left + $l_percent + 4))
+width_text=$(( l_name + l_size + l_left + l_percent + l_mount + 4))
 width_bar=$( echo "scale=3; (`cols` -$width_text -2 )" | bc )
 bar_end=$( echo "scale=3; (`cols` -$width_text -2 -1 -3 -2)" | bc )
 
-printf "%${l_name}s %-${l_size}s%-${l_left}s %-${l_percent}s ...%s...\n" fs size left % "`bar $bar_end ' '`"
+
+
+
+printf "%s" `echo -n -e "\e[0m"`
+printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s ...%s...\n" fs mp size left use% "`bar $bar_end ' '`"
 
 #bar $width_text T
 #bar $bar_end '.'
@@ -81,6 +93,9 @@ printf "%${l_name}s %-${l_size}s%-${l_left}s %-${l_percent}s ...%s...\n" fs size
 #echo
 
 
+
+
+# shellcheckignore SC2034
 while read fs type gigs used left use mounted; do
 	if [[ $? -ne 0 ]]; then
 		echo FAIL: $fs
@@ -91,10 +106,31 @@ while read fs type gigs used left use mounted; do
 	width_bar=${width_bar/.*/}
 	[[ -z $width_bar ]] && width_bar=0
 
-	block=─
-	block=▆
 
-	printf "%${l_name}s %-${l_size}s%-${l_left}d %-${l_percent}s %s\n" `label $fs $type` $gigs $left $use `bar $width_bar "$block"`
+	_l=`label $fs $type`
+	_mp=${mounted:0:15}
+	_bar=`bar $width_bar "$block" "▖"`
+	__bar=$_bar
+
+	# bar colors...
+	if [[ $use -gt 0 ]]; then code=36 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 51 ]]; then code=8 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 88 ]]; then code=136 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 98 ]]; then code=204 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+
+	if [[ $gigs -gt 999 ]]; then gigs=$(( gigs /100 *100 )); fi
+	if [[ $gigs -gt 99 ]];  then gigs=$(( gigs /10 *10 )); fi
+	if [[ $gigs -gt 9 ]];   then [[ $((gigs % 10)) -lt 4 ]] && gigs=$(( gigs - gigs%10 )); fi
+
+	if [[ $left -gt 999 ]]; then left=$(( gigs /100 *100 )); fi
+	if [[ $left -gt 99 ]];  then left=$(( gigs /10 *10 )); fi
+	if [[ $left -gt 9 ]];   then [[ $((left % 10)) -lt 4 ]] && left=$(( left - left%10 )); fi
+
+
+
+	printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}d %-${l_percent}s %s\n" \
+		$_l $_mp $gigs $left $use $__bar
+
 done < <(df_input "$@")
 
 
