@@ -82,7 +82,7 @@ if [[ ${#args[@]} -ge 1 ]]; then
 	#word=${args[0]}
 	word=${args[*]}
 
-	# detect from language if not given
+	: detect from language if not given
 	if [[ -z $src ]]; then
 		answers=$(detect_v2 $word)
 		exit55error "$answers"
@@ -90,9 +90,14 @@ if [[ ${#args[@]} -ge 1 ]]; then
 		if [[ $src = $dst ]]; then
 			dst=$default_to
 		fi
+		if [[ -z $src ]]; then
+			echo "$answers" | jq
+			echo cannot detect source language reliably
+			exit 33
+		fi
 	fi
 
-	# look up in local cache file
+	: look up from local cache file
 	result=$(translate_word_from_cache $src $dst $word)
 	translation=$result
 
@@ -100,6 +105,8 @@ if [[ ${#args[@]} -ge 1 ]]; then
 	if [[ -z $result ]]; then
 		result=$(translate_v2 $src $dst $word)
 		translation=$(echo "$result" | _translated_first)
+
+		exit55error "$result"
 
 		# save translation
 		if [[ -n $word ]] \
