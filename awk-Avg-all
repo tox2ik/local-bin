@@ -1,0 +1,9 @@
+#!/bin/bash
+# todo: rewrite in csh?
+awk '{
+	for (c=1; c <= NF; c++) { col[c] += $(c) }
+} END {
+	l = NR
+	for (i in col) { printf col[i] / l " " }
+	print ""
+}'

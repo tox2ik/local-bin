@@ -1,0 +1,10 @@
+#!/bin/bash
+
+pattern=${1:-.}
+
+find /proc -maxdepth 2 -name cwd \
+		| while read i; do
+			[[ -r $i ]] && echo "$i -> `readlink $i`" ;
+		  done \
+		| grep -v fdinfo \
+		| sort -k 3,3

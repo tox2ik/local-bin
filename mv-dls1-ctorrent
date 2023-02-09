@@ -1,0 +1,15 @@
+#!/bin/bash
+dls1() { (cd ~/Downloads; f=$(2>/dev/null ls -rt1 ~/Downloads/*.torrent | tail -n1); [[ -n $f ]] && realpath "$f" ); }
+last=$(dls1)
+base="${last##*/}"
+if [[ $last =~ .*torrent ]]; then
+	mv -t. "$last" && echo "copied '$(escapeshellarg.php "$base" || echo "$base")'"
+	ctorrent-pwd "$base"
+else
+	computer-says-no & disown
+	if [[ -n $base ]]; then
+		echo computer says no: $base
+	else
+		echo computer says no
+	fi
+fi

@@ -1,0 +1,8 @@
+#!/bin/dash
+
+find ${1:-.} -maxdepth 1 -mindepth 1  -type l \
+	| sed 's:^\./::' \
+	| xargs -P0  -I% bash \
+			-c 'echo $(  stest -ah % || stest  -h % || echo "## %"  )^$(  stest -e $(realpath % 2>/dev/null  ) || readlink %)' \
+	| column -ts^
+

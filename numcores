@@ -1,0 +1,2 @@
+#!/bin/sh
+awk '/cpu cores/ { print $NF; exit } ' < /proc/cpuinfo

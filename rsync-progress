@@ -1,0 +1,2 @@
+#!/bin/sh
+rsync "$1" "$2" -a --info=progress2,stats1 --no-i-r  -h

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# todo: group by dir
+
+zoo() { parallel echo ::: "$@" | column -c 3 -ts $'\t'; }
+
+export -f zoo
+find -type l -printf "%P\t%l\n" | parallel -s 700 -m --xargs zoo :::

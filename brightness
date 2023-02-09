@@ -1,0 +1,30 @@
+#!/bin/bash
+
+export DISPLAY=`x-display-1`
+
+current_levels() {
+
+		xrandr --current  --verbose \
+				| grep -e \\bconnected -e Bright \
+				| awk '$2 == "connected" { printf "\n%s", $1 } $1 ~ /Brightness:/ { print " " $2 } ' \
+				| sed '/^$/d'
+}
+
+monitors() { xrandr --current   | awk '$2 == "connected" { print $1 }'; }
+
+
+for i in `monitors`; do
+	cur=`current_levels | awk -v i=$i '$1 == i { print $2 }'`
+	if [ $1 = "down" ]; then
+		new=$(echo $cur-0.1 | bc)
+	fi
+
+	if [ $1 = "up" ]; then
+		new=$(echo $cur+0.1 | bc)
+	fi
+
+	xrandr --output $i --brightness $new
+	echo $cur
+
+done
+

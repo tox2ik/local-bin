@@ -1,0 +1,5 @@
+#!/bin/bash
+host=${2:-u@whe.re}
+target=${3:-$1}
+o=$(gzip -kc "$1" | base64 -w 0)
+echo "echo $o | ssh $host " "\"base64 -d | zcat > $target; chmod +x '$target'\""

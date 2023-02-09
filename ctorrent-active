@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+z2n() { tr '\0' '\n'; }
+
+ps -eo etimes,comm,pid | sort -k1,1nr | awk '$2 == "ctorrent"' | while read s c p; do
+
+	dir=$(realpath /proc/$p/cwd)
+	torr=$(/bin/cat /proc/$p/cmdline | z2n | grep torrent)
+	torr=${torr#ctorrent}
+
+	echo /proc/$p^$dir^$torr;
+
+done | column -ts^

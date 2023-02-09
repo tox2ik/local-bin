@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+bytes=$(stat -c %s "$1")
+from=$1
+
+from_dir=$(dirname "$1")
+from_file=$(basename "$1")
+
+to=$2
+
+if [[ -f "$from" ]] && [[ -d "$to" ]]; then
+	to_dir=$to
+	to=$to_dir/$from_file
+fi
+
+
+set -x
+pv -t -pear  -s $bytes  < "$from" > "$to"

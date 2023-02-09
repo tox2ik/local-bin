@@ -1,0 +1,4 @@
+#!/bin/bash
+url=${1:-google.com}
+curl -L -o /dev/null -w "%{response_code} %{ssl_verify_result} %{time_total} url:$url eff:%{url_effective}\n" "$url"
+

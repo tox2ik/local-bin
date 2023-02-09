@@ -1,0 +1,1 @@
+ps -o %mem,rss,etime,cmd --sort=rss -ewwH | awk '$1 != 0'

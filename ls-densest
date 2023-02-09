@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+n2z() { tr '\n' '\0'; } 
+sort-by-longest-path-first() { sort -k1n -k2 -u | sort -k1,1r | sed 's:^[/ ]\+::' | n2z; }
+print-slashes-in-path() { sed 'h; s:[^/]\+::g; G; s/\n/ /'; }
+
+for i in {1..4}; do
+	find -mindepth 1 -maxdepth 4 -type d | print-slashes-in-path
+done \
+| sort-by-longest-path-first \
+| xargs -P32 -0 -I% echo 'echo $(find "%" | wc -l) "%"' | bash | sort -n | tail -n 80
+
+
+
+# | awk '{
+# 	print length($0)-length($1), $0
+# }'
+
