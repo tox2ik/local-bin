@@ -59,42 +59,30 @@ bar() {
 
 
 
-l_name=20
-l_mount=15
-l_size=7
-l_left=7
-l_percent=3
-
-if [[ $1 = m ]]; then
-	l_name=20
-	l_mount=16
-	l_size=10
-	l_left=10
-fi
-
-
-width_text=$(( l_name + l_size + l_left + l_percent + l_mount + 4))
-width_bar=$( echo "scale=3; (`cols` -$width_text -2 )" | bc )
-bar_end=$( echo "scale=3; (`cols` -$width_text -2 -1 -3 -2)" | bc )
+#l_name=20
+#l_mount=15
+#l_size=7
+#l_left=7
+#l_percent=3
+#
+#if [[ $1 = m ]]; then
+#	l_name=20
+#	l_mount=16
+#	l_size=10
+#	l_left=10
+#fi
 
 
+#width_text=$(( l_name + l_size + l_left + l_percent + l_mount + 4))
+#width_bar=$( echo "scale=3; (`cols` -$width_text -2 )" | bc )
+#bar_end=$( echo "scale=3; (`cols` -$width_text -2 -1 -3 -2)" | bc )
 
 
 printf "%s" `echo -n -e "\e[0m"`
-printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s ...%s...\n" fs mp size left use% "`bar $bar_end ' '`"
+#printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s ...%s...\n" fs mp size left use% "`bar $bar_end ' '`"
 
-#bar $width_text T
-#bar $bar_end '.'
-#echo -n ','
-
-#bar $width_text T
-#bar $bar_end ' '
-#echo -n '<'
-#echo
-
-
-
-
+{
+echo "fsþmpþsizeþleftþuse%þ..."
 # shellcheckignore SC2034
 while read fs type gigs used left use mounted; do
 	if [[ $? -ne 0 ]]; then
@@ -102,23 +90,29 @@ while read fs type gigs used left use mounted; do
 	fi
 	use=${use%%%}
 
-	width_bar=$( echo "scale=3; (`cols` -$width_text -2 )/100 * $use" | bc )
-	width_bar=${width_bar/.*/}
-	[[ -z $width_bar ]] && width_bar=0
+	#width_bar=$( echo "scale=3; (`cols`)/100 * $use" | bc )
+	#width_bar=${width_bar/.*/} # strip comma
+	#[[ -z $width_bar ]] && width_bar=0
+	#
+	width_bar=24
 
+	width_bar=$(( 24 * use/100 ))
 
 	_l=`label $fs $type`
 	_mp=${mounted:0:15}
 	_bar=`bar $width_bar "$block" "▖"`
 	__bar=$_bar
 
-	# bar colors...
-	if [[ $use -gt 0 ]]; then code=36 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
-	if [[ $use -gt 51 ]]; then code=8 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	# bar colors
+	if [[ $use -gt 0  ]]; then code=36  __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 48 ]]; then code=41  __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 58 ]]; then code=64  __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 68 ]]; then code=108 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 78 ]]; then code=100 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 	if [[ $use -gt 88 ]]; then code=136 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 	if [[ $use -gt 98 ]]; then code=204 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 
-	# Rounder numbers.
+	# rounder numbers
 	if [[ $gigs -gt 999 ]]; then gigs=$(( gigs /100 *100 )); fi
 	if [[ $gigs -gt 99 ]];  then gigs=$(( gigs /10 *10 )); fi
 	if [[ $gigs -gt 9 ]];   then [[ $((gigs % 10)) -lt 4 ]] && gigs=$(( gigs - gigs%10 )); fi
@@ -130,9 +124,11 @@ while read fs type gigs used left use mounted; do
 	gigs=${gigs//0/O}
 	left=${left//0/O}
 
-	printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s %s\n" \
-		$_l $_mp $gigs $left $use $__bar
+	##printf "%${l_name}s %-${l_mount}s %-${l_size}s%-${l_left}s %-${l_percent}s %s\n" \
+	##	$_l $_mp $gigs $left $use $__bar
+	echo "$_lþ$_mpþ$gigsþ$leftþ$useþ$__bar"
 
 done < <(df_input "$@")
+} | column -R 1 -tsþ
 
 
