@@ -17,31 +17,13 @@ else
 	dec=`dec ${1:-%Y}`;
 fi
 
+cash=~/.cache/days.$dec
+if [[ -f $cash ]]; then save() { : ;}; cat $cash; exit 0;
+else save() { tee $cash; }; fi
+
+
 while [ $d -lt $dec ];do
 	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
 	let d=$d+86400;
-done
+done | save
 
-
-#while (( $d < $dec ));do
-#	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
-#	d=$(( d +86400 ))
-#done
-
-#for i in {1..365}; do
-#	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
-#	d=$(( d +86400 ))
-#done
-
-
-#while [ $d -lt $dec ];do
-#	echo "'+%j %Y-%m-%d %B %V %A ' -d@$d"
-#	let d=$d+86400;
-#done | xargs -P12 -n2 date | sort -n
-#
-
-#while [ $d -lt $dec ];do
-#	echo "'+%j %Y-%m-%d %B %V %A' -d@$d"
-#	let d=$d+86400;
-#done | xargs  -n 2  -P0 date
-#| sort -n

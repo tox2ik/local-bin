@@ -54,12 +54,44 @@ UTC-3
 Europe/Moscow
 
 UTC-4
+Asia/Dubai
+Asia/Yerevan
+Asia/Kabul
 UTC-5
+
+
+Asia/Singapore
+Asia/Manila
+Asia/Tbilisi
+
+
 UTC-6
 UTC-7
+Asia/Irkutsk
+Asia/Krasnoyarsk
+
 UTC-8
+Asia/Macau
+Asia/Taipei
+Asia/Hong_Kong
+
+Indian/Reunion
+Indian/Mayotte
+Indian/Mahe
+Indian/Kerguelen
+Indian/Comoro
+Indian/Cocos
+Indian/Christmas
+Indian/Antananarivo
+Indian/Maldives
+Indian/Chagos
+Indian/Mauritius
+
 UTC-9
+Asia/Yakutsk
+Asia/Chita
 Japan
+Asia/Vladivostok
 
 "`; do
 	echo $i^ `TZ=$i date -d "$now"`

@@ -90,8 +90,11 @@ declare -A mp=(
 for mount in ${!mp[@]}; do
 	snap=${mp[$mount]}
 	if [[ ! -e /ss/$ymd/$snap ]]; then
+			[[ -n $DEBUG ]] && echo b s snap-r $mount /ss/$ymd/$snap
 			btrfs subvolume snapshot -r $mount /ss/$ymd/$snap &&
 					ln -snf ../$ymd/$snap /ss/last/$snap;
+		else
+			[[ -n $DEBUG ]] && echo have /ss/$ymd/$snap
 	fi
 done
 sync
@@ -123,6 +126,7 @@ for mount in ${!mp[@]}; do
 
 					function incremental {
 						#set -x
+						echo ":ienr: btrfs send -v -p $prev_local /ss/$ymd/$snap | btrfs receive -v /B/rr/$ymd "
 						btrfs send -v -p $prev_local /ss/$ymd/$snap 2>$rr | btrfs receive -v /B/rr/$ymd 2>$rr
 						ps=( "${PIPESTATUS[@]}" )
 						set +x
@@ -140,6 +144,8 @@ for mount in ${!mp[@]}; do
 										|  awk -v u=$parent_uuid  '$(NF-2) == u { print $NF }')
 							#set -x
 							parent_date=${parent%%/*}
+							echo ":reseed: btrfs send /ss/$parent | btrfs receive /B/rr/$parent_date/"
+							mkdir -p /B/rr/$parent_date
 							btrfs send /ss/$parent | btrfs receive /B/rr/$parent_date/
 							set +x
 							incremental

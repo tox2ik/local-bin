@@ -2,6 +2,10 @@
 #
 # 2018-05-15 09:04:42 URL:https://raw.githubusercontent.com/march-linux/mimi/master/xdg-open [2649/2649] -> "xdg-open" [1]
 
+# todo:
+# - dry run
+# - logging
+
 readonly CONFIG="$HOME/.Profile/xdg-open/mime.conf"
 
 find_in_config() {
@@ -94,6 +98,9 @@ if [[ "$arg" =~ ^([a-zA-Z-]+): ]]; then
 			mime=application/x-bittorrent
 			ext=torrent
 			;;
+		ssh)
+			mime=x-scheme-handler/ssh
+			;;
 		irc)
 			mime=x-scheme-handler/irc
 			;;
@@ -106,13 +113,11 @@ fi
 
 exist "$TERM" || TERM="$(find_in_config TERM)"
 
-if test $ext = desktop; then
+if [[ $ext == desktop ]]; then
 	app=($(find_exec_in_desktop_file <"$arg"))
 	# probably want to shift arg by one.
 	fork_run "${app[@]}" "$arg"
 fi
-
-
 
 for search in $ext $protocol $mime $general_mime; do
 	: open ^ from config ^ search=$search

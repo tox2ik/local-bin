@@ -111,6 +111,7 @@ while read fs type gigs used left use mounted; do
 	if [[ $use -gt 78 ]]; then code=100 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 	if [[ $use -gt 88 ]]; then code=136 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 	if [[ $use -gt 98 ]]; then code=204 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
+	if [[ $use -gt 99 ]]; then code=196 __bar=$( printf "%5s" `echo -n -e "\e[38;05;${code}m $_bar\e[0m"`);fi
 
 	# rounder numbers
 	if [[ $gigs -gt 999 ]]; then gigs=$(( gigs /100 *100 )); fi

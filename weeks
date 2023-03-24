@@ -30,6 +30,12 @@ while [ $d -lt $last_date ]; do
 	d=$(( d + 24 * 3600 ))
 done
 
+
+cash=~/.cache/weeks.$last_date
+if [[ -f $cash ]]; then save() { : ;}; cat $cash; exit 0;
+else save() { tee $cash; }; fi
+
+
 for i in {00..53}; do
 	min=${wd_min[$i]}
 	max=${wd_max[$i]}
@@ -45,4 +51,4 @@ for i in {00..53}; do
 		fi
 		echo $Y-$m w $i : $minr - $maxr ${mn,,}
 	fi
-done
+done | save
