@@ -1,0 +1,1 @@
+sudo btrfs subvolume list  -tpcg ${1:-.}
