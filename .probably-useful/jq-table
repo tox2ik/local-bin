@@ -1,2 +1,9 @@
- #!/bin/sh
- exec sh -c "jq -rf ~/src/jq/obects-2-table.jq | column -ts $'\t'"
+#!/bin/sh
+reformat='
+  [.[]| with_entries( .key |= ascii_downcase ) ]
+        |    (.[0] |keys_unsorted | @tsv)
+           , (.[]  |map(.)         |@tsv)
+'
+tab='	'
+
+exec sh -c "jq -r '$reformat' | column -ts '$tab'"
