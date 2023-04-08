@@ -6,12 +6,12 @@ echo btrfs filesystem show
 btrfs filesystem show
 
 echo
-echo btrfs filesystem usage  .
-btrfs filesystem usage  .
+echo btrfs filesystem usage "$where"
+btrfs filesystem usage "$where"
 
 echo
 echo btrfs filesystem df  "$where"
-btrfs filesystem df  "$where"    | tr : , | column  -ts,
+btrfs filesystem df  "$where" | tr : , | column  -ts,
 
 
 
