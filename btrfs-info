@@ -1,0 +1,18 @@
+#!/bin/bash
+
+where=${1:-.}
+
+echo btrfs filesystem show
+btrfs filesystem show
+
+echo
+echo btrfs filesystem usage  .
+btrfs filesystem usage  .
+
+echo
+echo btrfs filesystem df  "$where"
+btrfs filesystem df  "$where"    | tr : , | column  -ts,
+
+
+
+
