@@ -1,0 +1,10 @@
+#!/bin/bash -l
+
+gb=${1:-16000}
+curr=${2:-235}
+
+if [[ `imath "$gb < $curr"` -eq 1 ]]; then
+	echo oops: $gb gb is less than currency $curr
+fi
+
+printf "%1.1f\n" $(math $curr / [ $gb / 1000 ])
