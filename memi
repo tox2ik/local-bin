@@ -1,0 +1,15 @@
+#!/bin/sh
+</proc/meminfo awk '
+/Mem|Cache|Buff/ {
+
+	gsub(":", "", $0);
+	a[NR]=$1;
+	b[NR]=int($2/1024)
+
+} END {
+
+	for (i in a) { printf "%s ",  a[i] };
+	print "";
+	for (i in b) { printf "%s ",  b[i] }
+}
+'| column -t
