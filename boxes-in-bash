@@ -1,0 +1,25 @@
+#!/bin/bash
+echo https://en.wikipedia.org/wiki/Box-drawing_character
+echo
+
+for i in {250..257}; do
+	echo -n echo '-e ';
+	for j in {0..15}; do
+		j=$(echo 'obase=16;'$j | bc ); echo -n "'\u$i$j' ";
+
+	done ;
+	echo ;
+	done | bash
+
+
+echo
+
+for i in {258..259}; do
+	echo -n echo '-e ';
+	for j in {0..15}; do
+		j=$(echo 'obase=16;'$j | bc ); echo -n "'\u$i$j' ";
+
+	done ;
+	echo ;
+	done | bash
+
