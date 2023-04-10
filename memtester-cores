@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cores=$(< /proc/cpuinfo awk '/cores/ { print $NF ; exit }' );
+#cores=$(< /proc/cpuinfo awk '/cores/ { print $NF ; exit }' );
+cores=$(< proc/cpuinfo  awk '/^physical.id/ { p=$NF} /cpu.cores/ { print p, $NF }' | sort -u | awk-sum 2
 kilos=$(< /proc/meminfo awk -v cores=$cores '/Available/ { print int( ($2-1024*400) /cores) "K" }')
 kilos=$(< /proc/meminfo awk -v cores=$cores '/Available/ { print int( ($2- 391200*cores) /cores) "K" }')
 
