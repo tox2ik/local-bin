@@ -71,10 +71,10 @@ function filter_out_hidden {
 ## vars and such
 ##
 # shellcheck disable=SC2034
-validswitches=(-X -l -r -t -C -F -1 -a -A -d -s)
+validswitches=(-X -l -r -t -C -F -1 -a -A -d -s -v)
 PATHS=()
 FPATHS=""
-LSSWITCHES=""
+LSSWITCHES="-v"
 
 
 LS=ls\ --color=auto
@@ -132,11 +132,14 @@ do
 	# shellcheck disable=SC2119
 	( cd "$p"
 
+		#export LC_COLLATE="C"
+
 		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
+		#findspecials | filter_out_hidden |  LC_COLLATE="C" sort -z | xargs -r0 $LS $LSSWITCHES -d --
+		findspecials | filter_out_hidden |   xargs -r0 $LS $LSSWITCHES -d --
 		finddirs_    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES    --
-		findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		[ ${#PATHS[@]} -gt 1 ] && echo
 	)
 done
