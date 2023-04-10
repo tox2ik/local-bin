@@ -12,6 +12,15 @@ kilos=$(< /proc/meminfo awk -v cores=$cores '/Available/ { print int( ($2- 39120
 
 if [[ $1 == all ]]; then
 	seq 0 $cores | sed s/.*/$kilos/ | xargs -t -I% -P$cores memtester % 1
+elif [[ $1 == while ]]; then
+	function avk() { < /proc/meminfo awk -v cores=$cores '/Available/ { print $2 }'; }
+
+	n=0
+	while [[ `avk` -gt 2512000 ]]; do
+		: $((n++))
+		echo C $n
+		memtester 512000K 3 &
+	done
 else
 	for i in $(seq 0 $cores); do
 		o=/tmp/memtester.$$.$i
