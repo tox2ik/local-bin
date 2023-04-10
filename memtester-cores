@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cores=$(< /proc/cpuinfo awk '/cores/ { print $NF ; exit }' );
+kilos=$(< /proc/meminfo awk -v cores=$cores '/Available/ { print int( ($2-1024*400) /cores) "K" }')
+kilos=$(< /proc/meminfo awk -v cores=$cores '/Available/ { print int( ($2- 391200*cores) /cores) "K" }')
+
+
+#echo memtester $kilos ${1:-1}
+
+
+#kilos=2000K
+
+if [[ $1 == all ]]; then
+	seq 0 $cores | sed s/.*/$kilos/ | xargs -t -I% -P$cores memtester % 1
+else
+	for i in $(seq 0 $cores); do
+		o=/tmp/memtester.$$.$i
+		memtester $kilos ${1:-1} > $o &
+		echo $o @ $kilos
+	done
+fi
+
+
+
+#for i in $(seq 0 $cores); do
+#	echo memtester $kilos ${1:-1} \&
+#done
