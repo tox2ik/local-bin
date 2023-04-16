@@ -23,6 +23,7 @@ function _ioz { [[ -n $DEBUG ]] && set -x ; iozone -M -+T -+h `_host` "$@"; }
 function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
 function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
 function q200 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
+function q2000 { _ioz  -I -i{0,1,2} -s 2000m -r 128k |_f;}
 
 function s16  { _ioz -aI -i{0,1,2} -q 64k -g 16m    |_f;}
 function l64  { _ioz -aI -i{0,1,2} -y 128k -n 64m -g 64m |_f; }
@@ -110,7 +111,17 @@ function _label_at_path {
 
 if type "$1" &>/dev/null; then
 	fn=$1; shift
+	a=$(date +%s)
+	n=$(date +%N)
 	$fn "$@"
+	b=$(( `date +%s` - a ))
+	k=$(( (`date +%N` - n) / 1000 / 1000  ))
+	if [[ $b -eq 0 ]]; then
+		echo "${k}ms"
+	else
+		echo "${b}s"
+	fi
+
 elif [[ $# -eq 0 ]]; then
 	grep -e '^$' -e '^function.[a-z]' $0 | sed /v2/q
 fi
