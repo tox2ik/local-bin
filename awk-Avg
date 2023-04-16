@@ -9,4 +9,4 @@ for i; do
 	fi
 	shift
 done
-awk $argv -v argnum=${field:-1} '{ sum+=$(argnum) } END { print int(sum / NR) }'
+awk $argv -v argnum=${field:-1} '{ sum+=$(argnum) } END { printf "%.2f\n", sum/NR }'

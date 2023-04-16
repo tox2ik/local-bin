@@ -7,4 +7,6 @@ if [[ `imath "$gb < $curr"` -eq 1 ]]; then
 	echo oops: $gb gb is less than currency $curr
 fi
 
-printf "%1.1f\n" $(math $curr / [ $gb / 1000 ])
+curr_per_tera=$(math $curr / [ $gb / 1000 ])
+
+printf "%1.1f = %.2f [€$] / %.1f tb\n" $curr_per_tera $curr $(math $gb/1000) | sed  's/\.0\+\>//g'

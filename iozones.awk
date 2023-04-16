@@ -88,11 +88,19 @@ END {
 			   " read all avg " im(score_r/score_rc) "\tmin "  im(min_r,0) "\tmax " im(max_r, 0) "\n",
 			   "write all avg " im(score_w/score_wc) "\tmin " im(min_w,0) "\tmax " im(max_w, 0) "\n";
 
+	  if (score_c_rand_tiny >= 1) {
 	  print "",
 			   " read rnd avg " im(score_r_rand_tiny/score_c_rand_tiny) " tiny \n",
+			   "write rnd avg " im(score_w_rand_tiny/score_c_rand_tiny) " tiny \n";
+	  }
+
+      if (score_c_rand_large >= 1) {
+	  print "",
 			   " read rnd avg " im(score_r_rand_large/score_c_rand_large) " large \n",
-			   "write rnd avg " im(score_w_rand_tiny/score_c_rand_tiny) " tiny \n",
 			   "write rnd avg " im(score_w_rand_large/score_c_rand_large) " large \n";
+	  }
+
+
 	  }
 	  print "",
 			im(score / (score_rc+score_wc)) "\n"
