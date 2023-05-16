@@ -1,0 +1,22 @@
+#!/bin/bash
+
+param=$1
+param="${param%.torrent}.*\.torrent"
+found=$(fd "${param}")
+
+c=$( echo -e "$found" | wc -l)
+
+if [[ $c -eq 1 ]] && [[ -n $found ]]; then
+	dirname "$found" >&2
+	ctorrent-pwd "$found"
+else
+	echo    '# 1:' $1
+	echo    '# p:' $param
+	echo    '# c:' $c
+	echo -e "$found" | sed 's/^/#    /'
+
+	if echo -e "$found" | grep -q -e '\.bf$'; then
+		echo '# ==='
+		echo -e "$found" | grep '\.bf$' | sed "s/^/rm '/;   s/\$/'/" #| sed '/^/rm "/; s/$/"/'
+	fi
+fi
