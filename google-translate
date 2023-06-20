@@ -72,6 +72,10 @@ for i; do
 	shift
 done
 
+if [[ $dst == en ]] && [[ $src == en ]]; then
+	dst=no
+fi
+
 
 ##
 ## single word

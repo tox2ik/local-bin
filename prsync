@@ -18,7 +18,7 @@ export to
 
 
 set -e
-set -x
+#set -x
 
 back=$(realpath $PWD)
 
@@ -33,6 +33,7 @@ fi
 
 cd "$back" || { echo "can not cd to '$back'"; exit 2; }
 
-rsync -ahi --info=stats1,progress2 --no-i-r "$from$d" "$to$d"
+#rsync -ahi --info=stats1,progress2 --no-i-r "$from$d" "$to$d"
+rsync -ahi --no-i-r "$from$d" "$to$d"
 
 echo "done in sec: $(( `date +%s` - a ))" >&2

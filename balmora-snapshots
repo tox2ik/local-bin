@@ -120,18 +120,37 @@ for mount in ${!mp[@]}; do
 					#set -x
 					btrfs send                /ss/$ymd/$snap | btrfs receive /B/rr/$ymd/
 			else
-					rr=/tmp/backups.err.$$
-					echo RR $rr
+					rrs=/tmp/backups.err.$ymd.send.$$
+					rrr=/tmp/backups.err.$ymd.recv.$$
+					echo errors in $rrs $rrr
 					declare -a ps=()
 
 					function incremental {
 						#set -x
-						echo ":incr: btrfs send -v -p $prev_local /ss/$ymd/$snap | btrfs receive -v /B/rr/$ymd "
-						btrfs send -v -p $prev_local /ss/$ymd/$snap 2>$rr | btrfs receive -v /B/rr/$ymd 2>$rr
+						echo ":incr: btrfs send -v -p $prev_local /ss/$ymd/$snap | btrfs receive -v /B/rr/$ymd " | tee $rrr $rrs
+						btrfs send -v -p $prev_local /ss/$ymd/$snap 2>$rrs | btrfs receive -v /B/rr/$ymd 2>$rrr
 						ps=( "${PIPESTATUS[@]}" )
 						set +x
 					}
 
+					#function reseed {
+					# reseed should find the latest possible snapshot and use that as the parent
+					# this is useful if backups fail 4 days in a row or something.
+					#
+					# so on the 20th we should use 16th as the partent if 17-18-19 are missing.
+					#
+					# an exception like this we need to re-transmit from even earlier
+					##
+					## receiving snapshot home uuid=776adb95-9f15-8748-be6a-55a4255808c3, ctransid=1408097 parent_uuid=3a19a0e4-ded6-7441-988d-c786c4abd697, parent_ctransid=1405312
+					## ERROR: cannot find parent subvolume
+					##
+					## This means that the remote end hoes not have the parent volume you have specified on the source.
+					##
+					## eg.
+					#        btrfs send -v -p /ss/2023-04-15/home  /ss/2023-04-20/home  | btrfs receive -v /B/rr/2023-04-20
+					#        btrfs send -v -p /ss/2023-04-15/srv   /ss/2023-04-20/srv   | btrfs receive -v /B/rr/2023-04-20
+					#        btrfs send -v -p /ss/2023-04-15/T     /ss/2023-04-20/T     | btrfs receive    /B/rr/2023-04-20
+					#        btrfs send -v -p /ss/2023-04-15/slash /ss/2023-04-20/slash | btrfs receive    /B/rr/2023-04-20
 					function reseed {
 						# $ errno `imath 141-128`
 						# EACCES 13 Permission denied
@@ -141,7 +160,7 @@ for mount in ${!mp[@]}; do
 							echo -e "\e[33;01m"
 							echo -e "remote end failed  ${ps[0]}"
 							echo -e "\e[0m"
-							eval $(grep -oE '[a-z_]+=[0-9a-z-]+' $rr)
+							eval $(grep -oE '[a-z_]+=[0-9a-z-]+' $rrr)
 							#... if ${ps[0]} == 141
 							parent=$(btrfs subvolume list -sru /ss \
 										|  awk -v u=$parent_uuid  '$(NF-2) == u { print $NF }')

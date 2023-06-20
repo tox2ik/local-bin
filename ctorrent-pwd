@@ -29,8 +29,14 @@ if is_running; then
 	echo skip $torr_fil
 else
 	cd "$torr_dir"
+	if [[ ${#args[@]} -eq 0 ]]; then
+		args=(-dd)
+	fi
+
+	args+=(-S ${CTORRENT_CTCS:-127.0.0.7:57777})
+
 	echo ctorrent "'$torr_fil'" "${args[@]}" >&1
-	exec ctorrent -dd -S ${CTORRENT_CTCS:-127.0.0.7:57777} "$torr_fil" "${args[@]}"
+	exec ctorrent  "$torr_fil" "${args[@]}"
 fi
 
 

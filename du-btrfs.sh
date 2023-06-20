@@ -26,6 +26,6 @@ volumes() {
 		if [[ -e $btrfs_path/$i ]]; then
 			echo bash -c "'awk -v path=$i -f $awk_script <(btrfs filesystem du -s --raw $btrfs_path/$i)'"
 		fi
-	done | parallel -j 0
+	done | parallel -j16
 }
 

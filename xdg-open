@@ -34,7 +34,10 @@ url_decode() {
 }
 
 fork_run() {
-	#echo "$*"
+	if [[ -n $XDG_DEBUG ]]; then
+		echo "$*"
+		exit 0
+	fi
 	"$@" &>/dev/null &
 	exit 0
 }

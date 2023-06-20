@@ -64,7 +64,7 @@ function findspecials {
 
 # bug: ls -[aA] will never work
 function filter_out_hidden {
-	$GREP -zv '^\..*'
+	$GREP -zv -e '^\..*' -e '^System Volume Information$' -e '\$RECYCLE\.BIN'
 }
 
 ##
