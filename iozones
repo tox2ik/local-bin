@@ -27,6 +27,7 @@ function q2000 { _ioz  -I -i{0,1,2} -s 2000m -r 128k |_f;}
 
 function s16  { _ioz -aI -i{0,1,2} -q 64k -g 16m    |_f;}
 function l64  { _ioz -aI -i{0,1,2} -y 128k -n 64m -g 64m |_f; }
+function l2g  { _ioz -aI -i{0,1,2} -y 8m -n 2g -g 2g |_f; }
 
 function a0   { _ioz -aI -i{0,1,2}         |_f;}
 function a2   { _ioz -aI -i{0,1,2} -s 2m   |_f;}
