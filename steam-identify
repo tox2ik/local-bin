@@ -1,0 +1,5 @@
+#!/bin/bash
+locate -r SteamLibrary/ | grep .*SteamLibrary/ -o  |sort -u | while read p; do
+grep name $p/steamapps/*.acf | sed 's/"name"//; s/:/@/; s/\t\+//g' \
+| column -ts@ | sort -t'"' -k2;
+done
