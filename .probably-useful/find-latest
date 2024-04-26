@@ -8,3 +8,5 @@ if [[ $0 == *latest0 ]]; then
 else
 	$find ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\n" | sort -n | strip_1n
 fi
+
+#find /path/to/search -type d \( -path '*/.git' -o -path '*/.svn' -o -path '*/.hg' -o -path '*/.bzr' -o -path '*/CVS' \) -prune -o -print
