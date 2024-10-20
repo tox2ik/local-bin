@@ -1,0 +1,21 @@
+#!/bin/bash
+argv=
+for i; do
+	if [[ $1 =~ ^[0-9,]+$ ]]; then
+		fields="$fields $1"
+	else
+		argv="$argv $1"
+	fi
+	shift
+done
+fields=${fields//,/ }
+awk $argv -v argnum="${fields:-1 2}" '
+BEGIN{ split(argnum,cols," ") }
+{
+    for (i in cols) {
+		if ($(cols[i]) != "") {
+			printf "%s%s", $(cols[i]), OFS }
+		}
+	printf "%s", ORS
+}
+'
