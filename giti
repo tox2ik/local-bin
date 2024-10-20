@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+# Add files to a repo
+# This is useful if you have many files to add
+# For every unstaget file, it can:
+#   - preview: fmt / cat / less
+#   - add / remove
+# Binary files are skipped
+
+
+list_untracked() { git ls-files --other --exclude-standard ${1:-.}; }
+
+if [ $# -eq 0 ]; then
+	{ IFS=$'\n' ;
+		set -e
+		for i in `list_untracked`; do
+			/x/outer/os-files/H1/notes/giti "$i";
+		done
+	}
+	exit 0
+fi
+
+
+f="${1:-}"
+
+prompt='now what? '
+function usage() {
+	echo ==============
+	echo add/rm/cat/fmt
+	echo gcm/gl/gs
+	echo less/head/tail
+	echo pwd/ls/..
+	echo "[dir]"
+}
+
+while [ ${repeat:-1} -eq 1 ]; do
+	repeat=1
+
+	ext="${f##*.}"
+	case $ext in
+		png) echo skip $ext $f; repeat=0; exit ;;
+		jpg) echo skip $ext $f; repeat=0; exit ;;
+		gif) echo skip $ext $f; repeat=0; exit ;;
+		css) echo skip $ext $f; repeat=0; exit ;;
+		html) echo skip $ext $f; repeat=0; exit ;;
+		htm) echo skip $ext $f; repeat=0; exit ;;
+		eps) echo skip $ext $f; repeat=0; exit ;;
+		pdf) echo skip $ext $f; repeat=0; exit ;;
+		zst) echo skip $ext $f; repeat=0; exit ;;
+		gz)  echo skip $ext $f; repeat=0; exit ;;
+		xz)  echo skip $ext $f; repeat=0; exit ;;
+		tar) echo skip $ext $f; repeat=0; exit ;;
+		#*)   echo ext«$ext»   ;;
+	esac
+
+	tar_gz="${f%.*}"
+	tar_ext="${ff##*.}"
+
+	if [[ $tar_ext = tar ]]; then
+		echo skip 'tar.??' $f; exit ;
+	fi 
+
+	if [ -L "$f" ]; then
+		echo skip link $f
+		repeat=0;
+		continue
+	fi
+
+	set -- `wc -lc "$f"`
+
+	if [ $2 -gt 4096 ]; then
+		bytes="kbytes: $(($2/1024))"; else
+		bytes="bytes: $2"; fi
+
+	echo
+	echo file: $f
+	echo lines: $1
+	echo $bytes
+
+
+	read -p "$prompt" repl
+	case $repl in
+
+		j|jq) jq < "$f" ;;
+		exit)  exit 33;;
+		e) exec vim -f "$f" ;;
+		d|rm)   rm -i "$f"; repeat=0;;
+		D)      rm -f "$f"; repeat=0;;
+		m) read -i "$(basename "$f")" -e -p 'basename? ' b
+			dir=$(dirname "$f")
+			mv "$f" "$dir/$b"
+			f="$dir/$b"
+			;;
+		#
+		gs)    git status . -uno ;;
+		gl)    git ls-files --exclude-standard . ;;
+		gcm*)  git commit -m "${repl#gcm }";;
+		a|ga)  git add "$f"; repeat=0;
+			   git -c color.status=always status -s . | tac | tail ;;
+		#
+		\.)       fmt "$f" | cat -n | head -n 5 ;;
+		f)        fmt "$f" ;;
+		c|cat|,)  cat -n "$f" ;;
+		#
+		l|less) less -S "$f";;
+		h)    head -n 10 "$f";;
+		hh)   head -n 20 "$f";;
+		t)    tail -n 10 "$f";;
+		tt)   tail -n 20 "$f";;
+		#
+		#
+		pwd) pwd;;
+		ls|i)  lssort || ls --color=always  -cF ;;
+		..) cd ..; pwd; echo; bash "${0/-prompt/-loop}"; exit ;;
+		'') break ;;
+		help|\?|H) usage ;;
+		*)
+			if [ -d "$repl" ]; then
+				echo
+				cd "$repl"; pwd
+				bash "${0/-prompt/-loop}";
+				exit
+			fi
+			repeat=1
+	esac
+
+done
+
+
