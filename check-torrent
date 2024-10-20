@@ -1,16 +1,49 @@
 #!/bin/bash
+
+## rerun on each .torrent
 if [[ $# -eq 0 ]]; then
-	find -mindepth 1 -maxdepth 1 -name '*torrent' -print0 | xargs -n1 -0 $0
+	find -mindepth 1 -maxdepth 1 -name '*torrent' -print0 | xargs -0 -n1 $0
 	exit
 fi
-f=$(mktemp /tmp/check-torrent-XXX)
-ctorrent -c "$1" > $f
-{
-	echo "$1"
-	if [[ `grep -c ^Directory $f` == 0 ]];then
-		grep -e '^<[0-9]>' -m 1 $f
-	fi
-	grep -e ^Already -e ^Directory $f | awk '!_[$0]++' 
 
-} | tr \\n ' '
-echo
+dots()  {
+	awk '/^Check/ {
+		gsub("Check.*: ", "");
+		printf "."
+	} END { print "" } '
+}
+
+### undots() {
+### 	let n=0
+### 	while read i; do
+### 		if [[ $i =~ ^Check ]]; then
+###     		echo -ne "\b \b"
+### 		fi
+### 		if [[ -n $1 ]] && [[ $n -ge $1 ]]; then break; fi
+### 		(( n++ ))
+### 	done
+### 	echo
+### }
+###
+### find-extents() {
+### 	local x=$( timeout --foreground 2 ctorrent -c "$1" 2>/dev/null \
+### 			| awk '/Check/{ gsub(".*/","", $0); print $0 ; exit }')
+### 	if [[ -z $x ]]; then x=69; fi
+### 	echo $x
+### }
+###
+### N=`find-extents "$1"`
+### for ((i=0; i<N; i++)); do echo -n .; done
+### ctorrent -c "$1" | tee >( undots $N )  > $f
+
+
+f=$(mktemp /tmp/check-torrent-XXX)
+ctorrent -c "$1" | tee >( dots )  > $f
+
+percent=`
+(
+	grep -e ^Already -e ^Directory $f | awk '!_[$0]++'
+	grep -e Already/Total: $f
+) | grep -o '[0-9]\+%' | sort -u`
+
+echo Torrent $percent: $1

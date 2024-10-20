@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+# transforms json into a text table
+# e.g [ {a: 1, b:2}, {a:3, b:4 }] into
+#    a   b
+#    1   2
+#    3   4
 reformat='
   [.[]| with_entries( .key |= ascii_downcase ) ]
         |    (.[0] |keys_unsorted | @tsv)
@@ -6,4 +11,4 @@ reformat='
 '
 tab='	'
 
-exec sh -c "jq -r '$reformat' | column -ts '$tab'"
+exec bash -c "jq -r '$reformat' | column -ts '$tab'"

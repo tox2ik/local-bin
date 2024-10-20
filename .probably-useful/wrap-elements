@@ -59,7 +59,8 @@ if [[ $no_newline = true ]]; then
 fi
 
 if [[ $as_regex_or_expression = true ]]; then
-	cat | tr '\n' "${left_wrap:-|}" | sed "s/$left_wrap$//"; echo
+	elems=$(cat | tr '\n' "${left_wrap:-|}" | sed "s/$left_wrap$//")
+	echo "egrep '($elems)'"
 	exit 0
 fi
 

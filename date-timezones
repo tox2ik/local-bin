@@ -1,10 +1,11 @@
 #!/bin/bash
 
-now="$(date)"
+## --rfc-3339=seconds
 
-if [[ $# -gt 0 ]]; then
-	now="$*"
-fi
+#now="$(date)"
+now="$(date "$@" )"
+
+#if [[ $# -gt 0 ]]; then now="$*" fi
 
 
 #North_Dakota/Beulah
@@ -23,7 +24,8 @@ fi
 # export LC_TIME=en_GB
 
 (
-echo Here^ `date -d "$now"`
+#echo Here^ `date -d "$now"`
+echo Here^ `date "$@"`
 echo - ^ -
 for i in `echo "
 
@@ -94,7 +96,8 @@ Japan
 Asia/Vladivostok
 
 "`; do
-	echo $i^ `TZ=$i date -d "$now"`
+	#echo $i^ `TZ=$i date -d "$now"`
+	echo $i^ `TZ=$i date "$@"`
 done)| column -ts^
 #| sort -k 2b -t^ 
 
