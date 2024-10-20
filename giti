@@ -14,7 +14,7 @@ if [ $# -eq 0 ]; then
 	{ IFS=$'\n' ;
 		set -e
 		for i in `list_untracked`; do
-			/x/outer/os-files/H1/notes/giti "$i";
+			$0 "$i";
 		done
 	}
 	exit 0
@@ -26,9 +26,16 @@ f="${1:-}"
 prompt='now what? '
 function usage() {
 	echo ==============
-	echo add/rm/cat/fmt
-	echo gcm/gl/gs
-	echo less/head/tail
+	echo a=add
+	echo d=rm
+	echo D=rm -f
+	echo c=cat -n
+	echo ,=cat -n
+	echo f=fmt
+	echo m=rename
+	echo .=fmt \| head -n 5
+	echo gcm/gl/gs ~ commit/ls-files/status
+	echo l=less/h=head/t=tail/hh/tt
 	echo pwd/ls/..
 	echo "[dir]"
 }
@@ -86,10 +93,10 @@ while [ ${repeat:-1} -eq 1 ]; do
 		e) exec vim -f "$f" ;;
 		d|rm)   rm -i "$f"; repeat=0;;
 		D)      rm -f "$f"; repeat=0;;
-		m) read -i "$(basename "$f")" -e -p 'basename? ' b
-			dir=$(dirname "$f")
-			mv "$f" "$dir/$b"
-			f="$dir/$b"
+		m) read -i "$(basename "$f")" -e -p 'basename? ' newname
+			fdir=$(dirname "$f")
+			mv "$f" "$fdir/$newname"
+			f="$fdir/$newname"
 			;;
 		#
 		gs)    git status . -uno ;;
@@ -98,9 +105,9 @@ while [ ${repeat:-1} -eq 1 ]; do
 		a|ga)  git add "$f"; repeat=0;
 			   git -c color.status=always status -s . | tac | tail ;;
 		#
+		\,|c|cat) cat -n "$f" ;;
 		\.)       fmt "$f" | cat -n | head -n 5 ;;
-		f)        fmt "$f" ;;
-		c|cat|,)  cat -n "$f" ;;
+		f|fmt)    fmt "$f" ;;
 		#
 		l|less) less -S "$f";;
 		h)    head -n 10 "$f";;
