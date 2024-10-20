@@ -1,10 +1,91 @@
-rm -fr /var/tmp/portage/*
-rm -fr /R/archive/mirror/gentoo/distfiles/*
+#!/bin/bash
 
-find /usr/src/linux | grep -Ee '(\.ko|\.o\.d|\.o|\.cmd)$' | xa rm
-rm -f /usr/src/linux/.tmp_*
-rm -f /usr/src/linux/vmlinux 
+# exec 2>/dev/null
 
-rm -fr /home/jaroslav/.config/skypeforlinux/Cache/*
-rm -fr /home/jaroslav/.cache/mozilla/firefox/*/Cache/*
-rm -fr /home/jaroslav/.cache/mozilla/firefox/*/cache2/*
+function rm-star {
+	local dir=$1
+	if ! hash realpath; then
+		return
+	fi
+	while [[ "$dir" =~ // ]]; do
+		dir=${dir/\/\//\/};
+	done
+	if [[ / == "$(realpath "$dir")" ]]; then
+		echo will not nuke slash.
+		return
+	fi
+	echo nuke [$dir/...]
+	[[ -d "$dir" ]] && echo rm -fr "$dir/"'*'
+}
+
+x-del-p() { xargs -r -0 -I% find "%" -type f -print; }
+x-del-p() { xargs -r -0 -I% find "%" -type f -print -delete ; }
+
+#rm -frv dot/cpanm/*
+#rm -fr -v cache/.ccache/?
+#rm -fr -v cache/.cache/JetBrains/*/index/*
+
+rm-star /var/tmp/portage
+rm-star /root/.gem
+rm-star /root/.npm
+
+rm-star .cache/composer
+rm-star .cache/npm/
+rm-star .cache/pip
+rm-star .cache/go-build
+
+{
+	find \
+	.gem/gem \
+	.cpan/cpan \
+	.opam/opam \
+	.cargo/cargo \
+	.docker/docker \
+	.mozilla/mozilla \
+	.ansible/ansible -type l  -delete
+} &>/dev/null
+{
+	find -maxdepth 5 '(' \
+		-path '*Slack' -or \
+		-path '*discord' -or \
+		-path '*chromium' -or \
+		-path '*skypeforlinux' -or \
+		-path '*chromium-jazzo' -or \
+		-path '*spotify/Browser' -or \
+		-path '*google-chrome' -or \
+		-path '*opera' ')' -print0 \
+		| xargs -0 -I% find "%" '(' \
+		-name 'Service Worker' -or \
+		-name 'Local Storage' -or \
+		-name 'IndexedDB' -or \
+		-name 'Cache' -or \
+		-name 'Code Cache' ')' \
+		-print0 | x-del-p
+} 2>/dev/null
+
+find .cache/spotify/Data -type f -delete
+#find .cache/spotify -name Cache | xargs -r -I% find % -type f -print -delete
+
+{
+	make clean -C /usr/src/linux
+	find -L /usr/src/linux  | grep -Ee '(\.ko|\.o\.d|\.o|\.cmd)$' | xargs -r rm
+	rm -f /usr/src/linux/.tmp_*
+	rm -f /usr/src/linux/vmlinux
+} 2>/dev/null
+
+{
+	rm -fr .cache/mozilla/firefox/*/Cache/*
+	rm -fr .cache/mozilla/firefox/*/cache2/*
+	find .cache/mozilla/firefox -name entries -print0 | x-del-p
+} 2>/dev/null
+
+find .local/share/flatpak/repo/tmp/cache         -type f  -delete
+find .cache/ccache /var/cache/ccache -mindepth 2 -type f  -delete
+
+
+find -maxdepth 5 -path '*minikube/cache' -print0 | x-del-p
+find -maxdepth 5 -path '*ccache/?'       -print0 | x-del-p
+find -maxdepth 5 -path '*cargo/registry' -print0 | x-del-p
+find -maxdepth 5 -path '*opam/default'   -print0 | x-del-p
+find -maxdepth 5 -path '*docker/machine/machines/minikube' -print0 | x-del-p
+find -maxdepth 5 -path '*docker/machine/cache' -print0 | x-del-p

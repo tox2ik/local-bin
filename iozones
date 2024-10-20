@@ -2,20 +2,25 @@
 self=$0
 
 n=0
+vvv=0
 for i; do
 	let n=n+1
 	case $i in
-			-v) let next=n+1; verb=${!next} ;;
-			-v1) verb=1;;
-			-v2) verb=2;;
-			-v3) verb=3;;
-			-q) verb=0;;
+			-v)   shift; let vvv=vvv+1; let next=n+1; verb=${!next} ;;
+			-vv)  shift; verb=2;;
+			-vvv) shift; verb=3;;
+			-v1)  shift; verb=1;;
+			-v2)  shift; verb=2;;
+			-v3)  shift; verb=3;;
+			-q)   shift; verb=0;;
+			--silent) verb=0;;
 	esac
 done
 
 if ! [[ $verb =~ ^[0-9]$ ]]; then
-	verb=0
+	verb=$vvv
 fi
+
 
 _host() { hostname; }
 function _ioz { [[ -n $DEBUG ]] && set -x ; iozone -M -+T -+h `_host` "$@"; }
@@ -23,6 +28,7 @@ function _ioz { [[ -n $DEBUG ]] && set -x ; iozone -M -+T -+h `_host` "$@"; }
 function q2   { _ioz  -I -i{0,1,2} -s 2m   -r 128k |_f;}
 function q20  { _ioz  -I -i{0,1,2} -s 20m  -r 128k |_f;}
 function q200 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
+function q400 { _ioz  -I -i{0,1,2} -s 200m -r 128k |_f;}
 function q2000 { _ioz  -I -i{0,1,2} -s 2000m -r 128k |_f;}
 
 function s16  { _ioz -aI -i{0,1,2} -q 64k -g 16m    |_f;}
@@ -47,6 +53,8 @@ function z264 { _ioz -aI -i{0,1,2} -s 264m -z |_f;}
 function v0 { verb=0; cat "$1" | _sum; }
 function v1 { verb=1; cat "$1" | _sum; }
 function v2 { verb=2; cat "$1" | _sum; }
+
+function id() { _identify; }
 
 
 #function io { (cd $1; bash $self $2 -v0 | tr -d '[a-z] '); }
@@ -73,8 +81,14 @@ function _f {
 }
 function _math { echo "scale=3;$*" | bc; }
 function _identify {
-	block=$(basename $(df --output=source . | sed 1d))
-	fstype=$(df --output=fstype . | sed 1d) # basename $(dirname $(echo /sys/fs/*/md4))
+	function dfso { df . --output=source |sed 1d; }
+	function dffs { df . --output=fstype |sed 1d; }
+	block=$(
+		while [[ "`dfso`" == - ]]; do cd ..; [[ `pwd` == / ]] && break; done
+		basename "`dfso`")
+	fstype=$(
+		while [[ "`dffs`" == - ]]; do cd ..; [[ `pwd` == / ]] && break; done
+		dffs)
 	sys=$(find /sys/devices/ -name $block | xargs realpath | sort -u )
 	function part_dev_models {
 		for i in $( 2>/dev/null find $sys/slaves/ -type l \
@@ -100,7 +114,7 @@ function _identify {
 			block=$(dumpe2fs /dev/md4 -h |&  awk '/Block size/ { print $(NF) / 1024 "k" } ') # btrfs ? other?
 			block=.b-$block
 	fi
-	echo "${model}${chunk}.${fstype}${block}.${time}"
+	echo "${model}${chunk}.${fstype}.${block}.${time}"
 
 }
 
@@ -130,4 +144,6 @@ if type "$1" &>/dev/null; then
 
 elif [[ $# -eq 0 ]]; then
 	grep -e '^$' -e '^function.[a-z]' $0 | sed /v2/q
+else
+	echo pos "'$1'" "'$2'"
 fi

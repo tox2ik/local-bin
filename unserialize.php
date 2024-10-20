@@ -21,7 +21,7 @@ if (count($argv) == 3) {
 
     $res = $fn( $data );
     if (is_scalar($res)) echo $res ; else  print_r($res);
-    //echo 
+    //echo
 } else {
     //$h1 = fopen('r', STDIN);
 

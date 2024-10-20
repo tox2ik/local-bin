@@ -1,5 +1,7 @@
 #!/bin/sh
-f=$1
-t=$2
-shift 2
-rsync "$f" "$t" -a --info=progress2,stats1 --no-i-r  -h "$@"
+#f=$1
+#t=$2
+#shift 2
+#rsync "$f" "$t" -a --info=progress2,stats1 --no-i-r  -h "$@"
+
+rsync -a --info=progress2,stats1 --no-i-r  -h "$@"

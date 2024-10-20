@@ -1,9 +1,18 @@
 #!/bin/bash
-lines=$(ps -eo pid,cmd)
 
-if [[ -n $1 ]]; then
-	echo -e "$lines" | grep -e "$*" | grep -Fve $0
+
+me=$(basename $0)
+
+if false; then true
+elif [[ $me = kpse ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs kill;
+elif [[ $me = 9kpse ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs kill -9;
 else
-	echo -e "$lines" | grep -Fve $0
+
+	lines=$(ps -eo pid,cmd)
+	if [[ $# -gt 0 ]]; then
+		echo -e "$lines" | grep -e "$*" | grep -Fve $0
+	else
+		echo -e "$lines" | grep -Fve $0
+	fi
 fi
 

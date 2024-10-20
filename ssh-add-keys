@@ -27,7 +27,8 @@ echo have $(ssh-add -l | wc -l) keys
 { systemctl --user is-enabled -q vpn \
 && systemctl --user restart vpn & } &
 
-sleep 3
+
+#sleep 3
 # screen - don't clear after exit?
 
 # bash ~/.Profile/bash/agent-ssh.sh

@@ -43,7 +43,18 @@ function detect_v2 {
 function exit55error {
 	local answers=$1
 	if test true = `jq 'has("error")' <<< "$answers"`; then
+
+		message=$(jq -r <<< "$answers" '.error.message')
+		if  echo $message | grep Bad.language.pair: -q; then
+			echo ERROR: $message
+			exit 55
+		fi
+
 		jq <<< "$answers"
+
+		jq -r '"ERROR \(.error.code) \(.error.status);\n\n\(.error.message)"'    <<< "$answers" | fmt
+
+
 		exit 55
 	fi
 }
@@ -99,6 +110,11 @@ if [[ ${#args[@]} -ge 1 ]]; then
 			echo cannot detect source language reliably
 			exit 33
 		fi
+	fi
+
+	if [[ $src == $dst ]]; then
+		echo dunno how to lookup "($src => $dst)"
+		exit 1
 	fi
 
 	: look up from local cache file

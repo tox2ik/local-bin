@@ -9,6 +9,7 @@ elif [ $# -gt 1 ]; then
 else
 	# cmd="qprint  -d ${1:-Fwd1.eml} "
 	cmd="reformime -u ${1:-Fwd1.eml} "
+	# emerge mail-filter/maildrop
 fi
 
 $cmd 2>/dev/null | sed '

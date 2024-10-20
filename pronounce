@@ -1,15 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-text="$@";
+text="$*";
 voice=Hans
 
-mkdir -p ~/tmp/polly.$voice/
+lc=${lc:-de-DE}
+mkdir -p ~/tmp/polly.$lc.$voice/
+mp3="$HOME/tmp/polly.$lc.$voice/$text".mp3
 
-mp3="$HOME/tmp/polly.$voice/$text".mp3
 
 if ! test -f "$mp3"; then
 	aws polly synthesize-speech --engine standard --voice-id $voice \
-		--language-code de-DE --output-format mp3 --text "$text" "$mp3" > /dev/null
+		--language-code $lc --output-format mp3 --text "$text" "$mp3" > /dev/null
 fi
 
 mplayer -quiet -af scaletempo -speed 1.07 "$mp3" | grep ^Play
