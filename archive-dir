@@ -1,0 +1,37 @@
+#!/bin/bash
+# tar a dir
+ext=gz
+comm=gzip
+
+if type pigz &>/dev/null ; then ext=gz;  comm='pigz -T0'; fi
+if type zstd &>/dev/null ; then ext=zst; comm='zstd -T0'; fi
+
+while ! [[ "$1" == "" ]]; do
+
+	if [[ -d "$1" ]]; then
+		dir=${1%/}
+		tar="$dir.tar.$ext"
+
+		a=$(date +%s)
+		tar -c -f "$tar" --use-compress-program="$comm" "$dir"
+		ec=$?
+		b=$(date +%s)
+		if [[ $ec -eq 0 ]] && [[ -f "$tar" ]]; then
+			files=$(tar tf "$tar" | wc -l)
+			{ du -sm "$1";
+			  du -sm "$tar";
+                        } \
+|  awk -v files=$files -v time=$((b-a)) -v nam="$dir" '
+BEGIN { if (time <1) { time=1}}
+NR==1 { before=$1 }
+NR==2 { after=$1 }
+END {
+printf "%ds %d 100%% %d %.0f%% %.0fmb/s %.0ffiles/s %s\n", time,
+	before, after,
+	100*(after/before),
+	before/time, files/time, nam }'
+			rm -rf "$1"
+		fi
+	fi
+	shift
+done
