@@ -3,9 +3,9 @@ set -eu
 if [ -t 0 ]; then
 	echo "$0 wants input on stdin" >&2
 else
-	args=
+	z=
 	for i in "$@"; do
-		args="$args -e $i"
+		 z="$z | grep -Ee '$i'"
 	done
-	exec grep -iaE $args
+	eval "${z:2}"
 fi
