@@ -1,6 +1,16 @@
 #!/bin/bash
+# print columns given as arguments
+#
+# awc 3 4 - print columns 3 and 4
+# or...
+#
+#     $ seq 1 10 | paste - - - - - | awc 1,5
+#     1 5
+#     6 10
+set -eu
 argv=
-for i; do
+fields=
+for i in "$@"; do
 	if [[ $1 =~ ^[0-9,]+$ ]]; then
 		fields="$fields $1"
 	else
