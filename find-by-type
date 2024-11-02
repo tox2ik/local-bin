@@ -1,0 +1,26 @@
+#!/bin/bash
+
+declare -a exttype_video=( mp4 avi mov wmv mkv flv webm mpeg mpg )
+declare -a exttype_audio=( mp3 wav aac ogg flac wma )
+declare -a exttype_image=( jpg jpeg png gif bmp tiff tif webp )
+
+types() { echo $(
+declare -p | sed -n '/declare -a exttype/{ s/=.*// ; s/.*exttype_// ; p}'
+); };
+
+search_files() {
+    local type=$1
+    local extensions=("${!2}")
+    local search_dir=${3:-.}
+
+    eval find "$search_dir" -type f \\\( $(printf -- "-iname '*.%s' -o " "${extensions[@]}" ) -false \\\) -print0
+}
+
+case "$1" in
+    video) search_files $1 exttype_video[@] "${2:-}" ;;
+    audio) search_files $1 exttype_audio[@] "${2:-}" ;;
+    image) search_files $1 exttype_image[@] "${2:-}" ;;
+    #
+	*) echo "Usage: $(basename "$0") <$(types | tr ' ' '|' )> [where]" ;;
+esac
+

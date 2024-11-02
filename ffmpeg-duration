@@ -1,2 +1,10 @@
 #!/bin/bash
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${1:-input.mp4}"
+set -eu
+
+if [ $# -eq 0 ]; then
+	( find-by-type video; find-by-type audio ) |
+ 	parallel --null ffmpeg-duration ::: | awk-sum #| xargs sec2hrs
+else
+	ffprobe -v fatal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${1:-input.mp4}"
+fi
+
