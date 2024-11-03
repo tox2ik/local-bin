@@ -1,0 +1,1 @@
+pv </dev/urandom | pigz >/dev/null

@@ -1,0 +1,12 @@
+#!/bin/sh
+#  (media-libs/harfbuzz-3.4.0-r1:0/3.0.0::gentoo, installed): ebuild is masked or unavailable
+#  (dev-qt/qtcore-5.15.3:5/5.15.3::gentoo, installed): ebuild is masked or unavailable
+#  (dev-qt/qtgui-5.15.3:5/5.15.3::gentoo, installed): ebuild is masked or unavailable
+
+
+input="$@"
+if [[ $# -eq 0 ]]; then
+	input=$(timeout 3 cat | tr '(),' '   '  )
+fi
+echo "$input" | tr ' ' '\n' | grep / | xargs atom-name | sort -u
+

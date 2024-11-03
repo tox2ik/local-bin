@@ -1,0 +1,2 @@
+#!/bin/sh
+exec date --rfc-3339=seconds

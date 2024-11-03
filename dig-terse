@@ -1,0 +1,2 @@
+#!/bin/sh
+dig +noall +answer ${1:-silicamagazine.com}

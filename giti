@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-# Add files to a repo
+# Add files to a repo, one by one.
 # This is useful if you have many files to add
+#
 # For every unstaget file, it can:
 #   - preview: fmt / cat / less
 #   - add / remove
+#
 # Binary files are skipped
 
 
@@ -31,9 +33,11 @@ function usage() {
 	echo D=rm -f
 	echo c=cat -n
 	echo ,=cat -n
-	echo f=fmt
-	echo m=rename
 	echo .=fmt \| head -n 5
+	echo f=fmt
+	echo p=fmt
+	echo m=rename
+	echo i=ignore
 	echo gcm/gl/gs ~ commit/ls-files/status
 	echo l=less/h=head/t=tail/hh/tt
 	echo pwd/ls/..
@@ -65,7 +69,7 @@ while [ ${repeat:-1} -eq 1 ]; do
 
 	if [[ $tar_ext = tar ]]; then
 		echo skip 'tar.??' $f; exit ;
-	fi 
+	fi
 
 	if [ -L "$f" ]; then
 		echo skip link $f
@@ -98,6 +102,7 @@ while [ ${repeat:-1} -eq 1 ]; do
 			mv "$f" "$fdir/$newname"
 			f="$fdir/$newname"
 			;;
+		i) echo "$f" >> .gitignore; repeat=0;;
 		#
 		gs)    git status . -uno ;;
 		gl)    git ls-files --exclude-standard . ;;
@@ -107,7 +112,7 @@ while [ ${repeat:-1} -eq 1 ]; do
 		#
 		\,|c|cat) cat -n "$f" ;;
 		\.)       fmt "$f" | cat -n | head -n 5 ;;
-		f|fmt)    fmt "$f" ;;
+		p|f|fmt)    fmt "$f" ;;
 		#
 		l|less) less -S "$f";;
 		h)    head -n 10 "$f";;

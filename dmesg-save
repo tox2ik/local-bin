@@ -1,0 +1,25 @@
+#!/bin/sh
+
+ts=$(date +%Y.%j.%H%M)
+
+rel=$( uname -r | tr ' ' _)
+
+cpu=$(
+awk -F: '/model.name/ {
+		sub("\\(R)", "", $2);
+		sub("\\(TM)", "", $2);
+
+		sub("CPU @ [0-9]+\\.[0-9]+GHz", "", $2)
+
+		sub("Intel", "", $2);
+		sub("Core", "", $2);
+
+		sub("^ +", "", $2) ;
+		print $2 ; exit(0); } '  /proc/cpuinfo
+)
+
+
+mkdir -p ~/Data/dmesg
+dmesg -Lalways | tee ~/Data/dmesg/`hostname`,$ts,$rel,$cpu
+
+find ~/Data/dmesg/ -type f  | xargs ls -rt | sed 3q

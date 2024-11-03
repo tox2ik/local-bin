@@ -1,0 +1,2 @@
+#!/bin/sh
+sed '/    btrfs/{ s//btrfs/; h; d; };  /        [A-Z]/{ x; G; s/\n        / @ / } '

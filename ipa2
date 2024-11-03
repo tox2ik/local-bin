@@ -1,0 +1,10 @@
+#!/bin/sh
+ip -json  addr  | jq '[.[]|{
+ifname,
+inet4: (.addr_info[] | select(.family== "inet").local),
+inet6: (.addr_info[] | select(.family== "inet6").local),
+mac:.address,
+link_type
+# , broadcast
+}] | [.[]| with_entries(.key|=ascii_downcase)]|(.[0] |keys_unsorted | @tsv) , (.[]|.|map(.) |@tsv)' -r \
+  | column  -t -s '	'

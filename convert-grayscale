@@ -1,0 +1,6 @@
+#!/bin/bash
+ext=${1##*.}
+d=$(dirname "$1")
+b=$(basename "$1" .$ext)
+
+convert "$1" -intensity average -colorspace gray $d/$b.gray.$ext

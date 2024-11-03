@@ -1,0 +1,15 @@
+#!/bin/bash
+set -eu
+if [[ -d ${1:-.} ]]; then
+	find ${1:-.} -not '(' -path node_modules -or -path vendor ')' \
+		-and '(' \
+		-iname '*.tar.zstd' -or \
+		-iname '*.tar.zst' -or \
+		-iname '*.tar.bz2' -or \
+		-iname '*.tar.gz' -or \
+		-iname '*.tar.xz' -or \
+		-iname '*.tar' \
+		')' -print0 | parallel --null $0 :::
+else
+	tar tf "$1" | sed "s@^@$1 @ " #; /\/$/d"
+fi

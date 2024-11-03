@@ -1,0 +1,22 @@
+#!/bin/bash
+set -eu
+newroot="$1"
+
+if [[ $UID -ne 0 ]]; then
+	sudo $0 "$@"
+fi
+
+if ! [[ -d "$newroot" ]]; then
+	echo $newroot is not a dir
+	exit 1
+fi
+
+bash -x -c '
+	for i in dev proc sys; do
+		if ! mountpoint /$newroot/$i; then
+			mount --bind /$i /$newroot/$i
+		fi
+	done
+'
+set -x
+chroot $newroot

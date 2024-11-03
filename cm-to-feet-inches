@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import sys
+
+def cm_to_feet_and_inches(cm):
+    inches = cm / 2.54
+    inchez = inches
+    feet = int(inches // 12)
+    remaining_inches = inches % 12
+    return feet, remaining_inches, inchez
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: ./cm_to_feet.py <centimeters>")
+        sys.exit(1)
+
+    centimeters = float(sys.argv[1])
+    feet, inches, inchez = cm_to_feet_and_inches(centimeters)
+    print(f"{centimeters} cm = {feet}′ {inches:.2f}″ ({inchez:.2f})")

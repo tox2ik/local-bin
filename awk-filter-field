@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [[ $# -eq 0 ]];then
+	echo $(basename $0) '#' pattern
+	exit
+fi
+expr=${2:-.}
+field=${1:-0}
+shift 2
+#set -x
+awk "$@" -v rex="$expr" -v x=$field '$0 ~ rex { print $(x) }'

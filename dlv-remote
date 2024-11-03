@@ -1,0 +1,6 @@
+#!/bin/sh
+l=--log
+l=
+#listn=--listen=$(ec2metadata --local-ipv4):1984
+# go build -gcflags="all=-N -l"
+dlv exec $l --only-same-user=false --listen=127.0.0.1:1984 --headless=true --api-version=2 --accept-multiclient -- "$@"

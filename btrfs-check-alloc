@@ -1,0 +1,4 @@
+btrfs fi df -m ${1:-/home} | sed -n -e "/Data/{ s/\.[0-9][0-9]MiB,*//g; s/=/= /g; p }" |
+awk '{  printf "%s use/alloc= %.2f\n", $0, $(NF)/$(NF-2)  }'  | tee /tmp/btrfs-balance
+
+awk '{ printf "sudo btrfs balance start -dusage=%d /home\n", 100*$(NF) }' /tmp/btrfs-balance

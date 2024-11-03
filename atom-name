@@ -1,0 +1,52 @@
+#!/usr/bin/python3.11
+#!/bin/env python
+
+import sys
+from portage.dep import Atom
+from portage.dep import isvalidatom
+from portage.exception import InvalidAtom
+
+
+sets = []
+bad = []
+
+i = 0
+for pkg in sys.argv[1:]:
+    try:
+        if pkg.startswith("@"):
+            sets.append(pkg)
+            continue
+        if isvalidatom(pkg):
+            print(Atom(pkg).cp)
+            continue
+
+        if pkg == "protected:": continue
+        if pkg == "selected:": continue
+        if pkg == "omitted:": continue
+        if pkg == ">>>": continue
+        if pkg == "Calculating": continue
+        if pkg == "Packages": continue
+        if pkg == "Required": continue
+        if pkg == "Number": continue
+        if pkg == "requires": continue
+        if pkg == "pulled": continue
+        if pkg == "in": continue
+        if pkg == "by": continue
+        if pkg == "All": continue
+
+        if not pkg.startswith("="):
+            pkg = "=" + pkg
+        atom = Atom(pkg)
+        print(atom.cp)
+    except InvalidAtom as ex:
+        i = i+1
+        bad.append(pkg)
+
+if i > 0:
+    print(i, " errors detectet")
+
+
+if len(sets):
+    print("set ", " ".join(sets), file=sys.stderr)
+if len(bad):
+    print("bad ", " ".join(bad), file=sys.stderr)

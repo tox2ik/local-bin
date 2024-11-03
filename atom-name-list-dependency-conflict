@@ -1,0 +1,5 @@
+#!/bin/sh
+
+egrep -e '^[a-z-]+/[a-z-]+:0$' -e 'required.by.\(.*installed'  -o  \
+| sed -e 's/required.by.(//; s/,.installed//' \
+| atom-name-list
