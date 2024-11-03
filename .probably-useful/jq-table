@@ -4,11 +4,8 @@
 #    a   b
 #    1   2
 #    3   4
-reformat='
-  [.[]| with_entries( .key |= ascii_downcase ) ]
-        |    (.[0] |keys_unsorted | @tsv)
-           , (.[]  |map(.)         |@tsv)
-'
 tab='	'
-
+reformat='[.[]| with_entries( .key |= ascii_downcase ) ]
+|    (.[0] |keys_unsorted | @tsv)
+   , (.[]  |map(.)         |@tsv)'
 exec bash -c "jq -r '$reformat' | column -ts '$tab'"
