@@ -1,13 +1,10 @@
 #!/bin/bash
-
-
+# list and grep processes and kill them
 me=$(basename $0)
-
 if false; then true
-elif [[ $me = kpse ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs kill;
-elif [[ $me = 9kpse ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs kill -9;
+elif [[ $me == pse-k  ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs -t kill;
+elif [[ $me == pse-k9 ]]; then pse "$@" | tee /dev/stderr | aa 1 | xargs -t kill -9;
 else
-
 	lines=$(ps -eo pid,cmd)
 	if [[ $# -gt 0 ]]; then
 		echo -e "$lines" | grep -e "$*" | grep -Fve $0
