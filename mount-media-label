@@ -1,0 +1,2 @@
+#!/bin/bash
+mountpoint /media/$1 || sudo mount LABEL=$1 /media/$1
