@@ -1,0 +1,37 @@
+#!/bin/bash
+# copy a single file to some dir
+# search in .
+
+dir=${1}
+term=${2}
+shift 2
+
+if [[ ! -d $dir ]]; then
+	echo arg1 must be target dir >&2
+	exit 1
+fi
+
+if [[ -z $term ]]; then
+	echo arg2 is the search term >&2
+	exit 1
+fi
+
+set -eu
+
+c=$( find . -iname "*$term*" "$@" |
+     wc -l )
+
+if [[ $c -gt 1 ]]; then
+	find . -iname "*$term*" "$@"
+	echo -e "\033[31mToo many matches\033[0m" >&2
+	exit 2
+fi
+
+if [[ $c -eq 1 ]]; then
+	find . -iname "*$term*" "$@" -print0 | xargs -0 -t cp -t "$dir"
+	exit
+fi
+
+if [[ $c -eq 0 ]]; then
+	echo no matches. >&2
+fi
