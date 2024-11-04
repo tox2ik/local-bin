@@ -48,6 +48,7 @@ while [ ${repeat:-1} -eq 1 ]; do
 	repeat=1
 
 	ext="${f##*.}"
+
 	case $ext in
 		png) echo skip $ext $f; repeat=0; exit ;;
 		jpg) echo skip $ext $f; repeat=0; exit ;;
@@ -61,7 +62,13 @@ while [ ${repeat:-1} -eq 1 ]; do
 		gz)  echo skip $ext $f; repeat=0; exit ;;
 		xz)  echo skip $ext $f; repeat=0; exit ;;
 		tar) echo skip $ext $f; repeat=0; exit ;;
-		#*)   echo ext«$ext»   ;;
+		*)
+			mt=$(file -b --mime-type "$f")
+			case $mt in
+				application/x-executable)
+					echo skip $mt $f; repeat=0; exit ;;
+			esac
+		;;
 	esac
 
 	tar_gz="${f%.*}"
