@@ -1,0 +1,24 @@
+#!/bin/sh
+read_bytes=4096
+read_bytes=32768
+
+function is_binary {
+	if [ -e "$1" ]; then
+		count=$(
+			head -c "$read_bytes" "$1" |
+			tr -d '[:graph:][:space:]' |
+			wc -c )
+		if [ $count -gt 0 ]; then
+			echo "$1: binary" >&2
+			return 0;
+		else
+			echo "$1: text" >&2
+			return 1;
+		fi;
+	else
+		echo "$1: file not found" >&2
+		return 2;
+	fi
+}
+
+is_binary "$1"

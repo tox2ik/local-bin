@@ -1,0 +1,5 @@
+#!/bin/sh
+# auto-commit already tracked files and push to every remote
+git add  -u .
+git commit -m "auto-commit `date +%F`"
+git remote | xargs -n1 -P0 timeout 60 git push --quiet

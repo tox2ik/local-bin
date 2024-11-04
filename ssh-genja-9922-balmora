@@ -1,8 +1,0 @@
-#!/bin/bash
-
-while true; do
-	ssh -AR 9922:localhost:22 genja.org
-	echo 'reconnecting to balmora (tunnel via genja) ' `date`
-
-	sleep 1
-done

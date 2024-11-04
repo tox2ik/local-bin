@@ -1,0 +1,4 @@
+#!/bin/bash
+# hxxps://coinbasehelp[.]frb[.]io/hardrss/home/cheedto[.]php?cmd=ae27645d2fd043a464e45ab41f8826d3
+echo $* | sed 's/\[\.]/./g
+s/hxxps/https/'

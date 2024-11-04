@@ -1,0 +1,5 @@
+#!/bin/sh
+ssh ${1:-roy} screen -dmS ip -t Serve timeout 600 iperf3 -s
+ssh ${1:-roy} screen -ls
+ssh ${1:-roy} sh -c 'pidof iperf3 | xargs ps -p'
+iperf3 -c ${1:-roy}

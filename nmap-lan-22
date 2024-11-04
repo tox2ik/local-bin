@@ -1,0 +1,4 @@
+#!/bin/sh
+#nmap 192.168.0.1/24 --min-rate 333000 --min-parallelism 6  --open -oG - -F  | grep /open/ | tr -dc '[0-9] .\n' &
+#nmap 10.0.0.1/24    --min-rate 333000 --min-parallelism 6  --open -oG - -F  | grep /open/ | tr -dc '[0-9] .\n' &
+nmap 192.168.0.1/24 --min-rate 10000 -p 22  -oG - --open | grep /open/ | tr -dc '[0-9] .\n'

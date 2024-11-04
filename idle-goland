@@ -1,0 +1,43 @@
+#!/bin/sh
+# figure out when goland is idle
+while  true; do
+ps --no-headers -e -o comm,%cpu,bsdtime,cputimes,etimes,cmd |
+awk '$1 ~ /java/' |
+grep java.*Goland ; sleep 1;
+
+done | awk -v period=${1:-3600} '
+		BEGIN{
+		    split("", seen)
+		    if (!period) {
+				period=3600
+			}
+		}
+		{
+			rest= NR % period
+		}
+		{
+
+			if (rest == 0) {
+				print "reset-", length(seen)
+		    	split("", seen)
+			}
+			# print length(seen) " seen, cur: " NR % period
+
+		}
+		{
+			buf[ rest ]=$2
+
+			for (i in buf) {
+				n=sprintf("%2.1f", buf[i])
+				seen[n]=true
+
+			};
+
+			ls=length(seen)
+			for (s in seen) {
+				# printf "%d %2.1f", ls, s
+			}
+			# print ""
+		}
+
+'

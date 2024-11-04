@@ -1,0 +1,85 @@
+#!/bin/bash
+
+if [[ $UID != 0 ]]; then
+	exec sudo $0 "$@"
+fi
+
+me=$(basename $0)
+nn=150
+
+isnum() { [[ $* =~ -*[0-9\.]+ ]] && return 0; return 1; }
+
+
+cd /sys/devices/platform/nct6775.656/hwmon/hwmon3
+
+NCT6775_MODE_DC=0
+NCT6775_MODE_PWM=1
+
+
+# 0 Fan control disabled (fans set to maximum speed)
+# 1 Manual mode, write to pwm[0-5] any value 0-255
+# 2 "Thermal Cruise" mode
+# 3 "Fan Speed Cruise" mode
+# 4 "Smart Fan III" mode (NCT6775F only)
+# 5 "Smart Fan IV" mode
+NCT6775_ENABLE_MAX=0
+NCT6775_ENABLE_MANUAL=1
+NCT6775_ENABLE_THERMAL=2
+NCT6775_ENABLE_SPEED=3
+NCT6775_ENABLE_SMART3=4
+NCT6775_ENABLE_SMART5=5
+
+EN_MAX=$NCT6775_ENABLE_MAX
+EN_MANUAL=$NCT6775_ENABLE_MANUAL
+EN_BIOS=$NCT6775_ENABLE_THERMAL ## NO 2 MEANS FULL MAYBE
+EN_BIOS=$NCT6775_ENABLE_SPEED ## 3 NO CHANGE remains on full
+EN_BIOS=$NCT6775_ENABLE_MANUAL ## 3 NO CHANGE remains on full
+EN_BIOS=$NCT6775_ENABLE_SMART3
+EN_BIOS=$NCT6775_ENABLE_SMART5
+
+
+NCT6775_MODE_PWM=1
+
+MODE=$NCT6775_MODE_PWM
+echo $MODE | tee pwm?_mode
+
+if [[ $me == pwm-manual ]] || [[ $me == pwm-set ]] || [[ $me == pwm-on ]]; then
+	for i; { isnum $i && nn=$i; }
+	set -x
+	echo $EN_MANUAL | tee pwm?_enable
+	echo $nn | tee pwm?
+fi
+
+
+if [[ $me == pwm-off ]] || [[ $me == pwm-max ]]; then
+	set -x
+	echo $EN_MAX | tee pwm?_enable
+	echo 255 | tee pwm?
+fi
+
+
+if [[ $me == pwm-auto ]] || [[ $me == pwm-bios ]]; then
+
+	set -x
+	echo $EN_BIOS | tee pwm?_enable
+	echo 90 | tee pwm?
+
+fi
+
+if [[ $me == pwm-info ]];  then
+
+		echo ME = $me
+		set +x
+		paste \
+		  <( grep -e. pwm? ) \
+		  <( grep -e. pwm?_enable ) \
+		  <( grep -e. pwm?_mode ) \
+		  | column -t
+		exit
+
+fi
+
+echo ME = $me
+set +x
+grep -e. pwm? pwm?_enable
+

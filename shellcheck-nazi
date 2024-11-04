@@ -1,0 +1,4 @@
+#!/bin/sh
+export SHELLCHECK_OPTS=
+exec shellcheck -s bash -W 10  "$@"
+#-f gcc

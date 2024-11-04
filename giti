@@ -63,11 +63,20 @@ while [ ${repeat:-1} -eq 1 ]; do
 		xz)  echo skip $ext $f; repeat=0; exit ;;
 		tar) echo skip $ext $f; repeat=0; exit ;;
 		*)
-			mt=$(file -b --mime-type "$f")
-			case $mt in
-				application/x-executable)
-					echo skip $mt $f; repeat=0; exit ;;
-			esac
+			if type file &>/dev/null; then
+				mt=$(file -b --mime-type "$f")
+				case $mt in
+					application/x-executable)
+						echo skip $mt $f; repeat=0; exit ;
+				esac
+			fi
+
+			if type is-binary &>/dev/null; then
+				if is-binary "$f" &>/dev/null; then
+					echo skip binary $f; repeat=0; exit ;
+				fi
+			fi
+
 		;;
 	esac
 
@@ -117,7 +126,8 @@ while [ ${repeat:-1} -eq 1 ]; do
 		a|ga)  git add "$f"; repeat=0;
 			   git -c color.status=always status -s . | tac | tail ;;
 		#
-		\,|c|cat) cat -n "$f" ;;
+		,)     cat -n "$f" ;;
+		c|cat)  cat "$f" ;;
 		\.)       fmt "$f" | cat -n | head -n 5 ;;
 		p|f|fmt)    fmt "$f" ;;
 		#

@@ -1,8 +1,0 @@
-#!/bin/sh
-BS=
-BS=$BS,SC2006
-BS=$BS,SC2046
-BS=$BS,SC2086
-BS=$BS,SC2155
-BS=$BS,SC2219
-echo $1 : `shellcheck -e $BS -s bash -W 10  -f  gcc "$1" | wc -l`

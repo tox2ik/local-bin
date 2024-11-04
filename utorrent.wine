@@ -1,2 +1,0 @@
-#!/bin/dash
-WINEDEBUG="err-all,warn-all,fixme-all" wine ~/.wine/c/Program\ Files/uTorrent/uTorrent.exe "$@"

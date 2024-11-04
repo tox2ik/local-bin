@@ -4,3 +4,7 @@ if wmctrl  -l | awk -v ec=2 '$4 == "Spotify" { ec=0 } END { exit ec } '; then
 else
 	exec flatpak run com.spotify.Client
 fi
+
+# maybe need url support?
+# if [[ "$1" == http://* ]] ;then
+# wine spotify.exe /uri $1

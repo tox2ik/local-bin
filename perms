@@ -1,0 +1,2 @@
+#!/bin/sh
+stat -c '%A %4a %-8U %-8G %u:%g %n' "$@"

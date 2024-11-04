@@ -1,0 +1,3 @@
+#!/bin/sh
+host=${1#ssh://}
+exec urxvt -ls  -e bash -c "ssh -t $host"

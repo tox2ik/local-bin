@@ -1,0 +1,6 @@
+#!/bin/bash
+artisan () { php ~/www/artisan "$@"; }
+artisan ide-helper:eloquent
+artisan ide-helper:generate
+artisan ide-helper:meta
+artisan ide-helper:models -W

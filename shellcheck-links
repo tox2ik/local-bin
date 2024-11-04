@@ -1,0 +1,5 @@
+#!/bin/sh
+shellcheck-bash "$1" \
+	| grep '[SC[0-9]\+]' -o  \
+	| tr -d '][' \
+	| xargs  -I{} echo  https://www.shellcheck.net/wiki/{}
