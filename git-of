@@ -1,0 +1,21 @@
+#/bin/bash
+set -eu
+
+z=${1//\\//} # convert to unix path
+
+trynow() {
+	if [[ -d ${z}/.git ]]; then  echo ${z}/.git ; exit
+	elif [[ -f ${z}/.git ]]; then sed /gitdir:\ /s///p -n ${z}/.git ; exit
+	fi
+}
+
+trynow
+
+if [[ $z = */* ]]; then
+	while [[ $z ]]; do
+		z=${z%/*}
+		[[ -e ${z}/.git ]] && break
+	done
+fi
+
+trynow
