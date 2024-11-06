@@ -71,11 +71,11 @@ while [ ${repeat:-1} -eq 1 ]; do
 				esac
 			fi
 
-			if type is-binary &>/dev/null; then
-				if is-binary "$f" &>/dev/null; then
-					echo skip binary $f; repeat=0; exit ;
-				fi
-			fi
+			#if type is-binary &>/dev/null; then
+			#	if is-binary "$f" &>/dev/null; then
+			#		echo skip binary $f; repeat=0; exit ;
+			#	fi
+			#fi
 
 		;;
 	esac

@@ -1,0 +1,4 @@
+#/bin/sh
+for i in "$@"; do
+echo $i $(
+readlink "$i" || realpath "$i") ;  done

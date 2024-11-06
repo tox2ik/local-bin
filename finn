@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-##!/Users/jaroslav/opt/bash/bin/bash
-#echo -- $@
-#echo -- $1
-#echo "$1"
-#echo "???"
-D=0
+# simplified interface to find
+# examples:
+#
+#    # read-ahead (cat everything into fs-cache)
+#    finn images.from.archives/ -f -0 | xargs -0 -n3 -P40 cat | pv >/dev/null
+
+Debug=0
+
+FIND=/usr/bin/find
+if [ -f $HOME/opt/findutils/libexec/gnubin/find ]; then
+	FIND=$HOME/opt/findutils/libexec/gnubin/find
+fi
+
+#export FIND
 
 where=.
 
@@ -26,41 +34,44 @@ declare -A short=(
 	[-i]=-iname
 	[-max]=-maxdepth
 	[-min]=-mindepth
+	[-S]=-size
+	[-0]=-print0
 )
-# short[-d]=-type\ d
-# short[-f]=-type\ f
-# short[-td]=-type\ d
-# short[-tf]=-type\ f
-# short[-n]=-name
-# short[-i]=-iname
-# short[-max]=-maxdepth
-# short[-min]=-mindepth
 
-declare -a belong_before_path=(
+declare -a before_other=(
 	-maxdepth
 	-mindepth
 )
 
-declare -a arguments_after_path=()
+declare -a arguments_global=()
 declare -a arguments=()
+declare -a terms=()
 declare -a path_arguments=()
-
-# echo "${short[*]}"
-# echo "$@"
 
 and_next=0
 and_next_short=0
-for i;
-do
-	if [ "$i" = "@" ] ; then D=1; continue; fi
+for i in "$@"; do
 
-	if isElementIn "$i" "${belong_before_path[@]}"; then
-		arguments_after_path+=("$i")
-		and_next=1
+	if [ "$i" = "@" ] ; then Debug=1; continue; fi
+
+	if [ ${short[$i]+true} ]; then
+		for si in ${short[$i]}; do
+
+			if isElementIn "$si" "${before_other[@]}"; then
+				arguments_global+=("$si")
+				and_next=1 # e.g. -maxdepth 55 . next is 55
+				# make a map for these to ?
+			else
+				arguments+=($si)
+			fi
+
+		done
 		continue
 	fi
+
+
 	if [ $and_next -eq 1 ]; then
-		arguments_after_path+=("$i")
+		arguments_global+=("$i")
 		and_next=0
 		continue
 	fi
@@ -71,71 +82,64 @@ do
 		continue
 	fi
 
-
-	if [ ${short[$i]+true} ]; then
-		for si in ${short[$i]}; do
-			arguments+=($si)
-		done
-		continue
+	if [[ $i =~ ^[+-] ]]; then
+		arguments+=("$i")
+	else
+		terms+=("$i")
 	fi
 
-	arguments+=("$i")
 done
 
 
-if [ $D -gt 0 ];then
-	echo 
-	echo P: "${path_arguments[@]}"
-	echo AP: "${arguments_after_path[@]}"
-	echo ARG: "${arguments[@]}"
-	for a in "${arguments[@]}"; do
-	    echo ARGz: $a
+if [ $Debug -gt 0 ];then
+	echo
+	echo Path: "${path_arguments[@]}"
+	echo GLOB: "${arguments_global[@]}"
+	echo ARG..: "${arguments[@]}"
+	let ai=1; for a in "${arguments[@]}"; do
+		echo "   .$((ai++)):" $a
 	done
-	echo F: find  "${path_arguments[@]}"  "${arguments_after_path[@]}"  "${arguments[@]}"
-	echo find  "${path_arguments[@]}"  "${arguments_after_path[@]}"  "${arguments[@]}"
-	echo 
+	echo F: find  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}"
+	echo find  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}"
+	echo
+else
+	#exec
+	declare -a tt=()
+	for i in ${terms[@]}; do
+		tt+=(-iname)
+		tt+=(\*"$i"\*)
+	done
+	set -x
+	$FIND  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}" "${tt[@]}"
+		
 fi
 
-FIND=/usr/bin/find
-if [ -f /Users/jaroslav/opt/findutils/libexec/gnubin/find ]; then
-	FIND=/Users/jaroslav/opt/findutils/libexec/gnubin/find
-fi
-export FIND
 
 
-
-for i; do 
-	#echo $i
-	if [ "$i" = "@" ] ; then D=1; break; fi
-
-	if [ -d "$i" ];   then
-		where=$i; continue; fi
-
-	arg="$(
-	# echo bug: echo -n '-n' -n
-	echo @%$i | sed -E '
-	s/^@%//
-	s/^-t?f$/-type f/
-	s/^-t?d$/-type d/
-	s/^-t?l$/-type l/
-	s/^-n$/-name/
-	s/^-i$/-iname/
-	')"
-
-
-	if [[ -z "$args" ]]; then ws=''; else ws=' '; fi # avoid appending a whitespace to a lone arg
-	if [ -n "$arg" ]; then args="$args$ws$arg"; fi
-done
-
-
-
-if [[ "$1" == "$args" ]]; then
-	eval $FIND $where -name "\*$1\*"
-	exit
-fi
-
-if [ $D -gt 0 ];then echo $FIND $where $args; fi
-
-eval $FIND $where $args
+# v1
+#
+#for i; do
+#	if [ "$i" = "@" ]; then D=1;      break; fi
+#	if [ -d "$i"    ]; then where=$i; continue; fi
+#	arg="$(
+#		echo @%$i | sed -E '
+#		s/^@%//
+#		s/^-t?f$/-type f/
+#		s/^-t?d$/-type d/
+#		s/^-t?l$/-type l/
+#		s/^-n$/-name/
+#		s/^-i$/-iname/
+#	')" # echo bug: echo -n '-n' -n
+#	if [[ -z "$args" ]]; then ws=''; else ws=' ';  fi # avoid appending a whitespace to a lone arg
+#	if [[ -n "$arg"  ]]; then args="$args$ws$arg"; fi
+#done
+#if [[ "$1" == "$args" ]]; then
+#	eval $FIND $where -name "\*$1\*"
+#	exit
+#fi
+#if [ $D -gt 0 ];then
+#	echo $FIND $where $args 
+#fi
+#exec $FIND $where $args
 
 
