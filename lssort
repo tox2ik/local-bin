@@ -62,9 +62,17 @@ function findspecials {
 		-printf "%f\0"
 }
 
-# bug: ls -[aA] will never work
 function filter_out_hidden {
-	$GREP -zv -e '^\..*' -e '^System Volume Information$' -e '\$RECYCLE\.BIN'
+	local notdots='^\..*'
+	# show hidden files after all if called like `lssort -[aA]`
+	if [[ $LSSWITCHES =~ -[aA] ]]; then
+		notdots='/x/123/tt/7/1/zzx/ooo/'
+	fi
+	$GREP -zv -e "$notdots" \
+		-e '^System Volume Information$' \
+		-e '\$RECYCLE\.BIN' \
+		-e '/c/Users/jazzo/bin/lssort' \
+		-e ^NTUSER.DAT
 }
 
 ##
@@ -136,7 +144,7 @@ do
 
 		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
 		#findspecials | filter_out_hidden |  LC_COLLATE="C" sort -z | xargs -r0 $LS $LSSWITCHES -d --
-		findspecials | filter_out_hidden |   xargs -r0 $LS $LSSWITCHES -d --
+		findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		finddirs_    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
 		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES    --
