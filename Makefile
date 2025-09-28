@@ -1,14 +1,19 @@
-repo=https://raw.githubusercontent.com/tox2ik/local-bin
-tag=v2022
 
 ln:
 	find .probably-useful -type f | xargs -n1 ln -s
 
-windows:
+windows-links:
 	git config core.symlinks true
+	git ls-files -s | awk \
+		'/^120000/{$$1=""; $$2=""; $$3="";  \
+	                   gsub("^ +", "", $$0); print }' | \
+		xargs -t git checkout --
 
+
+repo=https://raw.githubusercontent.com/tox2ik/local-bin
+tag=v2022
 v2022-url:
-	find    .probably-useful -type f | xargs -I% echo $(repo)/$(tag)/% | tee .probably-useful/.urls
+	find .probably-useful -type f | xargs -I% echo $(repo)/$(tag)/% | tee .probably-useful/.urls
 	git add .probably-useful/.urls Makefile
 	git commit -m 'update urls'
 
