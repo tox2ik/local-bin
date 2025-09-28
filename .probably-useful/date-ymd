@@ -1,3 +1,5 @@
+#!/bin/env sh
+#!/bin/env bash
 #!/bin/busybox sh
 #!/bin/sh
 exec date +%Y-%m-%d
