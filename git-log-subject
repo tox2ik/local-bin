@@ -1,0 +1,2 @@
+# git log --format='%cd %h %s' --date=iso
+git log --format='%C(auto)%cd %C(yellow)%h%C(white) %s' --date=iso
