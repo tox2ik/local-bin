@@ -1,0 +1,2 @@
+#!/bin/env sh
+exec tr \\0 \\n
