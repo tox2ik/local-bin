@@ -1,0 +1,9 @@
+#!/bin/env bash
+sign=-
+if [ ${0##*/} = c2k ]; then
+	sign=+
+fi
+
+if [ -t 0 ] ; then input=$@; else input=`cat`; fi # Assumes finite input
+bci=$( for i in "$input"; do echo "$i $sign 273.15;"; done)
+echo "scale=2; $bci" | bc

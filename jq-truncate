@@ -1,0 +1,6 @@
+#!/bin/bash
+# transforms all strings to max 15 chars
+tab='	'
+reformat='.. |= (if type == "string" then .[0:15] else . end)'
+exec bash -c "jq -r '$reformat' "
+
