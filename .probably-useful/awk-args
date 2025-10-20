@@ -11,7 +11,7 @@ set -eu
 argv=
 fields=
 for i in "$@"; do
-	if [[ $1 =~ ^[0-9,]+$ ]]; then
+	if [[ $1 =~ ^-*[0-9,]+$ ]]; then
 		fields="$fields $1"
 	else
 		argv="$argv $1"
@@ -19,13 +19,23 @@ for i in "$@"; do
 	shift
 done
 fields=${fields//,/ }
-awk $argv -v argnum="${fields:-1 2}" '
-BEGIN{ split(argnum,cols," ") }
+
+exec awk $argv -v argnum="${fields:-1 2}" '
+BEGIN{ split(argnum,cols," "); len=length(cols); }
 {
-    for (i in cols) {
-		if ($(cols[i]) != "") {
-			printf "%s%s", $(cols[i]), OFS }
-		}
-	printf "%s", ORS
+  for (i in cols) {
+    field=cols[i]
+    if (field < 0 ) {
+      field=NF+field+1
+    }
+    if ($(field) != "") {
+      if (NF == cols[i] || len == 1 || i == len) {
+         printf "%s", $(field)
+      } else {
+         printf "%s%s", $(field), OFS
+      }
+    }
+  }
+  printf "%s", ORS
 }
 '
