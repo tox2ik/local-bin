@@ -6,6 +6,7 @@
 #    # read-ahead (cat everything into fs-cache)
 #    finn images.from.archives/ -f -0 | xargs -0 -n3 -P40 cat | pv >/dev/null
 
+Quiet=0
 Debug=0
 
 FIND=/usr/bin/find
@@ -52,6 +53,7 @@ and_next=0
 and_next_short=0
 for i in "$@"; do
 
+	if [ "$i" = "@@" ] ; then Quiet=1; continue; fi
 	if [ "$i" = "@" ] ; then Debug=1; continue; fi
 
 	if [ ${short[$i]+true} ]; then
@@ -93,6 +95,7 @@ done
 
 if [ $Debug -gt 0 ];then
 	echo
+	echo Meta: Debug:$Debug Quiet:$Quiet
 	echo Path: "${path_arguments[@]}"
 	echo GLOB: "${arguments_global[@]}"
 	echo ARG..: "${arguments[@]}"
@@ -100,7 +103,6 @@ if [ $Debug -gt 0 ];then
 		echo "   .$((ai++)):" $a
 	done
 	echo F: find  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}"
-	echo find  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}"
 	echo
 else
 	#exec
@@ -109,37 +111,11 @@ else
 		tt+=(-iname)
 		tt+=(\*"$i"\*)
 	done
+
+	if [ $Quiet -gt 0 ]; then
+		exec 2>&-
+	fi
 	set -x
 	$FIND  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}" "${tt[@]}"
 		
 fi
-
-
-
-# v1
-#
-#for i; do
-#	if [ "$i" = "@" ]; then D=1;      break; fi
-#	if [ -d "$i"    ]; then where=$i; continue; fi
-#	arg="$(
-#		echo @%$i | sed -E '
-#		s/^@%//
-#		s/^-t?f$/-type f/
-#		s/^-t?d$/-type d/
-#		s/^-t?l$/-type l/
-#		s/^-n$/-name/
-#		s/^-i$/-iname/
-#	')" # echo bug: echo -n '-n' -n
-#	if [[ -z "$args" ]]; then ws=''; else ws=' ';  fi # avoid appending a whitespace to a lone arg
-#	if [[ -n "$arg"  ]]; then args="$args$ws$arg"; fi
-#done
-#if [[ "$1" == "$args" ]]; then
-#	eval $FIND $where -name "\*$1\*"
-#	exit
-#fi
-#if [ $D -gt 0 ];then
-#	echo $FIND $where $args 
-#fi
-#exec $FIND $where $args
-
-
