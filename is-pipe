@@ -1,5 +1,23 @@
+#!/bin/env bash
+
+for i; do if [ "$i" = "-v" ]; then
+[[ -t 0 ]] && echo yes-0 std-in
+[[ -t 1 ]] && echo yes-1 std-out
+[[ -t 2 ]] && echo yes-2 std-err
+fi; done
+
+# -t FD :: True if FD is opened on a terminal
+#[[ ! -t 0 ]] && exit 0; exit 1
+
+[[ -t 0 ]] && exit 1;
+exit 0
+
+
+#cat |& sed -n '/Offending/{ s:[^/]\+/:/: ; s/:/ -e/; s/$/d/ ; s/^/sed -i / p }'
+
 #!/bin/sh
-tty -s && exit 1; exit 0
-# is-pipe || echo no            => no
-# seq 1 2 | is-pipe && echo yes => yes
+#! GNU coreutils
+## tty -s && exit 1; exit 0
+## # is-pipe || echo no            => no
+## # seq 1 2 | is-pipe && echo yes => yes
 
