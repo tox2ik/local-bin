@@ -1,0 +1,9 @@
+#!/bin/sh
+
+
+if [ ! -t 0 ]; then
+	2>&1 sed -n '/Offending/{ s:[^/]\+/:/: ; s/:/ -e/; s/$/d/ ; s/^/sed -i / p }'
+else
+	echo expecting text on stdin >&2
+fi
+

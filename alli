@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ -t 0 ]; then
+	echo "$0 wants input on stdin" >&2
+else
+	z=
+	for i in "$@"; do
+		 z="$z | grep -iEe '$i'"
+	done
+	eval "${z:2}"
+fi
