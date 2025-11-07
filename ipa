@@ -1,6 +1,8 @@
-#!/bin/sh
-ips=`ip addr | awk '/^[0-9]/ { sub(":", "", $2); print $2} '`
+#!/usr/bin/env bash
 
+hash ip &>/dev/null || exec ipa2
+
+ips=`ip addr | awk '/^[0-9]/ { sub(":", "", $2); print $2} '`
 for i in $ips; do
 	echo $i $(ip addr show dev $i | sed -n '/inet/ { s/ /@/6; s/@.*//; p }');
 done | awk '{ if ($3=="") {$3="-"};  print $1, $3 }' | column -t
