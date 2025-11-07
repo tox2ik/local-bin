@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # lssort lists files in a folder in a structured way, usually
 # taking less space for the output than normal ls would.
@@ -85,18 +85,27 @@ FPATHS=""
 LSSWITCHES="-v"
 
 
-LS=ls\ --color=auto
-GREP=/bin/grep
-FIND=/usr/bin/find
+LS=ls
+GREP=grep
+FIND=find
 
-type /usr/bin/grep &>/dev/null && GREP=/usr/bin/grep
-type /usr/bin/ls   &>/dev/null && LS=/usr/bin/ls\ --color=auto
+[[ -f /usr/local/bin/find ]]  && GREP=/usr/local/bin/find
+[[ -f /usr/local/bin/grep ]]  && GREP=/usr/local/bin/grep
+[[ -f /usr/local/bin/ls   ]]  &&   LS=/usr/local/bin/ls
 
-GNUBIN=/Users/jaroslav/opt/grep/libexec/gnubin
+GNUBIN=/Users/`whoami`/opt/grep/libexec/gnubin # os x brew
 
-if [ -f $GNUBIN/ls ];   then LS=$GNUBIN/ls; fi
-if [ -f $GNUBIN/grep ]; then GREP=$GNUBIN/grep; fi
-if [ -f $GNUBIN/find ]; then FIND=$GNUBIN/find; fi
+[[ -f $GNUBIN/ls   ]] && LS=$GNUBIN/ls
+[[ -f $GNUBIN/grep ]] && GREP=$GNUBIN/grep
+[[ -f $GNUBIN/find ]] && FIND=$GNUBIN/find
+
+function hasbin() { hash "$1" &>/dev/null; }
+
+hasbin gls   && LS=gls
+hasbin ggrep && GREP=ggrep
+hasbin gfind && FIND=gfind
+
+LS="$LS --color=auto"
 
 ARG=$1
 ARGC=0
@@ -143,16 +152,20 @@ do
 		#export LC_COLLATE="C"
 
 		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
-		#findspecials | filter_out_hidden |  LC_COLLATE="C" sort -z | xargs -r0 $LS $LSSWITCHES -d --
-		findspecials | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-		finddirs_    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-		finddirs     | filter_out_hidden | xargs -r0 $LS $LSSWITCHES -d --
-		findfiles    | filter_out_hidden | xargs -r0 $LS $LSSWITCHES    --
+
+		[[ -n $DEBUG ]] && v=-t
+		#[[ -n $DEBUG ]] && set -x
+
+		findspecials | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
+		finddirs_    | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
+		finddirs     | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
+		findfiles    | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES    --
 		[ ${#PATHS[@]} -gt 1 ] && echo
 	)
 done
 
 if [ -n "$FPATHS" ]; then
-	echo -ne "$FPATHS\0" | xargs -0 -r $LS $LSSWITCHES --
+
+	echo -ne "$FPATHS\0" | xargs $v -0 -r $LS $LSSWITCHES --
 fi
 
