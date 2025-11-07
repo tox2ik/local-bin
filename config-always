@@ -1,16 +1,12 @@
 #!/bin/bash
 
 mkdir -p ~/.config
-tmpf=$(mktemp)
+tmp=$(mktemp)
 
-{ # curl
-_f_curl=~/.config/curlrc
-_f_curl=~/.curlrc
-echo silent >> $_f_curl
-sort -u $_f_curl > $tmpf; mv $tmpf $_f_curl
-#touch $_f_curl
-#sed -i $_f_curl -easilent
-#echo export CURL_HOME=$_f_curl
+{ 
+	curl=~/.config/curlrc
+	echo silent >> $curl
+	sort -u $curl > $tmp; mv $tmp $curl
 }
 
-rm $tmpf
+rm $tmp
