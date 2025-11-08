@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+https=$( git remote get-url origin )
+git=$( echo $https | sed -e '/http/{ 
+    s^https://^git@^;
+    s^/^:^; }')
+
+if [ $git != $https ]; then
+	echo set $git >&2
+	git remote set-url origin $git
+fi
