@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2046
 
+function gbin() { hash g$1 &>/dev/null && echo g$1 || echo $1;  }
+DATE=`gbin date`
+date() { $DATE "$@"; }
+
 declare -A wd_min=() wd_max=() r_mon=() r_day=()
 declare -A monname=(
 [01]=January [02]=February [03]=March [04]=April [05]=May [06]=June
@@ -12,7 +16,6 @@ jan_01    () { date +%s -d `date +%Y-01-01`; }
 jan_01_ny () { date +%s -d `date +$nY-01-01`; }
 
 last_date=`jan_01_ny`;
-
 if [[ ! `date -d @$last_date` =~ $nY ]]; then
 	echo bug: wrong year in december 3x
 	exit 1
@@ -30,6 +33,7 @@ while [ $d -lt $last_date ]; do
 	d=$(( d + 24 * 3600 ))
 done
 
+[[ -d ~/.cache ]] || mkdir -p $(readlink ~/.cache)
 
 cash=~/.cache/weeks.$last_date
 if [[ -f $cash ]]; then save() { : ;}; cat $cash; exit 0;
