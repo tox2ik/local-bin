@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # print columns given as arguments
 #
 # awc 3 4 - print columns 3 and 4

@@ -1,1 +1,0 @@
-/opt/android-sdk-update-manager/platform-tools/adb

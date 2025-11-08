@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -l
+#!/usr/bin/env -S bash -l
 keys=(
 		$(find ~/.ssh/keys/*.{rsa,dsa,ed25519,pem,priv} 2>/dev/null )
 )
@@ -10,11 +10,17 @@ fi
 A_WEEK=604800
 SSH_ADD_LIFE=$A_WEEK
 
-out=$(
-	# how to capture only stderr into a var?
-	## ? You could discard the zsh error but restore stderr for the rm command though with (rm -- * 2>&3 3>&-) 3>&2 2> /dev/null
-	smux "secrets-$(hostname)" "ssh-add ${keys[*]}" #2>&1
-)
+function hashq() { hash "$@" 2>/dev/null; }
+
+if hashq smux && hashq secrets-$(hostname); then
+    out=$(
+        # how to capture only stderr into a var?
+        ## ? You could discard the zsh error but restore stderr for the rm command though with (rm -- * 2>&3 3>&-) 3>&2 2> /dev/null
+        smux "secrets-$(hostname)" "ssh-add ${keys[*]}" #2>&1
+    )
+else 
+    ssh-add "${keys[*]}"
+fi
 
 ## if echo $out | grep -q failed; then
 ## 	echo FAIL >&2
@@ -22,11 +28,13 @@ out=$(
 ## 	exit 1
 ## fi
 
-echo have $(ssh-add -l | wc -l) keys
+echo have $(ssh-add -l | wc -l | tr -dc [[:number:]]) keys >&2
 
-{ systemctl --user is-enabled -q vpn \
-&& systemctl --user restart vpn & } &
+hash ssh_add_keys_post &>/dev/null && ssh_add_keys_post
 
+
+# { systemctl --user is-enabled -q vpn \
+# && systemctl --user restart vpn & } &
 
 #sleep 3
 # screen - don't clear after exit?
