@@ -1,0 +1,7 @@
+#!/bin/sh
+CHUNK=${CHUNK:-1M}
+for fn; do
+	hash=$( dd if="$fn" bs=$CHUNK count=1 2>/dev/null \
+        | md5sum | awk '{ print $1 }')
+	echo $hash $fn
+done
