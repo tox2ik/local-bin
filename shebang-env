@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -e
+#set -o pipefail
+
+if [[ $1 == one ]]; then
+    rg '#!/bin/bash' -g '!*.orig-shebang' -l \
+        | sort -R | 1q | xargs -r shebang-env
+    exit
+fi
+
+if [[ $1 == two ]]; then
+    rg '#!/bin/bash' -g '!*.orig-shebang' -l  | wc -l
+    exit
+fi
+
+f=$(realpath "${1:-/usr/local/bin/foobarz}")
+
+sed -i .orig-shebang \
+    -e '1s@#!/bin/bash@#!/usr/bin/env bash@w /tmp/shebung.log' \
+    -e '1s@#!/bin/sh@#!/usr/bin/env sh@w /tmp/shebung.log' \
+    -e '1s@#!/bin/sed -f@#!/usr/bin/env -S sed -f@w /tmp/shebung.log' \
+    -e '1s@#!/bin/env sh@#!/usr/bin/env sh@w /tmp/shebung.log' \
+    "$f"
+
+trap "echo $f changed; exit 0;" ERR # diff exists with 1 if there are diffs
+
+lines=$( diff -u  $f{.orig-shebang,} 2>&1 ) || :
+
+if [[ -n $lines ]]; then
+    echo "$lines" |& grep -e '^[-+]#'
+    echo $f changed
+fi
