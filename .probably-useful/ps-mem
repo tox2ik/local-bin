@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 if echo a b | column -t -N A,B &>/dev/null; then

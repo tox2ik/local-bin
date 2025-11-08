@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # figure out how many files are in sub-directories of $target
 
 _i=$IFS target=${1:-.};

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 getent passwd | awk -F: '{ print $1 }' | xargs -I% sh -c 'crontab -l -u % | sed "/^$/d; /^#/d; s/^/% /"' 2>/dev/null
 echo
 cat /etc/crontab /etc/anacrontab 2>/dev/null | sed '/^$/d; /^#/d;'

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # transforms json into a text table
 # e.g [ {a: 1, b:2}, {a:3, b:4 }] into
 #    a   b

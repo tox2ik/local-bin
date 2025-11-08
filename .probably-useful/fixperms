@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if find -version  | grep -q 'GNU findutils'; then
 	true

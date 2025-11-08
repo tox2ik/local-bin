@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 o=$(gzip -kc "$1" | base64 -w 0)
 echo "echo \"$o\" | base64 -d | zcat > $1"
 echo chmod +x "'$1'"
