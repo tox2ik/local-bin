@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # copy a single file to some dir
 # search in .
 

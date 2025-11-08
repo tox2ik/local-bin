@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 domain=${1:-os-test-eu.objects.eu2.frbit.com}
 port=${2:-443}

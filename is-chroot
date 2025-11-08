@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 one=$(awk '$5=="/" {print $1}' </proc/1/mountinfo)
 self=$(awk '$5=="/" {print $1}' </proc/$$/mountinfo)
 

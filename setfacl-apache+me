@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 webserver=$(
 		if   getent passwd www-data >/dev/null; then echo www-data; 
 		elif getent passwd apache   >/dev/null; then echo apache  ; 

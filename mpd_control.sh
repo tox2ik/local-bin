@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #when set to exit, mpd_control will exit if you press escape
 #when set to break, mpd_control will go the upper level if possible

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 a=/tmp/atom-unmask
 b=/tmp/atom-unmask-masked-by

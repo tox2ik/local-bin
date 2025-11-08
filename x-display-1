@@ -1,5 +1,5 @@
-#!/bin/bash
-# print out the nth (starting from 1) display in the weird x notation:
+#!/usr/bin/env bash
+# print out the nth (starting from 1) display in the X11 notation:
 #
 # - :0.0, :0.1  OR
 # - :0.0, :1.0, :2.0

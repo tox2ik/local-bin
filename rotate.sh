@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #shellcheck disable=SC2004,SC2021,SC2004,SC2015,SC2268,SC2019,SC2018
 #
 # compiz-rotate-wmctrl - Rotate the cube using wmctrl

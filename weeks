@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # shellcheck disable=SC2046
 
 declare -A wd_min=() wd_max=() r_mon=() r_day=()

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 first=$(ps -eo ppid,pid | awk -v me=$$ '$1 == me { e=$2 } END { print e }')

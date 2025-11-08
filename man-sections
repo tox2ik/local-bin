@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # List all sections of a manpage.
 #
 # Uses guesscompress from lesspipe (gentoo)

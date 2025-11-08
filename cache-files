@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 #find ~ -path '*chrome*' -name Cache                           -print -type d

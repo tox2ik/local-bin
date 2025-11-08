@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 jan01 () { 
     date +%s -d `date +%Y-01-01`

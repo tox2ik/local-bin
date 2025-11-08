@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ext=${1##*.}
 d=$(dirname "$1")
 b=$(basename "$1" .$ext)

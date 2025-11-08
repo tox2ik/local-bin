@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # $ wmctrl -d
 # 0  - DG: 1680x2250  VP: N/A  WA: 0,0 1680x2250  firefox
 # 1  * DG: 1680x2250  VP: 0,0  WA: 0,0 1680x2250  terms

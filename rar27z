@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TMPD="$2"
 ARCHIVE_PATH=$( readlink -f "$1" )

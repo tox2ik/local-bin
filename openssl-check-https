@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 default=www.youtube.com
 domain=${1:-$default}

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 file_line=$(
 tac /var/log/php_error.log | grep -m1 Fatal | grep -E -e '/[[:graph:]]+:[0-9]+$' -o | tr : ' ' 
 )

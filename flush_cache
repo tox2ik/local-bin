@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # flush linux memory.
 # echo 1 > /proc/sys/vm/drop_caches # To free pagecache

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Shell script to start Vim with less.vim.
 # Read stdin if no arguments were given and stdin was redirected.
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #!/bin/busybox sh
 now=$(  date +%F                 2>/dev/null || /bin/date +%F                )
 from=$( date -d "$1" +%s         2>/dev/null || /bin/date -d "$1" +%s        )

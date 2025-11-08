@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # todo: rewrite in csh?
 awk '{
 	for (c=1; c <= NF; c++) { col[c] += $(c) }

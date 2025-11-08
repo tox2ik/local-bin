@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 frm() { {
 	if test -e "$1"; then

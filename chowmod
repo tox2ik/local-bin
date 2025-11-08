@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # chown and chmod several files with one command
 # see fixperms if you need different modes for files and dirs (recursively)
 if [[ $# -lt 3 ]]; then

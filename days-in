@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 y=${1:-`date +%Y`}
 for i in {1..12}; do cal -m $i $y ;done  |

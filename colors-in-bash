@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #O=
 # ! Color definitions for [U]Rxvt
 # ! -color- -normal- -bold-

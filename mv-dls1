@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 dls1() { (cd ~/Downloads; realpath "$(ls -rt1 ~/Downloads | tail -n1)"); }
 
 mv -vt. "`dls1`"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 export PATH=$PATH:~/bin
 #weeks  | grep `week-of-year` | grep `date +%Y-%m` | awk -v w=`date +%W` '$3 == w { print }'
 weeks  | awk -v w=`date +%W` '$3 == w { print }'

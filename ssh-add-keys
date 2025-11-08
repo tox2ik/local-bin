@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/usr/bin/env bash -l
 keys=(
 		$(find ~/.ssh/keys/*.{rsa,dsa,ed25519,pem,priv} 2>/dev/null )
 )

@@ -1,12 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+FIND=/usr/bin/find
+
+GNUBIN=/Users/`whoami`/opt/grep/libexec/gnubin # os x brew
+[[ -f $GNUBIN/ls   ]] && LS=$GNUBIN/ls
+[[ -f $GNUBIN/grep ]] && GREP=$GNUBIN/grep
+[[ -f $GNUBIN/find ]] && FIND=$GNUBIN/find
+function hasbin() { hash "$1" &>/dev/null; }
+hasbin gls   && LS=gls
+hasbin ggrep && GREP=ggrep
+hasbin gfind && FIND=gfind
+
+
 function strip_1() { awk ' BEGIN{ RS="\0"} { $1="" ; gsub(/^\s/,"", $0); print }'; }
 function strip_1n() { awk '{ $1="" ; gsub(/^\s/,"", $0); print }'; }
 function n2z() { tr \\n \\0; }
-find=/usr/bin/find
 if [[ $0 == *latest0 ]]; then
-	$find ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\0" | sort -nz | n2z | strip_1 | n2z
+	$FIND ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\0" | sort -nz | n2z | strip_1 | n2z
 else
-	$find ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\n" | sort -n | strip_1n
+	$FIND ${1:-./} -not -path '*/.git/*' -type f -printf "%T@ %p\n" | sort -n | strip_1n
 fi
 
 #find /path/to/search -type d \( -path '*/.git' -o -path '*/.svn' -o -path '*/.hg' -o -path '*/.bzr' -o -path '*/CVS' \) -prune -o -print

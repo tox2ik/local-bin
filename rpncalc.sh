@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 BC=`which bc`
 scale=${SCALE:-2}

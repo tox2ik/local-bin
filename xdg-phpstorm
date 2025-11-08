@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 one=$1 # phpstorm://open?file=/T/trsys/tidsrapportering/git/src/php/Http/Controller/ClockingReasonController.php&line=67
 two="${one#*=}"
 line="${two/*&line=/}"

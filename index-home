@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 mkdir -p ~/Data/home-files
 cd ~
 find > ~/Data/home-files/`dateversion`

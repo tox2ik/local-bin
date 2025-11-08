@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if ! smartctl --version | grep -q smartctl.7;
 then

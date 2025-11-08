@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/usr/bin/env bash -l
 
 for i; do case $i in --help|-help|-h|h|help) sed $0 -e /note[s]/q; exit 0 ;; esac done
 

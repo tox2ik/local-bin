@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 echo -ne "\e[32m" ; while true ; do 
 echo -ne "\e[$(($RANDOM % 2 + 1))m" ;
 tr -c "[:print:]" " " < /dev/urandom | dd count=1 bs=${1:-50} 2> /dev/null ; done

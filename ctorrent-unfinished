@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 find . -name '*.torrent' -or -name '*.finished' | sed -E 's/\.(finished|torrent)$//' | awk-count-dupes | grep -v -e ^2 | awk '{
 	p = $0

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ "$1" == "" ]; then
 		echo "give me a directory to list" >&2

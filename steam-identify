@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 pat=SteamLibrary/
 pat=steamapps/
 locate -r $pat | grep ".*$pat" -o | sort -u | while read p;

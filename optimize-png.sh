@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 input=${1:-/tmp/input-file.png}
 

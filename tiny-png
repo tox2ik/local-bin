@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 YOUR_API_KEY=$(< ~/.config/tiny-png/api-key)
 SERVICE=https://api.tinify.com/shrink

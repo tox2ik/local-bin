@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #(
 #find /sys/ -name writeback_rate | xargs grep -e . 

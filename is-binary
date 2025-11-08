@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 read_bytes=4096
 read_bytes=32768
 

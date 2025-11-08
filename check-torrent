@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## rerun on each .torrent
 if [[ $# -eq 0 ]]; then

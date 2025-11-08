@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 lines=$(ps -eo pid,etimes,etime,cmd)
 
 if [[ -n $1 ]]; then

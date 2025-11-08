@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 current=$(setxkbmap -query | grep -e layout -e variant)
 
 if [[ $current = *genja*jolerus ]];

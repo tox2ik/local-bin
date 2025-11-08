@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # register a (self signed) cert with chrome
 #
 export PATH=$PATH:/home/jaroslav/applications/nss_tools/usr/bin

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 find -name "${1:-*.js}" |
 	sort  |
 	awk -F/ '{ for (i=NF; i>0; i--) { printf "%s/", $(i) } ; print "" }' |

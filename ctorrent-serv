@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 port=${CTORRENT_CTCS:-127.0.0.7:57777}
 port=${port##*:}
 bw_down=7000

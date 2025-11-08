@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 api_key=$(< ~/.secrets/access-tokes/pastebin.com)
 

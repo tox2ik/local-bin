@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
  
 read line
 nick=`echo $line | sed 's/^\(.*\)---.*$/\1/'`

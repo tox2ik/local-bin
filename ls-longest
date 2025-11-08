@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/usr/bin/env bash
 find -maxdepth 1 -mindepth 1  -type f  -printf "%f\n" | awk '{ print length($0), $0}' | sort -n

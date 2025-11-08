@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/usr/bin/env bash -l
 
 gb=${1:-16000}
 curr=${2:-235}

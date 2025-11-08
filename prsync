@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 from=${1:-/G/distfiles}
 to=${2:-/R/os-files/mirror/gentoo/distfiles}
 a=`date +%s`

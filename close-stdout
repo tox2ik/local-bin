@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 function isnum { [[ $1 =~ ^-*[0-9]+$ ]] && return 0 || return 1; }
 declare -a proc_ids;                \
   isnum $1                           \

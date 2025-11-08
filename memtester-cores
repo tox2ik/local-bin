@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #cores=$(< /proc/cpuinfo awk '/cores/ { print $NF ; exit }' );
 cores=$(< /proc/cpuinfo  awk '/^physical.id/ { p=$NF} /cpu.cores/ { print p, $NF }' | sort -u | awk-sum 2)

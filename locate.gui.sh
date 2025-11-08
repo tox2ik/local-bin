@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 for ((i=0; i < 20; i++)); do
 		i=`expr $i - 1`
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 {
 [[ $# -eq 0 ]] &&
 exiftool * ||

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # sort by header-name length
 # output headers exceeding terminal width
 # output short headers

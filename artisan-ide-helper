@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 artisan () { php ~/www/artisan "$@"; }
 artisan ide-helper:eloquent
 artisan ide-helper:generate

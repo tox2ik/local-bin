@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #dls1() { (cd ~/Downloads; f=$(2>/dev/null ls -rt1 ~/Downloads/*.torrent | tail -n1); [[ -n $f ]] && realpath "$f" ); }
 #
 dls1() { (cd ~/Downloads; f=$(2>/dev/null find-latest ~/Downloads/ | grep '\.torrent$' | awk -F/ 'NF==5' | tail -n1); [[ -n $f ]] && realpath "$f" ); }

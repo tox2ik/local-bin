@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 argv=
 for i; do
 	if [[ $1 =~ ^[0-9]+$ ]];

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 rand () 
 { 
     local tall=0;

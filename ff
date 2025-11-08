@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 f="$1"
 
 if echo "$1" |grep -q 'https*://.*'; then

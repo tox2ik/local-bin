@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # transforms all strings to max 15 chars
 tab='	'
 reformat='.. |= (if type == "string" then .[0:15] else . end)'

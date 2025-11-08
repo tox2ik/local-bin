@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 jar=$(
 	find ~/lib/jar/plantuml -type f -name '*.jar' -printf "%T@ %p\n" |
 		sort -nr | awk 'NR==1 {print $2; exit}')

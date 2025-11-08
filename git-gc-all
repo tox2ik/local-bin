@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 where="${1:-.}"
 function git-dirs() { find "$where" -name .git; }
 for i in `git-dirs`; do

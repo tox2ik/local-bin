@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 count_file=~/.mail/size
 count_mailbox() { grep -c -e '^From:' "$1"; }
 count_maildir() { find "$1" -type f | wc -l; }

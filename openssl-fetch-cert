@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env bash
 website=${1:-www.northmetro.org};
 echo | openssl s_client -servername $website -connect $website:443 2>/tmp/openssl-fetch-cert-$website.stderr | openssl x509 -text

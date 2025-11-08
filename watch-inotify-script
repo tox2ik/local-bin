@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runee=${1:-~/bin/script}
 

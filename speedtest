@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 a=()
 a[0]=http://speedtest.sea01.softlayer.com/speedtest/speedtest/random1000x1000.jpg

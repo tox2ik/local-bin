@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ps -e -o pid,ppid,%mem,rss,cmd |
 	grep ${1:-[/]chrome} |
 	awk '
