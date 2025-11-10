@@ -1,3 +1,8 @@
 #!/usr/bin/env sh
 
-sed -E "s^$1^$2^$3"
+a=$1; shift
+b=$1; shift
+c=$1; shift
+
+gbin() { hash g$1 2>/dev/null && echo g$1 || echo $1;  }
+exec `gbin sed` -E "s^$a^$b^$c" "$@"

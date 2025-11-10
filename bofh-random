@@ -1,2 +1,2 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 curl https://bofh-api.bombeck.io/v1/excuses/random/  | jq -r '.[]|.quote'

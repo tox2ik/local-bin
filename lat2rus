@@ -1,4 +1,4 @@
-#!/bin/sed -f
+#!/usr/bin/env -S sed -f
 s/a/а/g
 s/b/б/g
 s/c/ц/g

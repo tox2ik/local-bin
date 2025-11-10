@@ -1,38 +1,43 @@
 #!/usr/bin/env bash
+# detect gnu-make syntax and run gmake, if available
+# otherwise, run make
+
+hashq() { hash "$1" 2>/dev/null; }
 
 declare -a arguments=()
-	$FIND  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}" "${tt[@]}"
+makefile=
+opt-extract-filename()  {
+    local opt="$1" n=1 nn= skip_next= f= i=
+    shift
+    for i in "$@"; do
+        let nn=n+1 || :
+        if [[ -n $skip_next ]] ; then unset skip_next ; : $i        ; continue ; fi
+        if [[ $i == ${opt}  ]] ; then makefile=${!nn} ; skip_next=1 ; continue ; fi
+        if [[ $i =~ ${opt}. ]] ; then makefile=${i:2} ; : $i        ; continue ; fi
+        arguments+=("$i"); 
+        n=$nn
+    done
+}
 
+opt-extract-filename -f "$@"
 
-n=1
-for i in "$@"; do
-	let nn=n+1 || :
+[[ -n $makefile ]] && [[ ! -f $makefile ]] && {
+    echo not a file: $makefile >&2;
+    exit 1; } 
 
-	if [ -n $skip_next ]; then 
+[[ -z $makefile ]] && makefile=Makefile
 
-unset skip_next
-		continue
-	fi
-		arguments_global+=("$i")
+match_gnumake() {
+    grep $makefile -m1 -E \
+        -e '\$\((shell|wildcard)' \
+        -e '^(ifeq|ifneq|ifdef|define)'
+}
 
+if match_gnumake; then
+    if hashq gmake; then
+        gmake -f $makefile "${arguments[@]}"
+        exit $?
+    fi
+fi
 
-	if [[ $i == -f ]]; then
-		makefile=${!nn}
-	fi
-
-	if [[ $i =~ -f. ]]; then
-		f=${!n}
-		makefile=${f:2}
-		skip_next=1
-	fi
-
-
-	n=$nn
-done
-
-if [[ ! -f $makefile ]]; then echo not a file: $makefile >&2; exit 1; fi
-
-set -x
-grep -m1 -E -e '\$\((shell|wildcard)' -e '^(ifeq|ifneq|ifdef|define)' $makefile
-
-# ifeq, ifneq, ifdef, ifndef, define $(wildcard 
+make -f $makefile "${arguments[@]}"

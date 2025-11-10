@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 #!/bin/env bash
 #!/bin/busybox sh
 #!/bin/sh

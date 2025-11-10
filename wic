@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 
 path=`which "$1"`
 #${EDITOR:-vim} "$path"
