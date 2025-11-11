@@ -1,20 +1,15 @@
-#!/bin/sh
+#!/usr/bin/env bash
 IMPORT=/usr/bin/import
 FORMAT=png
 
 LASTFILE=~/.last/ss
-# its up to you to make this folder writable
-BASEDIR=/home/jaroslav/tmp/ss 
-IMGAPP=/usr/bin/pqiv
-GIMP=/usr/bin/gimp
+BASEDIR=$HOME/tmp/ss 
+IMGAPP=pqiv
+GIMP=gimp
 
-if [ ! -d "`dirname $LASTFILE`"  ]; then
-	mkdir -p "`dirname $LASTFILE`"
-fi
-
+[[ -d ~/.last ]] || mdir ~/.last
 
 if [ -x $IMPORT ];then
-
 
 	case "$1" in
 
