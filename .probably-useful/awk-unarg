@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+exec awk $argv -v nf=${1:-1} '
+{ $nf=""; sub(/[ \t]+/, " "); print }
+'
