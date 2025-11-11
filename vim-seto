@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+declare -a arguments=()
+declare -A flags=()
+#declare -a longs=()
+
+opt-extract-flag()  {
+    local opt="$1" n=1 nn= skip= f= i=
+    shift
+    for i in "$@"; do
+        let nn=n+1 || :
+        if [[ -n $skip ]]      ; then unset skip             ; :      ; continue ; fi
+        if [[ $i == ${opt}  ]] ; then flags+=([$opt]=${!nn}) ; skip=1 ; : $opt = ${!nn} ; continue ; fi
+        if [[ $i =~ ${opt}. ]] ; then flags+=([$opt]=${i:2}) ; :      ; : $opt = ${i:2} ; continue ; fi
+        arguments+=("$i"); n=$nn
+    done
+}
+
+opt-extract-flag -f "$@"
+opt-extract-flag -k "$@"
+opt-extract-flag -v "$@"
+opt-extract-flag -q "$@"
+
+opt-extract-flag -d "$@"
+
+show_flags() { for i in ${!flags[@]}; do echo flag-value $i = ${flags[$i]}; done; }
+
+err() { echo error: "$@" >&2; }
+
+
+[[ -z ${flags[-f]} ]] && { err need -f /foo/bar.conf; exit 1; } 
+
+[[ -z ${flags[-d]} ]] && {
+    # -d has no value
+    [[ -z ${flags[-k]} ]] && { err need -k key; exit 1; } 
+    [[ -z ${flags[-v]} ]] && { err need -v value; exit 1; } 
+}
+
+[[ ${flags[-d]+_} ]] && del=yes
+
+[[ -n ${flags[-k]}  ]] && [[ -n ${flags[-d]} ]] && { 
+    show_flags
+    err -k and -d: either sets the key, not both; exit 1; }
+
+
+v=${flags[-v]}
+v=$(printf '%q' "$v")
+
+k=${flags[-k]}
+k=$(printf '%q' "$k")
+
+q=${flags[-q]}
+
+[[ ${#q} -gt 2 ]] && { echo -q: 1-2 chars is enough for quotes. got:$q; exit 1; }
+[[ -z $q ]] && q=0
+
+vim_silent=-es # -e will echo from vim, -es will not
+vim_silent=-e # -e will echo from vim, -es will not
+vim_clean='-i NONE -U NONE -u NONE -X'
+
+
+set -x
+vim $vim_silent $vim_clean \
+    "+exe 'source '.findfile('set-conf-option.vim', expand('~/.vim/plugin'))" \
+    "+edit ${flags[-f]}" \
+    "+SetOption $k $v $q $del" \
+    "+:wq";
+
+
+#{ 
+#    bat "${f}" 2>/dev/null  ||\
+#    cat -n "${f}";
+#} 
+
+#grep -C3 -e "^${flags[-k]}" "${flags[-f]}"
+
+set +x; echo
+
+#grep -n -e "^${flags[-k]}" "${flags[-f]}" >&2 |& column -ts:
+grep -n -e "^${flags[-k]}" "${flags[-f]}" | column -ts: >&2
+
+
+
+
+# vim $vim_silent $vim_clean 
+# -Nu <(cat << EOF
+# syntax off
+# exe 'source ' . findfile('set-conf-option.vim', expand('~/.vim/plugin'))
+# EOF
+# )
