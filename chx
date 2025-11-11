@@ -1,2 +1,6 @@
 #!/usr/bin/env sh
-chmod +x "$@"
+chmod +x "$@" || {
+    set -xe
+    cd ~/bin
+    chmod +x "$@"
+}

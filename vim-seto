@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 
+grep() { command -v ggrep >/dev/null && ggrep --color=auto "$@" || \grep "$@"; } 
+err() { echo error: "$@" >&2; }
+wrn() { echo warn: "$@" >&2; }
+catfile() { bat -A ${flags[-f]} 2>/dev/null || cat -v ${flags[-f]}; } 
+grepfile () { grep -n -e "^${flags[-k]}" "${flags[-f]}"; } 
+
+declare -a all=( "$@" )
 declare -a arguments=()
+declare -a files=()
 declare -A flags=()
 #declare -a longs=()
 
-opt-extract-flag()  {
+reset_args() { all=( "${arguments[@]}" ); arguments=( ); } 
+
+function opt-extract-flag()  {
     local opt="$1" n=1 nn= skip= f= i=
     shift
     for i in "$@"; do
@@ -16,75 +26,120 @@ opt-extract-flag()  {
     done
 }
 
-opt-extract-flag -f "$@"
-opt-extract-flag -k "$@"
-opt-extract-flag -v "$@"
-opt-extract-flag -q "$@"
-
-opt-extract-flag -d "$@"
-
-show_flags() { for i in ${!flags[@]}; do echo flag-value $i = ${flags[$i]}; done; }
-
-err() { echo error: "$@" >&2; }
-
-
-[[ -z ${flags[-f]} ]] && { err need -f /foo/bar.conf; exit 1; } 
-
-[[ -z ${flags[-d]} ]] && {
-    # -d has no value
-    [[ -z ${flags[-k]} ]] && { err need -k key; exit 1; } 
-    [[ -z ${flags[-v]} ]] && { err need -v value; exit 1; } 
+opt-extract-files() {
+    local i=
+    for i in "$@"; do
+        : files $i
+        if [[ -f $i ]]; then files+=($i); continue; fi
+        arguments+=("$i");
+    done
 }
 
-[[ ${flags[-d]+_} ]] && del=yes
+show_flags() { for i in ${!flags[@]}; do echo flag-value $i = ${flags[$i]}; done; }
+show_all() { 
+    {
+    ec=$?
+    if [[  $ec -ne 0 ]]; then
+        show_flags;
+        [[ -n ${all[@]} ]] && printf 'all - %s\n' ${all[@]};
+        [[ -n ${files[@]} ]] && printf 'files - %s\n' ${files[@]};
+        [[ -n ${longs[@]} ]] && printf 'long %s\n' ${longs[@]};
+        [[ -n $del ]] && echo del $del;
+    fi
+    } | sed s/^/debug:\ /
+}
+
+
+opt-extract-flag -f "${all[@]}"; reset_args
+opt-extract-flag -k "${all[@]}"; reset_args
+opt-extract-flag -v "${all[@]}"; reset_args
+opt-extract-flag -q "${all[@]}"; reset_args
+opt-extract-flag -d "${all[@]}"; reset_args
+opt-extract-files "${all[@]}"; reset_args
+
+for i in ${all[@]}; do
+    # if [[ $i =~ .+=.+ ]]; then
+    if [[ $i =~ .+= ]]; then
+        k=${i%%=*}
+        v=${i#*=}
+        flags+=([-k]=$k)
+        flags+=([-v]=$v)
+        continue
+    fi
+    arguments+=("$i");
+done
+reset_args
+
+set -Ee
+set -o errtrace
+trap show_all EXIT
+
+set +x
+
+[[ -z ${flags[-f]} ]] && { 
+    for f in ${files[@]}; do :; done
+    # [[ -n $f ]] || { err need -f /foo/bar.conf; false; } 
+    [[ -n $f ]] || { err need -f /foo/bar.conf; exit 22; } 
+    flags+=([-f]=$f)
+}
+ 
+[[ -z ${flags[-d]} ]] && {
+    # -d has no value
+    [[ -z ${flags[-k]} ]] && ! [[ ${all[@]} =~ -c ]] && { 
+        err missing -k option-name ; exit 1; } 
+    [[ ${#all[@]} -eq 1 ]] && ! [[ ${all[@]} =~ ^- ]] && { 
+        wrn using -v=${all[0]};
+        flags+=(['-v']=${all[0]}); }
+
+    [[ ${all[@]} =~ del ]] && del=yes
+
+    [[ -z ${flags[-v]} ]] && \
+        ! [[ ${all[@]} =~ del ]] && \
+        ! [[ ${all[@]} =~ (-c|cat) ]] && \
+        ! [[ ${all[@]} =~ (-g|grep) ]] && \
+        { err -v needs a value; exit 1; } 
+
+    # [[ -z ${flags[-v]} ]] && { err need -v value; exit 1; } 
+}
+
+[[ ${flags[-d]+_} ]] && del=yes # check if key is set.
 
 [[ -n ${flags[-k]}  ]] && [[ -n ${flags[-d]} ]] && { 
     show_flags
     err -k and -d: either sets the key, not both; exit 1; }
 
 
-v=${flags[-v]}
-v=$(printf '%q' "$v")
-
-k=${flags[-k]}
-k=$(printf '%q' "$k")
-
-q=${flags[-q]}
+v=${flags[-v]}; v=$(printf '%q' "$v")
+k=${flags[-k]}; k=$(printf '%q' "$k")
+q=${flags[-q]};
+f=${flags[-f]};
 
 [[ ${#q} -gt 2 ]] && { echo -q: 1-2 chars is enough for quotes. got:$q; exit 1; }
-[[ -z $q ]] && q=0
+[[ -z $q ]] && q=0 # quotes=0 is treated as ""
 
-vim_silent=-es # -e will echo from vim, -es will not
-vim_silent=-e # -e will echo from vim, -es will not
+
+[[ -z $k ]] || [[ $k == "''" ]] && [[ -n $f ]] && [[ ${all[@]} =~ (-c|cat) ]] && {
+    catfile; exit; }
+
+# echo from vim: -e
+#       no echo: -es 
+vim_silent=-e 
+vim_silent=-e\ -V
+vim_silent=-es
 vim_clean='-i NONE -U NONE -u NONE -X'
 
+set +x
 
-set -x
 vim $vim_silent $vim_clean \
     "+exe 'source '.findfile('set-conf-option.vim', expand('~/.vim/plugin'))" \
     "+edit ${flags[-f]}" \
     "+SetOption $k $v $q $del" \
     "+:wq";
 
-
-#{ 
-#    bat "${f}" 2>/dev/null  ||\
-#    cat -n "${f}";
-#} 
-
-#grep -C3 -e "^${flags[-k]}" "${flags[-f]}"
-
-set +x; echo
-
-#grep -n -e "^${flags[-k]}" "${flags[-f]}" >&2 |& column -ts:
-grep -n -e "^${flags[-k]}" "${flags[-f]}" | column -ts: >&2
+: vim EC $?
 
 
 
+[[ ${all[@]} =~ (-g|grep) ]] && grepfile  || :
+[[ ${all[@]} =~ (-c|cat)  ]] && catfile || :
 
-# vim $vim_silent $vim_clean 
-# -Nu <(cat << EOF
-# syntax off
-# exe 'source ' . findfile('set-conf-option.vim', expand('~/.vim/plugin'))
-# EOF
-# )

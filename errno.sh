@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
+list-cols () { sed  's/[0-9]\{1,\})/\n&/g'| sed '/^ *$/d; s/\t//; s/ $//'; } 
+
 # Run your command
 
 if [[ $1 =~ ^[0-9]+$ ]]; then
     s=$1
 elif [[ $1 == man ]]; then
     man errno | grep '\<[0-9]\{1,\} [A-Z]' -A9
+    exit
+elif [[ $1 == trap ]]; then
+    trap -l | list-cols
     exit
 else
     "$@"
@@ -23,7 +28,7 @@ case $s in
     *)
         if ((s > 128)); then
             sig=$((s-128))
-            kill -l | sed  's/[0-9]\{1,\})/\n&/g'| sed '/^ *$/d; s/\t//; s/ $//' | column
+            kill -l | list-cols | column
             echo "Exit code $s: Process terminated by signal $sig"
 
         else
