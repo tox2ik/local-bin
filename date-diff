@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #!/bin/busybox sh
-now=$(  date +%F                 2>/dev/null || /bin/date +%F                )
-from=$( date -d "$1" +%s         2>/dev/null || /bin/date -d "$1" +%s        )
-to=$(   date -d "${2:-$now}" +%s 2>/dev/null || /bin/date -d "${2:-$now}" +%s)
+now=$(  date +%F                 2>/dev/null || gdate +%F                )
+from=$( date -d "$1" +%s         2>/dev/null || gdate -d "$1" +%s        )
+to=$(   date -d "${2:-$now}" +%s 2>/dev/null || gdate -d "${2:-$now}" +%s)
 
 if [[ $from -gt $to ]]; then
 	_f=$to
@@ -21,5 +21,3 @@ if type sec2hrs 1>/dev/null 2>&1;
 then
 	sec2hrs ${diff/-/}
 fi
-
-

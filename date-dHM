@@ -1,2 +1,2 @@
-#!/bin/busybox sh
+#!/usr/bin/env sh
 exec date '+%d. %H:%M'
