@@ -7,15 +7,14 @@ hashq() { hash "$1" 2>/dev/null; }
 declare -a arguments=()
 makefile=
 opt-extract-filename()  {
-    local opt="$1" n=1 nn= skip_next= f= i=
+    local opt="$1" n=1 nn= skip= f= i=
     shift
     for i in "$@"; do
         let nn=n+1 || :
-        if [[ -n $skip_next ]] ; then unset skip_next ; : $i        ; continue ; fi
-        if [[ $i == ${opt}  ]] ; then makefile=${!nn} ; skip_next=1 ; continue ; fi
-        if [[ $i =~ ${opt}. ]] ; then makefile=${i:2} ; : $i        ; continue ; fi
-        arguments+=("$i"); 
-        n=$nn
+        if [[ -n $skip ]]      ; then unset skip      ; : $i   ; continue ; fi
+        if [[ $i == ${opt}  ]] ; then makefile=${!nn} ; skip=1 ; continue ; fi
+        if [[ $i =~ ${opt}. ]] ; then makefile=${i:2} ; : $i   ; continue ; fi
+        arguments+=("$i"); n=$nn
     done
 }
 
