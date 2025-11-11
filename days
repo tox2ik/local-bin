@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 
+function gbin() { hash g$1 &>/dev/null && echo g$1 || echo $1;  }
+DATE=`gbin date`
+date() { $DATE "$@"; }
+
 if [[ $# -eq 2 ]]; then
 	yFrom=$1
 	yTo=$1
@@ -10,11 +14,13 @@ if [[ $# -eq 2 ]]; then
 	dec=$( date +%s -d "$yTo")
 else
 
+    set -x
 	jan01 () { date +%s -d `date +${1:-%Y}-01-01`; }
-	dec () { j=`jan01 $1`; echo $((j + 365*24*3600)); }
+	dec () { j=`jan01 $1`; echo $((j + 365*24*3600 )); }
 
 	d=`jan01 ${1:-%Y}`;
 	dec=`dec ${1:-%Y}`;
+    set +x
 fi
 
 cash=~/.cache/days.$dec
