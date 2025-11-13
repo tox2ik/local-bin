@@ -20,6 +20,6 @@ awk -F: '/model.name/ {
 
 
 mkdir -p ~/Data/dmesg
-dmesg -Lalways | tee ~/Data/dmesg/`hostname`,$ts,$rel,$cpu
+sudo dmesg -Lalways | tee ~/Data/dmesg/`hostname`,$ts,$rel,$cpu
 
 find ~/Data/dmesg/ -type f  | xargs ls -rt | sed 3q

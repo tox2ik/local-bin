@@ -139,6 +139,7 @@ fi
 if ! is_skip; then
 		if ! is_done; then
 				already=$(ctorrent -c "$torr_fil" | tee /tmp/seed-finished | tee "/tmp/check.$torr_fil" | grep Already/Total:)
+ 				chmod 666 /tmp/seed-finished /tmp/check."$torr_fil" || true
 				percent=$(echo $already | grep -o -E '[0-9]+%')
 				if echo $already | grep -qF 100%; then
 						touch "$torr_fin"

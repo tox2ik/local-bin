@@ -1,6 +1,16 @@
-#!/bin/sh
-words=$(
-strings  /usr/lib64/aspell-?.*/no.rws |
+#!/bin/bash
+function dict {
+
+	if [ -f /usr/share/aspell/nb.cwl.gz ]; then
+		zcat \
+			/usr/share/aspell/nn.cwl.gz  \
+			/usr/share/aspell/nb.cwl.gz | strings;
+	elif [ -f "/usr/lib*/aspell*/no.rws" ]; then
+		strings /usr/share/lib*/aspell*/no.rws
+	fi
+}
+
+words=$( dict |
 sort -u | sort -R  |
 tr -d $'\t' | tail -n 3 |
 tr \\n ' ' |
