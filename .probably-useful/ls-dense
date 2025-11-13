@@ -1,16 +1,47 @@
 #!/usr/bin/env bash
 # figure out how many files are in sub-directories of $target
+# output columns
+#
+#	deep-children   immediate-children   subdir
 
-_i=$IFS target=${1:-.};
+target=${1:-.};
+
+_i=$IFS 
 IFS='
 ';
 
-childrens_names=$(find "$target" -maxdepth 1  -mindepth 1 -type d)
+subdirs     () { find "$1" -maxdepth 1 -mindepth 1 -type d; } 
+kids        () { find "$1" -mindepth 1 -maxdepth 1 | wc -l; } 
+descendants () { find "$1" -mindepth 1 | wc -l; }
 
-for i in $childrens_names; do
-	children=$(   find "$i" -maxdepth 1 -mindepth 1 | wc -l)
-	descendants=$(find "$i" -mindepth 1             | wc -l)
-	printf "%6d %6d %s\n" $descendants $children ${i/.\/};
-done | sort -k2n -k1n
+if command -v fd >/dev/null; then
+	subdirs     () { fd '' "$1" -HI --max-depth 1 --min-depth 1 --type d; } 
+	kids        () { fd '' "$1" -HI --min-depth 1 --max-depth 1 | wc -l; } 
+	descendants () { fd '' "$1" -HI --min-depth 1 | wc -l; }
+fi
+
+
+log=~/tmp/ls-dense.log
+truncate -s0 $log
+exec 3>&2
+exec 2> $log
+
+for i in $(subdirs "$target"); do
+	printf "%6d %6d %s\n" \
+		"$(descendants "$i")" \
+		"$(kids "$i")" \
+		${i#./} &
+done \
+| awk '{ t+=$1 ; print } END { printf "%6s %6s total", t, 0 }' \
+| sort  -k1n -k2n
+
+exec 2>&3
+exec 3>&-
+
+printf "%6s %6s %s\n" all child path >&2
+
+[[ -s $log ]] && { wc -l $log | sed 's/ / errors in /'; } >&2
 
 IFS=$_i # resetting IFS here is not strictly necessary
+
+
