@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-#!/bin/busybox sh
+
+onlysec=0
+if [[ $1 == -s ]]; then onlysec=1; shift; fi
+
 now=$(  date +%F                 2>/dev/null || gdate +%F                )
 from=$( date -d "$1" +%s         2>/dev/null || gdate -d "$1" +%s        )
 to=$(   date -d "${2:-$now}" +%s 2>/dev/null || gdate -d "${2:-$now}" +%s)
+
 
 if [[ $from -gt $to ]]; then
 	_f=$to
@@ -13,11 +17,15 @@ fi
 diff=$(( to - from ))
 
 
-echo $diff seconds
-echo $(( diff / 3600 )) hours $(( diff % 3600 / 60 )) mins
-echo $(( diff / 3600 / 24 )) days
+if [[ $onlysec == 1 ]]; then
+	echo $diff
+else
+	echo $diff seconds
+	echo $(( diff / 3600 )) hours $(( diff % 3600 / 60 )) mins
+	echo $(( diff / 3600 / 24 )) days
 
-if type sec2hrs 1>/dev/null 2>&1;
-then
-	sec2hrs ${diff/-/}
+	if which sec2hrs 1>/dev/null 2>&1; then
+		sec2hrs ${diff/-/}
+	fi
+
 fi

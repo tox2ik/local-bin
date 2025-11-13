@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 
-function gbin() { hash g$1 &>/dev/null && echo g$1 || echo $1;  }
+function gbin() {
+		hash g$1 &>/dev/null \
+		&& echo g$1 \
+		|| echo $1;  }
 DATE=`gbin date`
-date() { $DATE "$@"; }
 
-date "$@"
+if [[ $(realpath $DATE) == $(realpath $0) ]]; then
+	/usr/bin/date "$@" \
+	|| /bin/date "$@"
+else
+	date() { $DATE "$@"; }
+	date "$@"
+fi
+
+

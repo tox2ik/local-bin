@@ -28,7 +28,6 @@ search_files() {
     local type=$1
     local extensions=("${!2}")
 
-    #set -x
     eval find "'$search_dir'" -type f \\\( $(printf -- "-iname '*.%s' -o " "${extensions[@]}" ) -false \\\) "$format"
 }
 

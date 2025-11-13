@@ -1,42 +1,28 @@
 #!/usr/bin/env bash
-
 declare -a args=()
-
 if [[ $# -eq 0 ]]; then
 	for i in *.torrent; do
 		bash $0 "$i"
 	done
 	exit
 fi
-
 for i in "$@"; do
 	if [[ -f "$i" ]]; then torr=$i;
 	else args[${#args[@]}]=$i; fi
 done
-
 if ! [[ -f "$torr" ]]; then
 	echo not a file: $torr >&2
 	exit 1
 fi
-
 torr_dir="$(dirname "$torr")"
 torr_fil="$(basename "$torr")"
-
-
 function is_running () { ps -eo comm,cmd | awk '$1 == "ctorrent"' | grep -qF "$torr_fil"; return $?; }
-
 if is_running; then
 	echo skip $torr_fil
 else
 	cd "$torr_dir"
-	if [[ ${#args[@]} -eq 0 ]]; then
-		args=(-dd)
-	fi
-
+	if [[ ${#args[@]} -eq 0 ]]; then args=(-dd); fi
 	args+=(-S ${CTORRENT_CTCS:-127.0.0.7:57777})
-
 	echo ctorrent "'$torr_fil'" "${args[@]}" >&1
 	exec ctorrent  "$torr_fil" "${args[@]}"
 fi
-
-

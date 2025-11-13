@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -eu
 
-if [ $# -eq 0 ] || [[ -d "${1:-}" ]]; then
-	( find-by-type video "${1:-}"; find-by-type audio "${1:-}" ) |
-		parallel --null ffmpeg-duration ::: | awk-sum | xargs -rt sec2hrs
+if [[ $# -eq 0 ]] || [[ -d "${1:-}" ]]; then
+	( find-by-type video "${1:-}"; find-by-type audio "${1:-}" ) \
+		| parallel --null ffmpeg-duration ::: \
+		| awk-sum \
+		| xargs -r sec2hrs
 else
-	ffprobe -v fatal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${1:-input.mp4}"
+		ffprobe -v fatal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${1:-input.mp4}"
 fi
-
