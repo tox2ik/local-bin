@@ -1,5 +1,13 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+path=$(which "$1")
 
-path=`which "$1"`
-#${EDITOR:-vim} "$path"
-cat "$path"
+if [[ $@ =~ -e ]]; then
+	${EDITOR:-vim} "$path"
+else
+	bat \
+		--squeeze-blank \
+		--style plain \
+		"$path" 2>/dev/null \
+	|| cat "$path"
+fi
+
