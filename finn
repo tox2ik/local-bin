@@ -31,8 +31,8 @@ declare -A short=(
 	[-td]=-type\ d
 	[-tf]=-type\ f
 	[-tl]=-type\ l
-	[-n]=-name
-	[-i]=-iname
+	[-n]=-name  # Bug if one of these is passed, use it for all "terms"
+	[-i]=-iname # Bug
 	[-max]=-maxdepth
 	[-min]=-mindepth
 	[-S]=-size
@@ -92,8 +92,12 @@ for i in "$@"; do
 
 done
 
+if [[ ${#path_arguments[@]} -eq 0 ]]; then
+    path_arguments+=( $where )
+fi
 
 if [ $Debug -gt 0 ];then
+	(
 	echo
 	echo Meta: Debug:$Debug Quiet:$Quiet
 	echo Path: "${path_arguments[@]}"
@@ -104,18 +108,22 @@ if [ $Debug -gt 0 ];then
 	done
 	echo F: find  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}"
 	echo
-else
-	#exec
-	declare -a tt=()
-	for i in ${terms[@]}; do
-		tt+=(-iname)
-		tt+=(\*"$i"\*)
-	done
-
-	if [ $Quiet -gt 0 ]; then
-		exec 2>&-
-	fi
-	set -x
-	$FIND  "${path_arguments[@]}"  "${arguments_global[@]}"  "${arguments[@]}" "${tt[@]}"
-		
+	) >&2
 fi
+		
+declare -a tt=()
+for i in ${terms[@]}; do
+	tt+=(-iname)
+	tt+=(\*"$i"\*)
+done
+
+if [ $Quiet -gt 0 ]; then
+	exec 2>&-
+fi
+set -x
+$FIND  \
+	"${path_arguments[@]}" \
+	"${arguments_global[@]}" \
+	"${arguments[@]}" \
+	"${tt[@]}" \
+| sed -e 's,^\./,,'
