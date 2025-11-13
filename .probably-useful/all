@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
+set -eu
+
 if [ -t 0 ]; then
 	echo "$0 wants input on stdin" >&2
 else
 	z=
+	nocase=
 	for i in "$@"; do
-		 z="$z | grep -Ee '$i'"
+		if [[ $i == -i ]]; then
+			nocase=i
+		else
+			z="$z | grep -E${nocase}e '$i'"
+		fi
 	done
-	eval "${z:2}"
+	cmd="${z:2}"
+	if [[ -n $nocase ]]; then
+		cmd=$( echo "${z:2}" | sed "s/-Ee/-E${nocase}e/" )
+	fi
+	eval "${cmd}"
 fi
