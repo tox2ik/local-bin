@@ -1,10 +1,56 @@
 #!/usr/bin/env bash
+usage() {
+local f=$(basename "$0")
+echo "The flags mean;
 
-grep() { command -v ggrep >/dev/null && ggrep --color=auto "$@" || \grep "$@"; } 
+operate on: -fFILE
+set:        -kLHS-KEY
+            -vRHS-VALUE
+            -qQUOTES (-q\", -q', -q<>, -qLR)
+report: --keys 
+         -c cat whole file
+         -g grep for key
+$f …
+… -f /tmp/f -k doge -v WOOF         -> set doge=WOOF
+… -f /tmp/f -k cat -v meow -q \\\\\"   -> set cat=\"meow\"
+… -f /tmp/f -k cow -v moo \"-q'\"     -> set cow='moo'
+… -f /tmp/f 'gg=wp' -q {} -c        -> gg={wp} and cat
+
+If file already exsits, -f can be omitted.
+
+$f …
+… /tmp/f 'urmum={so fat}'          -> yomoma=\\{so fat\\}
+… /tmp/f if_re_load=  -v YES '-q\"' -> set if_re_load=\"YES\"
+
+Shorthands are allowed as shown below.
+
+… /tmp/f -k gg -g  -> grep for gg in /tmp/f
+… /tmp/f -g gg=    -> grep for gg in /tmp/f
+… /tmp/f gg= -g    -> grep for gg in /tmp/f
+… /tmp/f -c        -> bat or cat /tmp/f
+
+Instead of -k RHS and -v LHS, you can use LHS=RHS
+
+… /tmp/f hw.snd.foo=em -qME   -> set    hw.snd.foo=MemE
+… /tmp/f hw.snd.foo=maybe -d  -> delete hw.snd.foo
+
+
+The $f script tries to guess how to handle all these cases.
+A @ can be used to see what it guessed.
+"; | sed -n -e '
+
+
+p
+
+';}
+
+[[ $# -eq 0 ]] && { usage ; exit ; }
+
+grep() { command -v ggrep >/dev/null && ggrep --color=auto "$@" || command grep "$@"; }
 err() { echo error: "$@" >&2; }
 wrn() { echo warn: "$@" >&2; }
-catfile() { bat -A ${flags[-f]} 2>/dev/null || cat -v ${flags[-f]}; } 
-grepfile () { grep -n -e "^${flags[-k]}" "${flags[-f]}"; } 
+catfile() { bat --style plain ${flags[-f]} 2>/dev/null || cat ${flags[-f]}; }
+grepfile () { grep -n -e "^${flags[-k]}" "${flags[-f]}"; }
 
 declare -a all=( "$@" )
 declare -a arguments=()
@@ -12,7 +58,7 @@ declare -a files=()
 declare -A flags=()
 #declare -a longs=()
 
-reset_args() { all=( "${arguments[@]}" ); arguments=( ); } 
+reset_args() { all=( "${arguments[@]}" ); arguments=( ); }
 
 function opt-extract-flag()  {
     local opt="$1" n=1 nn= skip= f= i=
@@ -35,20 +81,23 @@ opt-extract-files() {
     done
 }
 
-show_flags() { for i in ${!flags[@]}; do echo flag-value $i = ${flags[$i]}; done; }
-show_all() { 
+show_all() {
     {
     ec=$?
-    if [[  $ec -ne 0 ]]; then
-        show_flags;
+    if [[  $ec -ne 0 ]] || [[ -n $@ ]]; then
+        [[ -n $del ]] && echo del $del;
+        [[ -n $vimEC ]] && echo vim $vimEC;
         [[ -n ${all[@]} ]] && printf 'all - %s\n' ${all[@]};
         [[ -n ${files[@]} ]] && printf 'files - %s\n' ${files[@]};
         [[ -n ${longs[@]} ]] && printf 'long %s\n' ${longs[@]};
-        [[ -n $del ]] && echo del $del;
+        for i in ${!flags[@]}; do echo flag $i = ${flags[$i]}; done;
     fi
     } | sed s/^/debug:\ /
 }
 
+###
+###
+###
 
 opt-extract-flag -f "${all[@]}"; reset_args
 opt-extract-flag -k "${all[@]}"; reset_args
@@ -57,13 +106,21 @@ opt-extract-flag -q "${all[@]}"; reset_args
 opt-extract-flag -d "${all[@]}"; reset_args
 opt-extract-files "${all[@]}"; reset_args
 
-for i in ${all[@]}; do
+for i in "${all[@]}"; do
     # if [[ $i =~ .+=.+ ]]; then
-    if [[ $i =~ .+= ]]; then
+    if [[ $i =~ .+=.+ ]]; then
         k=${i%%=*}
         v=${i#*=}
         flags+=([-k]=$k)
         flags+=([-v]=$v)
+        continue
+    fi
+
+    if [[ $i =~ .+=$ ]]; then
+        k=${i%%=*}
+        #v=${i#*=}
+        flags+=([-k]=$k)
+        #flags+=([-v]=$v)
         continue
     fi
     arguments+=("$i");
@@ -74,72 +131,118 @@ set -Ee
 set -o errtrace
 trap show_all EXIT
 
-set +x
-
-[[ -z ${flags[-f]} ]] && { 
+[[ -z ${flags[-f]} ]] && {
     for f in ${files[@]}; do :; done
-    # [[ -n $f ]] || { err need -f /foo/bar.conf; false; } 
-    [[ -n $f ]] || { err need -f /foo/bar.conf; exit 22; } 
+    [[ -n $f ]] || {
+        err need -f /foo/bar.conf;
+        exit 22; }
     flags+=([-f]=$f)
 }
- 
+
+[[ ${flags[-d]+_} ]] && del=yes # isset?
+
 [[ -z ${flags[-d]} ]] && {
-    # -d has no value
-    [[ -z ${flags[-k]} ]] && ! [[ ${all[@]} =~ -c ]] && { 
-        err missing -k option-name ; exit 1; } 
-    [[ ${#all[@]} -eq 1 ]] && ! [[ ${all[@]} =~ ^- ]] && { 
+    # not delete, so probably set
+    : \
+    && [[ -z ${flags[-k]} ]] \
+    && [[ ! ${all[@]} =~ -?-?keys ]] \
+	&& [[ ! ${all[@]} =~ (-c|cat) ]] \
+    && {
+        err missing -k option-name;
+        exit 23; }
+
+    : \
+    && [[ ${#all[@]} -eq 1 ]] \
+    && [[ ! ${all[@]} =~ ^- ]] \
+    && [[ -z ${flags[-f]} ]] && {
         wrn using -v=${all[0]};
         flags+=(['-v']=${all[0]}); }
 
-    [[ ${all[@]} =~ del ]] && del=yes
-
-    [[ -z ${flags[-v]} ]] && \
-        ! [[ ${all[@]} =~ del ]] && \
-        ! [[ ${all[@]} =~ (-c|cat) ]] && \
-        ! [[ ${all[@]} =~ (-g|grep) ]] && \
-        { err -v needs a value; exit 1; } 
-
-    # [[ -z ${flags[-v]} ]] && { err need -v value; exit 1; } 
+    : \
+    && [[ -z ${flags[-v]} ]] \
+    && [[ ! ${all[@]} =~ (-d|del) ]] \
+    && [[ ! ${all[@]} =~ (-c|cat) ]] \
+    && [[ ! ${all[@]} =~ (-g|grep) ]] \
+    && [[ ! ${all[@]} =~ -?-?keys ]] \
+    && [[ -z ${flags[-k]} ]] \
+    && {
+        err -v needs a value;
+        exit 24; }
 }
 
-[[ ${flags[-d]+_} ]] && del=yes # check if key is set.
 
-[[ -n ${flags[-k]}  ]] && [[ -n ${flags[-d]} ]] && { 
-    show_flags
-    err -k and -d: either sets the key, not both; exit 1; }
-
+[[ -n ${flags[-k]}  ]] && [[ -n ${flags[-d]} ]] && {
+    err -k and -d: either sets the key, not both;
+    exit 25; }
 
 v=${flags[-v]}; v=$(printf '%q' "$v")
 k=${flags[-k]}; k=$(printf '%q' "$k")
 q=${flags[-q]};
 f=${flags[-f]};
 
-[[ ${#q} -gt 2 ]] && { echo -q: 1-2 chars is enough for quotes. got:$q; exit 1; }
-[[ -z $q ]] && q=0 # quotes=0 is treated as ""
+# quotes
+[[ ${#q} -gt 2 ]] && {
+    echo -q: 1-2 chars is enough for quotes. got:$q;
+    exit 26; }
+
+[[ -z $q ]] && q=0 # SetOption(…,…,q,…)  treats 0 as ""
 
 
-[[ -z $k ]] || [[ $k == "''" ]] && [[ -n $f ]] && [[ ${all[@]} =~ (-c|cat) ]] && {
-    catfile; exit; }
+# preview
+[[ -z $k ]] || [[ $k == "''" ]] && [[ -n $f ]] && {
+    [[ ${all[@]} =~ (-c|cat) ]] && { catfile; exit; }
+    [[ ${all[@]} =~ (-g|grep) ]] && { grepfile; exit; } }
+[[ -z $v ]] || [[ $v == "''" ]] && [[ -n $f ]] && {
+    [[ ${all[@]} =~ (-c|cat) ]] && { catfile; exit; }
+    [[ ${all[@]} =~ (-g|grep) ]] && { grepfile; exit; } }
 
-# echo from vim: -e
-#       no echo: -es 
-vim_silent=-e 
-vim_silent=-e\ -V
-vim_silent=-es
+
+if [[ ${all[@]} =~ -V ]]; then
+    vim_ex=-e\ -V # verbose
+else
+    vim_ex=-es
+fi
 vim_clean='-i NONE -U NONE -u NONE -X'
 
-set +x
-
-vim $vim_silent $vim_clean \
-    "+exe 'source '.findfile('set-conf-option.vim', expand('~/.vim/plugin'))" \
-    "+edit ${flags[-f]}" \
-    "+SetOption $k $v $q $del" \
-    "+:wq";
-
-: vim EC $?
+if [[ $@ =~ @ ]]; then
+    show_all
+    set -x
+fi
 
 
+: \
+|| [[ -z ${flags[-k]} ]] \
+|| [[ ${all[@]} =~ -?-?keys ]] && {
+	# try and list keys
+	grep -i -e = "$f" \
+	| grep -o -iE '(my|set|let|var)*\s*[a-zA-Z0-9_\.\s-]+=' \
+	| sed -Ee 's/^(my|set|let|var) //; 
+				s/^[[:space:]]+//g;
+				s/=$//; ' \
+	| awk '!_[$0]++ {print}'
+    exit $?
+}
 
+if false
+	: set-line
+
+else
+    vim $vim_ex $vim_clean \
+        "+exe 'source '.findfile('set-conf-option.vim', expand('~/.vim/plugin'))" \
+        "+edit $f" \
+        "+SetOption $k $v $q $del" \
+        "+wq";
+fi
+
+vimEC=$?
+
+: vim EC $vimEC
+
+# set -x
+
+#[[ ${all[@]} =~ @ ]] && show_all 1 || :
 [[ ${all[@]} =~ (-g|grep) ]] && grepfile  || :
 [[ ${all[@]} =~ (-c|cat)  ]] && catfile || :
+
+
 
