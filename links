@@ -1,24 +1,14 @@
 #!/usr/bin/env bash
+#realpath "$1" --relative-to=$where ||
 
-frm() { {
-	if test -e "$1"; then
-		echo $1;
-	else
-		echo "## $1";
-	fi
-} 2>/dev/null; }
-
-to() { {
-	#realpath "$1" --relative-to=$where ||
-	readlink "$where/$1" || echo "[$1>>]";
-} 2>/dev/null; }
-
+frm() { { test -e "$1" && echo $1 || echo "## $1";  } 2>/dev/null; }
+to() { { readlink "$where/$1"     || echo "[$1>>]"; } 2>/dev/null; }
 
 export -f frm to
 export where=${1:-.}
 
-#ft .VirtualBox
-find $where -maxdepth 1 -mindepth 1  -type l -printf "%P\n" \
+find $where -maxdepth 1 -mindepth 1 -type l  \
+	| sed s:^\./:: \
 	| xargs -P0 -I% bash -c 'echo $(frm %)^$(to %)' \
 	| column -ts^
 
