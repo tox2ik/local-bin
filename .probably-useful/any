@@ -2,10 +2,19 @@
 set -eu
 if [ -t 0 ]; then
 	echo "$0 wants input on stdin" >&2
+
 else
-	args=
+    declare -a opt=()
+
+    # set -x
 	for i in "$@"; do
-		args="$args -e $i"
+        : $i
+        if [[ $i =~ ^-(A|B|C)[0-9]+ ]]; then
+            opt+=( "$i" )
+        else
+            opt+=( -e "$i" )
+        fi
 	done
-	exec grep -iaE $args
+
+	exec grep -iaE ${opt[@]}
 fi
