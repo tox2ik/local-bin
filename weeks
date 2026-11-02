@@ -1,58 +1,28 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2046
+# List the weeks (%W, Monday first) of the current year: first - last day, month.
+# Week 00 (days before the first Monday) is shown as 52, last year's week.
+# Output is cached in ~/.cache/weeks.<year>.
 
-function gbin() { hash g$1 &>/dev/null && echo g$1 || echo $1;  }
-DATE=`gbin date`
-date() { $DATE "$@"; }
+hash gdate &>/dev/null && DATE=gdate || DATE=date
 
-declare -A wd_min=() wd_max=() r_mon=() r_day=()
-declare -A monname=(
-[01]=January [02]=February [03]=March [04]=April [05]=May [06]=June
-[07]=July [08]=August [09]=September [10]=October [11]=November [12]=December)
+printf -v Y '%(%Y)T' -1
+cache=~/.cache/weeks.$Y
+[[ -s $cache ]] && exec cat "$cache"
 
-Y=`date +%Y`
-nY=$(( Y + 1 ))
-jan_01    () { date +%s -d `date +%Y-01-01`; }
-jan_01_ny () { date +%s -d `date +$nY-01-01`; }
+# ~/.cache may be a symlink to a folder that does not exist yet
+mkdir -p ~/.cache 2>/dev/null || mkdir -p "$(readlink ~/.cache)"
 
-last_date=`jan_01_ny`;
-if [[ ! `date -d @$last_date` =~ $nY ]]; then
-	echo bug: wrong year in december 3x
-	exit 1
-fi
-
-set -e
-d=`jan_01`
-while [ $d -lt $last_date ]; do
-	set -- `date -d@$d '+%W %d %m %Y'`
-	#echo W: $1 xx D: $2 M: $3 Y: $4
-	week=$1 day=$2 mon=$3
-	mday=${mon#0}$day
-	if [[ -z ${wd_min[$week]} ]] || [[ $mday -lt ${wd_min[$week]} ]]; then wd_min[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi
-	if [[ -z ${wd_max[$week]} ]] || [[ $mday -gt ${wd_max[$week]} ]]; then wd_max[$week]=$mday; r_mon[$mday]=$mon; r_day[$mday]=$day; fi
-	d=$(( d + 24 * 3600 ))
-done
-
-[[ -d ~/.cache ]] || mkdir -p $(readlink ~/.cache)
-
-cash=~/.cache/weeks.$last_date
-if [[ -f $cash ]]; then save() { : ;}; cat $cash; exit 0;
-else save() { tee $cash; }; fi
-
-
-for i in {00..53}; do
-	min=${wd_min[$i]}
-	max=${wd_max[$i]}
-
-	if [[ -n $min ]]; then minr=${r_day[$min]}; fi
-	if [[ -n $max ]]; then maxr=${r_day[$max]}; fi
-
-	if [[ -n $min ]] && [[ -n $max ]]; then
-		m=${r_mon[$min]}
-		mn=${monname[$m]}
-		if [[ $m == 01 ]] && [[ $i == 00 ]]; then
-			i=52
-		fi
-		echo $Y-$m w $i : $minr - $maxr ${mn,,}
-	fi
-done | save
+# One date call for all days: "<year> <week> <month> <day>" per line
+for i in {0..365}; do echo "$Y-01-01 + $i days"; done |
+$DATE -f - '+%Y %W %m %d' |
+awk -v Y="$Y" '
+	$1 != Y { next }                      # day 366 in a non-leap year
+	!($2 in first) { first[$2] = $4; mon[$2] = $3; order[++n] = $2 }
+	{ last[$2] = $4 }
+	END {
+		split("january february march april may june july august september october november december", name)
+		for (k = 1; k <= n; k++) {
+			w = order[k]; m = mon[w]
+			printf "%s-%s w %s : %s - %s %s\n", Y, m, (w == "00" ? 52 : w), first[w], last[w], name[m + 0]
+		}
+	}' | tee "$cache.tmp" && mv "$cache.tmp" "$cache"
