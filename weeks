@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
-# List the weeks (%W, Monday first) of the current year: first - last day, month.
+# List the weeks (%W, Monday first) of a year: first - last day, month.
+# Usage: weeks [year]   (default: current year)
 # Week 00 (days before the first Monday) is shown as 52, last year's week.
 # Output is cached in ~/.cache/weeks.<year>.
 
 hash gdate &>/dev/null && DATE=gdate || DATE=date
 
-printf -v Y '%(%Y)T' -1
+if [[ $1 ]]; then
+	[[ $1 =~ ^[0-9]{4}$ ]] || { echo "usage: ${0##*/} [year]" >&2; exit 2; }
+	Y=$1
+else
+	printf -v Y '%(%Y)T' -1
+fi
 cache=~/.cache/weeks.$Y
 [[ -s $cache ]] && exec cat "$cache"
 
