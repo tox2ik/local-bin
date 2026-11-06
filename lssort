@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+
 # lssort lists files in a folder in a structured way, usually
 # taking less space for the output than normal ls would.
 #
@@ -11,161 +11,79 @@
 # - lists files after folders like windoze explorer
 #   now also possible with: ls --group-directories-first
 #
-# bugs:
-#    - <> in filename
-#    - device files are missing
+# ## updates:
+# ### fri 2026-11-06
+# One find per folder, sorted into groups in bash, one ls per group.
 #
-# files named e.g -l (valid parameters)
-#
-
-function trim {
-    local var="$*"
-	#$ var="  hello space    "
-	#$ echo "<<${var%%[![:space:]]*}>>"
-	#$ <<  >>
-
-    var="${var#"${var%%[![:space:]]*}"}" # rm leading whitespace characters
-    var="${var%"${var##*[![:space:]]}"}" # rm trailing whitespace characters
-
-    var="${var#"${var%%[![\\0]*}"}" # rm leading nulls characters
-    var="${var%"${var##*[![\\0]}"}" # rm trailing nulls characters
-    echo -n "$var"
-}
-
-function arrayContains {
-	# remove the shortest needle from array and compare lengths
-	# needs more testing...
-	declare -a array
-	declare -a arrayLess
-	declare needle
-	array=( "${!1}" ); shift 		# expand the passed array name
-	needle="$*"						# try to match the rest as a string
-	arrayLess=( `trim "${array[@]#${needle}}"` )	# remove value $needle
-	if [ ${#array[@]} -eq 0 ];then 					return 1 ;fi
-	if [ ${#array[@]} -eq ${#arrayLess[@]} ];then	return 1 ;fi
-	if [ ${#array[@]} -lt ${#arrayLess[@]} ];then	return 1 ;fi
-	return 0
-}
-
-# d dir f file p named pipe (FIFO) l sylink s socket D door (Solaris)
-# c character (unbuffered) special b block (buffered) special
-
-# mindepth 1 excludes the . directory
-# -depth causes depth-first traversal
-function finddirs_ { $FIND "$@" -mindepth 1 -maxdepth 1 -depth -type d      -name '_*' -printf '%f\0'; }
-function finddirs  { $FIND "$@" -mindepth 1 -maxdepth 1 -depth -type d -not -name '_*' -printf '%f\0'; }
-function findfiles { $FIND "$@" -maxdepth 1             -depth -type f                 -printf '%f\0'; }
-
-function findspecials {
-	$FIND "$@" \
-		-maxdepth 1 -depth \( -type l   -o -type p  -o -type s -o -type b -o -type c \) \
-		-printf "%f\0"
-}
-
-function filter_out_hidden {
-	local notdots='^\..*'
-	# show hidden files after all if called like `lssort -[aA]`
-	if [[ $LSSWITCHES =~ -[aA] ]]; then
-		notdots='/x/123/tt/7/1/zzx/ooo/'
-	fi
-	$GREP -zv -e "$notdots" \
-		-e '^System Volume Information$' \
-		-e '\$RECYCLE\.BIN' \
-		-e '/c/Users/jazzo/bin/lssort' \
-		-e ^NTUSER.DAT
-}
-
-##
-## vars and such
-##
-# shellcheck disable=SC2034
-validswitches=(-X -l -r -t -C -F -1 -a -A -d -s -v)
-PATHS=()
-FPATHS=""
-LSSWITCHES="-v"
-
 
 LS=ls
-GREP=grep
-FIND=find
-
-[[ -f /usr/local/bin/find ]]  && GREP=/usr/local/bin/find
-[[ -f /usr/local/bin/grep ]]  && GREP=/usr/local/bin/grep
-[[ -f /usr/local/bin/ls   ]]  &&   LS=/usr/local/bin/ls
-
-GNUBIN=/Users/`whoami`/opt/grep/libexec/gnubin # os x brew
-
-[[ -f $GNUBIN/ls   ]] && LS=$GNUBIN/ls
-[[ -f $GNUBIN/grep ]] && GREP=$GNUBIN/grep
-[[ -f $GNUBIN/find ]] && FIND=$GNUBIN/find
-
-function hasbin() { hash "$1" &>/dev/null; }
-
-hasbin gls   && LS=gls
-hasbin ggrep && GREP=ggrep
-hasbin gfind && FIND=gfind
-
-LS="$LS --color=auto"
-
-ARG=$1
-ARGC=0
-while [ "$ARG" != "" ];
-do
-	if arrayContains validswitches[@] $ARG;
-	then
-		LSSWITCHES="$LSSWITCHES $ARG"
-		unset ARG
-	fi
-
-	if [ -d "$ARG" ];then
-		#PATHS="${PATHS} $ARG"
-		#shellcheck disable=SC2004
-		PATHS[$ARGC]=$ARG
-		let ARGC=ARGC+1
-	else
-		FPATHS="$FPATHS\0$ARG"
-	fi
-	shift
-	ARG=$1
+for c in gls "/Users/$USER/opt/coreutils/libexec/gnubin/ls"; do
+	command -v "$c" &>/dev/null && { LS=$c; break; }
 done
 
-#PATHS=`trim $PATHS`
-FPATHS=`trim "$FPATHS"`
+# ls switches lssort passes on; they can be combined, e.g. -la
+validswitches=(-X -l -r -t -C -F -1 -a -A -d -s -v -h -S)
+validletters=$(IFS=; echo "${validswitches[*]//-/}")  # "XlrtCF1aAdsvhS"
 
-if [ ${#FPATHS} -eq 0 ]; then
-	if [ ${#PATHS[@]} -eq 0 ]; then
-		PATHS=(".")
-	fi
-fi
-for arg in "${PATHS[@]}";
-do
-	if [[ ${#arg} -eq 1 && "$arg" == "/" ]];then
-		p=/
+switches=(-v)
+dirs=()
+others=()
+showhidden=
+
+for arg in "$@"; do
+	if [[ -e $arg || -L $arg ]]; then  # an existing path wins over a switch
+		if [[ -d $arg ]]; then dirs+=("$arg"); else others+=("$arg"); fi
+	elif [[ $arg == -?* && ${arg:1} != *[!$validletters]* ]]; then
+		switches+=("$arg")  # single or combined, e.g. -l or -la
+		[[ $arg == -*[aA]* ]] && showhidden=1
 	else
-		#p=${arg%%/}
-		p=$arg
+		others+=("$arg")    # let ls report it as missing
 	fi
+done
 
-	# shellcheck disable=SC2119
-	( cd "$p"
+(( ${#dirs[@]} + ${#others[@]} == 0 )) && dirs=(.)
 
-		#export LC_COLLATE="C"
+lsgroup() { (( $# )) || return 0; $LS --color=auto "${switches[@]}" -d -- "$@"; }
 
-		if [[ "$p" != "." && "$p" != "./" ]];then echo "$p": ;fi
+FIND=find; command -v gfind &>/dev/null && FIND=gfind
+GREP=grep; command -v ggrep &>/dev/null && GREP=ggrep
 
-		[[ -n $DEBUG ]] && v=-t
-		#[[ -n $DEBUG ]] && set -x
+# Entries look like "<type letter>/<name>", so patterns start with ^./
+# Hides dotfiles and Windows clutter unless -a or -A was given.
+function filter_out_hidden {
+	if [[ -n $showhidden ]]; then cat; return; fi
+	$GREP -zv \
+		-e '^./\.' \
+		-e '^./System Volume Information$' \
+		-e '^./$RECYCLE\.BIN$' \
+		-e '^./NTUSER\.DAT' \
+		-e '^./ntuser\.dat' \
+		-e '^./ntuser\.ini$'
+}
 
-		findspecials | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
-		finddirs_    | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
-		finddirs     | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES -d --
-		findfiles    | filter_out_hidden | xargs $v -r0 $LS $LSSWITCHES    --
-		[ ${#PATHS[@]} -gt 1 ] && echo
+for p in "${dirs[@]}"; do
+	(
+		cd -- "$p" || exit
+		[[ $p != . && $p != ./ ]] && echo "$p:"
+
+		# one find: each entry comes back as <type letter>/<name>, e.g. "d/sub"
+		mapfile -d '' entries < <($FIND . -mindepth 1 -maxdepth 1 -printf '%y/%f\0' | filter_out_hidden)
+		special=() under=() dir=() file=()
+		for e in "${entries[@]}"; do
+			t=${e:0:1} e=${e:2}
+			case $t in
+				d) if [[ $e == _* ]]; then under+=("$e"); else dir+=("$e"); fi ;;
+				f) file+=("$e") ;;
+				*) special+=("$e") ;;  # symlink, pipe, socket, device
+			esac
+		done
+
+		lsgroup "${special[@]}"
+		lsgroup "${under[@]}"
+		lsgroup "${dir[@]}"
+		lsgroup "${file[@]}"
+		(( ${#dirs[@]} > 1 )) && echo
 	)
 done
 
-if [ -n "$FPATHS" ]; then
-
-	echo -ne "$FPATHS\0" | xargs $v -0 -r $LS $LSSWITCHES --
-fi
-
+lsgroup "${others[@]}"
