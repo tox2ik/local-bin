@@ -2,4 +2,5 @@
 google-chrome-stable "$@" ||
 	google-chrome-beta "$@" ||
 	chromium-browser "$@" ||
-	chromium "$@"
+	chromium "$@" ||
+	/c/Program\ Files/Google/Chrome/Application/chrome.exe "$@"

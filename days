@@ -1,35 +1,30 @@
 #!/usr/bin/env bash
+# List the days of a year, or of a range: "<doy> <date> <month> <iso week> <weekday> " per line.
+# Usage: days [year]       (default: current year)
+#        days FROM TO      FROM inclusive, TO exclusive; a bare year means YYYY-01-01
+# Output is cached in ~/.cache/days.<from>.<to>.
 
+hash gdate &>/dev/null && DATE=gdate || DATE=date
+usage() { echo "usage: ${0##*/} [year] | FROM TO" >&2; exit 2; }
+day() { [[ $1 =~ ^[0-9]{4}$ ]] && echo "$1-01-01" || $DATE -d "$1" +%F 2>/dev/null || usage; }
 
-function gbin() { hash g$1 &>/dev/null && echo g$1 || echo $1;  }
-DATE=`gbin date`
-date() { $DATE "$@"; }
+case $# in
+	0) printf -v Y '%(%Y)T' -1; from=$Y-01-01; to=$((Y + 1))-01-01 ;;
+	1) [[ $1 =~ ^[0-9]{4}$ ]] || usage; from=$1-01-01; to=$(($1 + 1))-01-01 ;;
+	2) from=$(day "$1") && to=$(day "$2") || exit 2 ;;
+	*) usage ;;
+esac
 
-if [[ $# -eq 2 ]]; then
-	yFrom=$1
-	yTo=$1
-	if [[ ${#1} -eq 4 ]]; then yFrom=$1-01-01; fi
-	if [[ ${#2} -eq 4 ]]; then yTo=$2-01-01; fi
-	d=$( date +%s -d "$yFrom")
-	dec=$( date +%s -d "$yTo")
-else
+cache=~/.cache/days.$from.$to
+[[ -s $cache ]] && exec cat "$cache"
 
-    set -x
-	jan01 () { date +%s -d `date +${1:-%Y}-01-01`; }
-	dec () { j=`jan01 $1`; echo $((j + 365*24*3600 )); }
+# ~/.cache may be a symlink to a folder that does not exist yet
+mkdir -p ~/.cache 2>/dev/null || mkdir -p "$(readlink ~/.cache)"
 
-	d=`jan01 ${1:-%Y}`;
-	dec=`dec ${1:-%Y}`;
-    set +x
-fi
+# Day count from UTC epochs, so DST cannot skip or repeat a day
+n=$(( ($($DATE -u -d "$to" +%s) - $($DATE -u -d "$from" +%s)) / 86400 ))
+(( n > 0 )) || exit 0
 
-cash=~/.cache/days.$dec
-if [[ -f $cash ]]; then save() { : ;}; cat $cash; exit 0;
-else save() { tee $cash; }; fi
-
-
-while [ $d -lt $dec ];do
-	date '+%j %Y-%m-%d %B %V %A ' -d@$d;
-	let d=$d+86400;
-done | save
-
+# One date call for all days
+for ((i = 0; i < n; i++)); do echo "$from + $i days"; done |
+$DATE -f - '+%j %Y-%m-%d %B %V %A ' | tee "$cache.tmp" && mv "$cache.tmp" "$cache"
